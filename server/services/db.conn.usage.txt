@@ -1,0 +1,126 @@
+Absolutely! Here's a breakdown of every method in your MySQL2-based DB class, with detailed explanations and usage examples for each:
+
+✅ constructor()
+Initializes a MySQL connection pool using mysql2/promise.
+
+Why Pooling?
+Reuses existing connections (faster).
+
+Efficient for concurrent requests.
+
+Auto-manages connection limits.
+
+✅ query(sql, params = [])
+Executes any raw SQL query using this.pool.execute.
+
+📌 Example:
+js
+ 
+ 
+const result = await db.query('SELECT * FROM users WHERE status = ?', ['active']);
+console.log(result.data); // Array of matching rows
+✅ querySingle(sql, params = [])
+Same as query, but returns only one row (result.data[0] || null).
+
+📌 Example:
+js
+ 
+ 
+const result = await db.querySingle('SELECT * FROM users WHERE id = ?', [1]);
+console.log(result.data); // Single user object or null
+✅ insert(table, data)
+Inserts one record into a table.
+
+📌 Example:
+js
+ 
+ 
+await db.insert('users', {
+  name: 'John Doe',
+  email: 'john@example.com',
+  status: 'active'
+});
+SQL Output:
+sql
+ 
+ 
+INSERT INTO users (name, email, status) VALUES (?, ?, ?)
+✅ insertBatch(table, data[])
+Inserts multiple records into a table in one query.
+
+📌 Example:
+js
+ 
+ 
+await db.insertBatch('users', [
+  { name: 'Alice', email: 'a@example.com' },
+  { name: 'Bob', email: 'b@example.com' }
+]);
+✅ update(table, data, where)
+Updates a record in a table based on where clause.
+
+📌 Example:
+js
+ 
+ 
+await db.update('users', { name: 'Updated User' }, { id: 1 });
+SQL Output:
+sql
+ 
+ 
+UPDATE users SET name = ? WHERE id = ?
+✅ select(table, where = {})
+Fetches all matching records with optional where filters.
+
+📌 Example:
+js
+ 
+ 
+await db.select('users', { status: 'active' });
+SQL Output:
+sql
+ 
+ 
+SELECT * FROM users WHERE status = ?
+✅ delete(table, where)
+Deletes records matching the where clause.
+
+📌 Example:
+js
+ 
+ 
+await db.delete('users', { id: 3 });
+SQL Output:
+sql
+ 
+ 
+DELETE FROM users WHERE id = ?
+✅ getSingleRow(table, where)
+Shortcut for getting a single row from a table using conditions.
+
+📌 Example:
+js
+ 
+ 
+await db.getSingleRow('users', { email: 'john@example.com' });
+Equivalent to:
+
+js
+ 
+ 
+SELECT * FROM users WHERE email = ? LIMIT 1
+✅ getWhereClause(where)
+Private method to build a WHERE clause string from a JS object.
+
+📌 Example:
+js
+ 
+ 
+getWhereClause({ id: 1, status: 'active' });
+// returns: "WHERE id = ? AND status = ?"
+🛠️ Additional Notes:
+All queries are parameterized using ? to prevent SQL injection.
+
+Everything uses async/await and try/catch internally for proper error handling.
+
+You can extend this class easily with JOINs, LIKE, pagination, etc.

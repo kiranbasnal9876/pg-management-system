@@ -1,0 +1,44 @@
+import db from '../db/DB.js';
+
+class UserModel {
+  // Get all active users
+  async getActiveUsers() {
+    return await db.select('users', { status: 'active' });
+  }
+
+  // Get single user by ID
+  async getUserById(id) {
+    return await db.getSingleRow('users', { id });
+  }
+
+  // Add a new user
+  async addUser(data) {
+    return await db.insert('users', data);
+  }
+
+  // Update user info
+  async updateUser(id, data) {
+    return await db.update('users', data, { id });
+  }
+
+  // Delete a user
+  async deleteUser(id) {
+    return await db.delete('users', { id });
+  }
+
+  // Search users by name (using LIKE)
+  async searchUsersByName(name) {
+    const sql = `SELECT * FROM users WHERE name LIKE ?`;
+    return await db.query(sql, [`%${name}%`]);
+  }
+
+  // Paginate users (page size = 10)
+  async getUsersPaginated(page = 1) {
+    const limit = 10;
+    const offset = (page - 1) * limit;
+    const sql = `SELECT * FROM users LIMIT ? OFFSET ?`;
+    return await db.query(sql, [limit, offset]);
+  }
+}
+
+export default new UserModel();
