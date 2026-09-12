@@ -1,193 +1,229 @@
-<div class="client-wrapper w-100 h-100 position-relative">
+<div class="app-page-container">
 
-    <div class="add-filter-container d-flex justify-content-end gap-2 position-relative mb-2">
-        <button class="btn btn-sm btn-xsm btn-warning" (click)="filterOption = !filterOption"><i
-                class="bi bi-funnel"></i> Filter</button>
-        <button class="btn btn-sm btn-xsm btn-primary" (click)="openaddRoomForm()" data-bs-toggle="modal"
-            data-bs-target="#exampleModal"><i class="bi bi-people"></i> Add room</button>
+    <!-- Common Page Header -->
+    <div class="app-page-header">
+        <div class="app-page-title-group">
+            <h2 class="app-page-title">
+                <i class="bi bi-door-open-fill"></i>
+                Rooms Management
+            </h2>
+            <p class="app-page-subtitle">Configure room numbers, sharing capacities, and occupancy states</p>
+        </div>
+        <div class="app-page-actions">
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="filterOption = !filterOption">
+                <i class="bi bi-funnel"></i>
+                <span>Filter</span>
+                @if (filterOption) {
+                    <span class="badge bg-primary ms-1">Active</span>
+                }
+            </button>
+            <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="openaddRoomForm()" data-bs-toggle="modal"
+                data-bs-target="#exampleModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Add Room</span>
+            </button>
+        </div>
     </div>
 
+    <!-- Filter Card -->
+    <div class="app-filter-card" [ngClass]="filterOption ? '' : 'd-none'">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+            <span class="fs-12 fw-bold text-heading d-flex align-items-center gap-1">
+                <i class="bi bi-sliders"></i> Filter Rooms
+            </span>
+            <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
+        </div>
 
-    <!-- Filter  -->
-
-    <div class="filter-conatiner card-theme-color rounded m-0 p-0 mb-2" [ngClass]="filterOption ? '' : 'd-none' ">
-        <form [formGroup]="filterForm" class="row mx-0 p-0 " (submit)="getTable()">
-
-            <div class="mb-2 col-md-2">
-                <label for="propertyNameId" class="form-label fs-10">Property name</label>
-                <select formControlName="pg_name" class="form-select form-select-sm" >
-                    <option value="">--select pg--</option>
-                    @for(items of property_data ; track $index){
-                        <option value="{{items.name}}" >{{items.name}}</option>
+        <form [formGroup]="filterForm" class="row g-2 align-items-end" (submit)="getTable()">
+            <div class="col-xl-3 col-md-3 col-sm-6">
+                <label class="form-label">Property Name</label>
+                <select formControlName="pg_name" class="form-select form-select-sm">
+                    <option value="">-- All Properties --</option>
+                    @for(items of property_data; track $index){
+                        <option value="{{items.name}}">{{items.name}}</option>
                     }@empty{
-                        <option value="">no pg found</option>
+                        <option value="">No PG found</option>
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="roomNumberId" class="form-label fs-10" >Room number</label>
-                <input type="text" id="roomNumberId" class="form-control form-control-sm " formControlName="room_number"
-                    placeholder="Enter room number">
+
+            <div class="col-xl-3 col-md-3 col-sm-6">
+                <label class="form-label">Room Number</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-door-closed"></i></span>
+                    <input type="text" class="form-control form-control-sm" formControlName="room_number" placeholder="e.g. 101, 202">
+                </div>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="roomSharingId" class="form-label fs-10">Sharing</label>
-                <input type="text" id="roomSharingId" class="form-control form-control-sm " formControlName="type"
-                    placeholder="i.e 1, 2, 3">
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Sharing Type</label>
+                <input type="text" class="form-control form-control-sm" formControlName="type" placeholder="e.g. 1, 2, 3">
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="statusId" class="form-label fs-10">Status</label>
-                <select class="form-select form-select-sm" id="statusId" formControlName="status">
-                    <option value="">select</option>
-                    <option selected value="1">Active</option>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Status</label>
+                <select class="form-select form-select-sm" formControlName="status">
+                    <option value="">All Statuses</option>
+                    <option value="1">Active</option>
                     <option value="0">Inactive</option>
                 </select>
             </div>
-            <div class=" col-md-3 d-flex gap-2 mt-4">
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success"><i
-                        class="bi bi-search"></i> search</button>
-                <button type="button" class="my-btn-size danger " (click)="resetFilterForm()"><i class="bi bi-x"></i>
-                    reset</button>
-            </div>
 
+            <div class="col-xl-2 col-md-12 d-flex gap-2">
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success flex-grow-1">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                <button type="button" class="my-btn-size danger flex-grow-1" (click)="resetFilterForm()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </button>
+            </div>
         </form>
     </div>
 
-    <!-- Filter  -->
-
-    <!-- Paggination and limit component  -->
+    <!-- Pagination and limit component -->
     <app-pagination [formGroup]="filterForm" [limit]="limit" [total_pages]="total_pages" [page_no]="page"
         [callback]="getTable.bind(this)"></app-pagination>
-    <!-- Paggination and limit component  -->
 
-    <!-- table  -->
+    <!-- Table Container Card -->
+    <div class="app-table-card">
+        <div class="table-wrapper">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">#</th>
+                        <th class="cursor-pointer user-selection-none" (click)="sortingTable('pg_name')">
+                            Property
+                            <i class="bi bi-arrow-up-short" [ngClass]="{'d-none': sortColumn === 'pg_name' && sortOrder === 'ASC'}"></i>
+                            <i class="bi bi-arrow-down-short" [ngClass]="{'d-none': sortColumn === 'pg_name' && sortOrder === 'DESC'}"></i>
+                        </th>
+                        <th class="cursor-pointer user-selection-none" (click)="sortingTable('room_number')">
+                            Room Number
+                            <i class="bi bi-arrow-up-short" [ngClass]="{'d-none': sortColumn === 'room_number' && sortOrder === 'ASC'}"></i>
+                            <i class="bi bi-arrow-down-short" [ngClass]="{'d-none': sortColumn === 'room_number' && sortOrder === 'DESC'}"></i>
+                        </th>
+                        <th class="cursor-pointer user-selection-none" (click)="sortingTable('type')">
+                            Sharing Capacity
+                            <i class="bi bi-arrow-up-short" [ngClass]="{'d-none': sortColumn === 'type' && sortOrder === 'ASC'}"></i>
+                            <i class="bi bi-arrow-down-short" [ngClass]="{'d-none': sortColumn === 'type' && sortOrder === 'DESC'}"></i>
+                        </th>
+                        <th>Status</th>
+                        <th class="text-center" style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
 
-    <div class="table-wrapper  rounded">
-
-        <table class="table fs-10 ">
-            <thead class="cursor-pointer user-selection-none">
-                <tr>
-                    <th>Sno.</th>
-                    <th (click)="sortingTable('pg_name')">Pg name <i class="bi bi-arrow-up-short"
-                        [ngClass]="{'d-none': sortColumn === 'pg_name' && sortOrder === 'ASC'}"></i>
-                    <i class="bi bi-arrow-down-short"
-                        [ngClass]="{'d-none': sortColumn === 'pg_name' && sortOrder === 'DESC'}"></i>
-                    </th>
-                    <th (click)="sortingTable('room_number')" >Room number <i class="bi bi-arrow-up-short"
-                            [ngClass]="{'d-none': sortColumn === 'room_number' && sortOrder === 'ASC'}"></i>
-                        <i class="bi bi-arrow-down-short"
-                            [ngClass]="{'d-none': sortColumn === 'room_number' && sortOrder === 'DESC'}"></i>
-                    </th>
-                    <th (click)="sortingTable('type')" >Sharing <i class="bi bi-arrow-up-short"
-                        [ngClass]="{'d-none': sortColumn === 'type' && sortOrder === 'ASC'}"></i>
-                    <i class="bi bi-arrow-down-short"
-                        [ngClass]="{'d-none': sortColumn === 'type' && sortOrder === 'DESC'}"></i>
-                    </th>
-                    <th>Status</th>
-                    <th class="text-center">Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @for(items of table_data ; track $index ; let i = $index){
-                <tr>
-                    <td>{{ (page - 1) * limit + i + 1 }}</td>
-                    <td>{{items.pg_name}}</td>
-                    <td>{{items.room_number}}</td>
-                    <td>{{items.type}}</td>
-                    <td>
-                        <span class="badge bg-success" [ngClass]="items.status === 1 ? 'bg-success' : 'bg-danger'">{{
-                            items.status === 1 ? 'Active' : 'Inactive' }}</span>
-                    </td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <button data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="editRoom(items.id)"
-                            class="my-btn-size primary"><i class="bi bi-pencil"></i></button>
-                        <button class="my-btn-size danger" (click)="deleteRoom(items.id)"><i
-                                class="bi bi-trash"></i></button>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-
+                <tbody>
+                    @for(items of table_data; track $index; let i = $index){
+                    <tr>
+                        <td class="text-muted fw-semibold">{{ (page - 1) * limit + i + 1 }}</td>
+                        <td>
+                            <div class="fw-semibold text-heading d-flex align-items-center gap-2">
+                                <i class="bi bi-building text-primary"></i>
+                                {{items.pg_name}}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary fs-12 px-2 py-1">Room #{{items.room_number}}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info fw-semibold">{{items.type}} Sharing</span>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="items.status === 1 ? 'bg-success' : 'bg-danger'">
+                                {{ items.status === 1 ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-btn-group justify-content-center">
+                                <button data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="editRoom(items.id)"
+                                    class="btn-action-icon primary" title="Edit Room">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn-action-icon danger" (click)="deleteRoom(items.id)" title="Delete Room">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }@empty{
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-1 opacity-50"></i>
+                            No rooms found matching the criteria.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- table  -->
-
-
-    <!-- Add Modal -->
+    <!-- Add/Edit Room Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fs-6" id="exampleModalLabel">{{editMode ? 'Edit Room' : 'Add Room'}}
+                    <h5 class="modal-title fs-14 fw-bold" id="exampleModalLabel">
+                        <i class="bi" [ngClass]="editMode ? 'bi-pencil-square' : 'bi-door-open-fill'"></i>
+                        {{editMode ? 'Edit Room Details' : 'Add New Room'}}
                     </h5>
-                    <button type="button" #modelClose class="btn-close btn btn-sm btn-xsm" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" #modelClose class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-
+                <div class="modal-body p-4">
                     <form [formGroup]="roomForm">
-
-                        <div class="row mx-0 p-0">
-
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Pg name <span class="text-danger">*</span> </label>
-                                <select formControlName="property_id" class="form-select form-select-sm" >
-                                    <option value="">--select pg--</option>
-                                    @for(items of property_data ; track $index){
-                                        <option value="{{items.id}}" >{{items.name}}</option>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Property Name <span class="text-danger">*</span></label>
+                                <select formControlName="property_id" class="form-select form-select-sm">
+                                    <option value="">-- Select Property --</option>
+                                    @for(items of property_data; track $index){
+                                        <option value="{{items.id}}">{{items.name}}</option>
                                     }@empty{
-                                        <option value="">no pg found</option>
+                                        <option value="">No properties found</option>
                                     }
                                 </select>
-                                <app-form-validation-message [formGroup]="roomForm" controlName="property_id"
-                                    fieldName="Property name"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="roomForm" controlName="property_id" fieldName="Property name"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Room number <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="room_number"
-                                    maxlength="10">
-                                <app-form-validation-message [formGroup]="roomForm" controlName="room_number"
-                                    fieldName="Room number"></app-form-validation-message>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Room Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="room_number" maxlength="10" placeholder="e.g. 101">
+                                <app-form-validation-message [formGroup]="roomForm" controlName="room_number" fieldName="Room number"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Room sharing <span class="text-danger">*</span> </label>
-                                <select formControlName="type" class="form-select form-select-sm" >
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Sharing Capacity <span class="text-danger">*</span></label>
+                                <select formControlName="type" class="form-select form-select-sm">
+                                    <option value="1">1 Person (Single)</option>
+                                    <option value="2">2 Person (Double)</option>
+                                    <option value="3">3 Person (Triple)</option>
+                                    <option value="4">4 Person (Quad)</option>
+                                    <option value="5">5 Person</option>
+                                    <option value="6">6 Person</option>
                                 </select>
-                                <app-form-validation-message [formGroup]="roomForm" controlName="type"
-                                    fieldName="type"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="roomForm" controlName="type" fieldName="type"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6  mb-3">
-                                <label> Status <span class="text-danger">*</span> </label>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <select formControlName="status" class="form-select form-select-sm">
                                     <option value="1" selected>Active</option>
                                     <option value="0">Inactive</option>
                                 </select>
-                                <app-form-validation-message [formGroup]="roomForm" controlName="status"
-                                    fieldName="Status"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="roomForm" controlName="status" fieldName="Status"></app-form-validation-message>
                             </div>
-                            
-
                         </div>
-
                     </form>
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" (click)="this.roomForm.reset()"
-                        class="btn btn-sm btn-xsm btn-danger">reset</button>
-                    <button type="button" (click)="editMode? updateProperty() :addRoom()"
-                        class="btn btn-sm btn-xsm btn-primary">{{editMode ? 'Edit Room' : 'Add Room'}}</button>
+                    <button type="button" (click)="this.roomForm.reset()" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                    <button type="button" (click)="editMode ? updateProperty() : addRoom()" class="btn btn-sm btn-primary">
+                        <i class="bi bi-check2"></i> {{editMode ? 'Save Changes' : 'Create Room'}}
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Add Modal -->
 
 </div>

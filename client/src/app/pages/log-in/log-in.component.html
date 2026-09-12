@@ -1,38 +1,66 @@
-<div class="container-fluid login-container d-flex flex-column flex-md-row p-0 vh-100">
+<div class="container-fluid login-container d-flex flex-column flex-md-row p-0 vh-100 body-theme-color">
     <!-- Left: Image Section -->
-    <div class="d-none d-md-flex col-md-6 p-0">
-        <img src="../../../assets/images/log-6.avif" class="img-fluid   " alt="Login Image" />
+    <div class="d-none d-md-flex col-md-6 p-0 login-hero-side position-relative align-items-center justify-content-center overflow-hidden">
+        <img src="../../../assets/images/log-6.avif" class="img-fluid hero-bg-img" alt="PG Living Experience" />
+        <div class="hero-overlay d-flex flex-column justify-content-end p-5">
+            <div class="hero-badge mb-3 d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill">
+                <i class="bi bi-shield-check text-success"></i>
+                <span class="fs-12 fw-semibold text-white">Verified PG Management System</span>
+            </div>
+            <h2 class="text-white fw-bold mb-2">Smart Living, Simplified.</h2>
+            <p class="text-white-50 fs-13 mb-0">Manage hostels, monitor occupancy, track rent collections, and handle maintenance tickets with ease.</p>
+        </div>
     </div>
 
     <!-- Right: Login Form -->
     <div class="form-wrapper col-12 col-md-6 d-flex align-items-center justify-content-center px-4 py-5">
-        <div class="card shadow-lg p-3 mb-5 bg-white border-0 rounded login-card w-50">
-            <div class="mb-3 text-center">
-                <img src="../../../assets/images/logo.avif" width="100px" alt="">
+        <div class="card shadow-lg p-4 login-card card-theme-color border">
+            <div class="mb-4 text-center">
+                <div class="login-brand-icon mx-auto mb-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-building-fill-gear text-white fs-4"></i>
+                </div>
+                <h4 class="fw-bold mb-1 text-heading">PG Owner Portal</h4>
+                <p class="fs-12 text-muted">Sign in to manage your properties and tenants</p>
             </div>
-            <h6 class="mb-3 text-center">Welcome To PG Management System</h6>
+
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email </label>
-                    <input id="email" type="email" class="form-control fs-12" formControlName="email"
-                        [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" />
-                    <div class="invalid-feedback">Valid email required</div>
+                    <label for="email" class="form-label">Email Address</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input id="email" type="email" class="form-control" formControlName="email" placeholder="owner@example.com"
+                            [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" />
+                    </div>
+                    @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+                        <div class="invalid-feedback d-block">
+                            Valid email required
+                        </div>
+                    }
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-4">
                     <label for="password" class="form-label">Password</label>
-                    <input id="password" type="password" class="form-control fs-12" formControlName="password"
-                        [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" />
-                    <div class="invalid-feedback">Password required</div>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input id="password" type="password" class="form-control" formControlName="password" placeholder="••••••••"
+                            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" />
+                    </div>
+                    @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                        <div class="invalid-feedback d-block">
+                            Password required
+                        </div>
+                    }
                 </div>
 
-                <button class="btn w-100 login-btn fs-12" type="submit" [disabled]="loginForm.invalid">Log in</button>
+                <button class="btn w-100 login-btn d-flex align-items-center justify-content-center gap-2 mb-3" type="submit" [disabled]="loginForm.invalid">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign In to Dashboard</span>
+                </button>
             </form>
 
-
-
-            <div class="mt-4 text-center">
-                <!-- <a href="#">Sign-in options</a> -->
+            <div class="pt-3 border-top text-center">
+                <span class="fs-12 text-muted">Are you a tenant? </span>
+                <a href="/tenant-log-in" class="fs-12 fw-semibold text-primary text-decoration-none">Tenant Portal Login</a>
             </div>
         </div>
     </div>

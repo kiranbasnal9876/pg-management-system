@@ -16,9 +16,8 @@ class Pg_owner {
         router.post('/', login_validation, form_error_message, async (req, res) => {
 
             try {
-
                 const { email, password } = req.body;
-
+                console.log(email,password)
                 pg_owner_db.pg_owner_login(email)
                     .then(async (response) => {
                         if (response.data == null) {

@@ -1,161 +1,208 @@
-<div class="complaint-wrapper">
+<div class="app-page-container">
 
-    <div class="row mx-0 p-0">
-        <div class="col-xl-3 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-            <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+    <!-- Common Page Header -->
+    <div class="app-page-header">
+        <div class="app-page-title-group">
+            <h2 class="app-page-title">
+                <i class="bi bi-exclamation-octagon-fill"></i>
+                Complaints Tracker
+            </h2>
+            <p class="app-page-subtitle">Monitor tenant tickets, maintenance requests, and track resolution lifecycles</p>
+        </div>
+        <div class="app-page-actions">
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="filterOption = !filterOption">
+                <i class="bi bi-funnel"></i>
+                <span>Filter</span>
+                @if (filterOption) {
+                    <span class="badge bg-primary ms-1">Active</span>
+                }
+            </button>
+            <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="OpenAddForm()" data-bs-toggle="modal"
+                data-bs-target="#exampleModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Add Complaint</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Status Metric Cards Grid -->
+    <div class="row g-3">
+        <!-- Pending Complaints -->
+        <div class="col-md-4 col-sm-6">
+            <div class="my-dashboard-card d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="fs-6 fw-light m-0">Pending complaints</p>
-                    <p class="fs-5 fw-bold m-0">{{pending_complaints.length}}</p>
+                    <span class="fs-11 text-muted fw-medium d-block mb-1">Pending Complaints</span>
+                    <h4 class="fw-bold mb-0 text-danger">{{pending_complaints.length}}</h4>
                 </div>
-                <i class="bi bi-clock-history fs-3 text-danger"></i>
+                <div class="icon-bubble" style="background-color: var(--danger-light); color: var(--danger-color);">
+                    <i class="bi bi-clock-history"></i>
+                </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-            <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+
+        <!-- In-Progress Complaints -->
+        <div class="col-md-4 col-sm-6">
+            <div class="my-dashboard-card d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="fs-6 fw-light m-0">In-Progress complaints</p>
-                    <p class="fs-5 fw-bold m-0">{{in_progress_complaints.length}}</p>
+                    <span class="fs-11 text-muted fw-medium d-block mb-1">In-Progress Tickets</span>
+                    <h4 class="fw-bold mb-0 text-warning">{{in_progress_complaints.length}}</h4>
                 </div>
-                <i class="bi bi-hourglass-split fs-3 text-warning"></i>
+                <div class="icon-bubble" style="background-color: var(--warning-light); color: var(--warning-color);">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-            <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+
+        <!-- Resolved Complaints -->
+        <div class="col-md-4 col-sm-12">
+            <div class="my-dashboard-card d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="fs-6 fw-light m-0">Resolved complaints</p>
-                    <p class="fs-5 fw-bold m-0">{{resolved_complaints.length}}</p>
+                    <span class="fs-11 text-muted fw-medium d-block mb-1">Resolved Complaints</span>
+                    <h4 class="fw-bold mb-0 text-success">{{resolved_complaints.length}}</h4>
                 </div>
-                <i class="bi bi-hand-thumbs-up fs-3 text-success"></i>
+                <div class="icon-bubble" style="background-color: var(--success-light); color: var(--success-color);">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="add-filter-container d-flex justify-content-end gap-2 position-relative mb-2">
-        <button class="btn btn-sm btn-xsm btn-warning" (click)="filterOption = !filterOption"><i
-                class="bi bi-funnel"></i> Filter</button>
-        <button class="btn btn-sm btn-xsm btn-primary" (click)="OpenAddForm()" data-bs-toggle="modal"
-            data-bs-target="#exampleModal"><i class="bi bi-people"></i> Add Complaint</button>
-    </div>
+    <!-- Filter Card -->
+    <div class="app-filter-card mt-1" [ngClass]="filterOption ? '' : 'd-none'">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+            <span class="fs-12 fw-bold text-heading d-flex align-items-center gap-1">
+                <i class="bi bi-sliders"></i> Filter Complaints
+            </span>
+            <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
+        </div>
 
-    <!-- Filter  -->
-
-    <div class="filter-conatiner card-theme-color rounded m-0 p-0 mb-2" [ngClass]="filterOption ? '' : 'd-none' ">
-        <form [formGroup]="filterForm" class="row mx-0 p-0 " (submit)="getTable()">
-
-            <div class="mb-2 col-md-2">
-                <label for="DescriptionId" class="form-label fs-10">Description </label>
-                <input type="text" id="DescriptionId" class="form-control form-control-sm "
-                    formControlName="description" placeholder="search description...">
+        <form [formGroup]="filterForm" class="row g-2 align-items-end" (submit)="getTable()">
+            <div class="col-md-5 col-sm-12">
+                <label class="form-label">Search Description</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control form-control-sm" formControlName="description" placeholder="Search by complaint description...">
+                </div>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="statusId" class="form-label fs-10">Status</label>
-                <select class="form-select form-select-sm" id="statusId" formControlName="status">
-                    <option value="">select</option>
-                    <option selected value="pending">Pending</option>
-                    <option value="in-progress">In-progress</option>
+
+            <div class="col-md-4 col-sm-6">
+                <label class="form-label">Status</label>
+                <select class="form-select form-select-sm" formControlName="status">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In-Progress</option>
                     <option value="resolved">Resolved</option>
                 </select>
             </div>
-            <div class=" col-md-3 d-flex gap-2 mt-4">
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success"><i
-                        class="bi bi-search"></i> search</button>
-                <button type="button" class="my-btn-size danger" (click)="resetFilterForm()"><i class="bi bi-x"></i>
-                    reset</button>
-            </div>
 
+            <div class="col-md-3 col-sm-6 d-flex gap-2">
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success flex-grow-1">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                <button type="button" class="my-btn-size danger flex-grow-1" (click)="resetFilterForm()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </button>
+            </div>
         </form>
     </div>
 
-    <!-- Filter  -->
-
-    <!-- Paggination and limit component  -->
+    <!-- Pagination and limit component -->
     <app-pagination [formGroup]="filterForm" [limit]="limit" [total_pages]="total_pages" [page_no]="page"
         [callback]="getTable.bind(this)"></app-pagination>
-    <!-- Paggination and limit component  -->
 
+    <!-- Table Container Card -->
+    <div class="app-table-card">
+        <div class="table-wrapper">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">#</th>
+                        <th>Complaint Details</th>
+                        <th>Attachment</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Last Updated</th>
+                        <th class="text-center" style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
 
-    <!-- table  -->
-
-    <div class="table-wrapper  rounded overflow-x-auto">
-
-        <table class="table fs-10 ">
-            <thead class="cursor-pointer user-selection-none">
-                <tr>
-                    <th>Sno.</th>
-                    <th>Description</th>
-                    <th>Attachment</th>
-                    <th>Categorie</th>
-                    <th>Status</th>
-                    <th>Created at</th>
-                    <th>Updated at</th>
-                    <th class="text-center">Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @for(items of table_data ; track $index ; let i = $index){
-                <tr>
-                    <td>{{ (page - 1) * limit + i + 1 }}</td>
-                    <td>{{items.description}}</td>
-                    <td><img (click)="openBigImage(profile_photo.src)" #profile_photo src="{{server_url}}static/{{items.profile_photo}}"
-                            class="rounded-circle object-fit-cover cursor-pointer" alt="profile photo" width="25px" height="25px"
-                            title="profile" data-bs-toggle="modal" data-bs-target="#imageModal"></td>
-                    <!-- <td class="text-muted">{{items.image === null ? 'No attachment' : items.image}}</td> -->
-                    <td>{{items.category}}</td>
-                    <td>
-                        <span class="badge bg-success"
-                            [ngClass]="items.status === 'resolved' ? 'bg-success' : items.status === 'in-progress' ? 'bg-warning text-black' : 'bg-danger' ">
-                            {{ items.status === 'resolved' ? 'Resolved' : items.status === 'in-progress' ? 'In-Progress'
-                            : 'Pending' }}
-                        </span>
-                    </td>
-                    <td>{{items.created_at |  date:'medium'}}</td>
-                    <td>{{items.updated_at === null ?  'No update' : items.updated_at |  date:'medium'}}</td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <button data-bs-toggle="modal" data-bs-target="#exampleModal" class="my-btn-size primary" (click)="EDIT(items.id)"><i
-                                class="bi bi-pencil"></i></button>
-                        <button class="my-btn-size danger"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>
-                }@empty{
-                <tr>
-                    <td colspan="8" class="text-center">No Complaint found </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-
+                <tbody>
+                    @for(items of table_data; track $index; let i = $index){
+                    <tr>
+                        <td class="text-muted fw-semibold">{{ (page - 1) * limit + i + 1 }}</td>
+                        <td>
+                            <div class="fw-semibold text-heading">{{items.description}}</div>
+                        </td>
+                        <td>
+                            @if(items.profile_photo || items.image){
+                                <img (click)="openBigImage(profile_photo.src)" #profile_photo 
+                                     src="{{server_url}}static/{{items.profile_photo || items.image}}"
+                                     (error)="$any($event.target).src='assets/images/logo.avif'"
+                                     class="rounded object-fit-cover cursor-pointer border" alt="Attachment" width="36px" height="36px"
+                                     title="Click to view attachment" data-bs-toggle="modal" data-bs-target="#imageModal">
+                            }@else{
+                                <span class="fs-10 text-muted fst-italic">No file</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{items.category}}</span>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                [ngClass]="items.status === 'resolved' ? 'bg-success' : items.status === 'in-progress' ? 'bg-warning' : 'bg-danger'">
+                                {{ items.status === 'resolved' ? 'Resolved' : items.status === 'in-progress' ? 'In-Progress' : 'Pending' }}
+                            </span>
+                        </td>
+                        <td class="text-muted fs-11">{{items.created_at | date:'medium'}}</td>
+                        <td class="text-muted fs-11">{{items.updated_at === null ? 'No update' : (items.updated_at | date:'medium')}}</td>
+                        <td class="text-center">
+                            <div class="action-btn-group justify-content-center">
+                                <button data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn-action-icon primary" (click)="EDIT(items.id)" title="Edit Complaint">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn-action-icon danger" title="Delete Complaint">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }@empty{
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-1 opacity-50"></i>
+                            No complaints registered yet.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- table  -->
-
-    <!-- Add Modal -->
+    <!-- Add/Edit Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fs-6" id="exampleModalLabel">{{editMode ? 'Edit Complaint' : 'Add Complaint'}}
+                    <h5 class="modal-title fs-14 fw-bold" id="exampleModalLabel">
+                        <i class="bi" [ngClass]="editMode ? 'bi-pencil-square' : 'bi-exclamation-circle-fill'"></i>
+                        {{editMode ? 'Update Complaint Status' : 'Register New Complaint'}}
                     </h5>
-                    <button type="button" #modelClose class="btn-close btn btn-sm btn-xsm" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" #modelClose class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-
-
+                <div class="modal-body p-4">
                     <form [formGroup]="myForm">
-
-                        <div class="row mx-0 p-0">
-
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Description <span class="text-danger">*</span> </label>
-
-                                <textarea class="form-control form-control-sm" maxlength="300"
-                                    formControlName="description" id=""></textarea>
-                                <app-form-validation-message [formGroup]="myForm" controlName="description"
-                                    fieldName="Description"></app-form-validation-message>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control form-control-sm" rows="3" maxlength="300"
+                                    formControlName="description" placeholder="Describe the issue in detail..."></textarea>
+                                <app-form-validation-message [formGroup]="myForm" controlName="description" fieldName="Description"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6  mb-3">
-                                <label>Complaint Category <span class="text-danger">*</span> </label>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Complaint Category <span class="text-danger">*</span></label>
                                 <select formControlName="category" class="form-select form-select-sm">
                                     <option value="Food" selected>Food</option>
                                     <option value="Water">Water</option>
@@ -163,44 +210,54 @@
                                     <option value="Electricity">Electricity</option>
                                     <option value="Other">Other</option>
                                 </select>
-                                <app-form-validation-message [formGroup]="myForm" controlName="category"
-                                    fieldName="Complaint category"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="myForm" controlName="category" fieldName="Complaint category"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Attachment <span class="text-danger">*</span> </label>
-                                <input formControlName="image" (change)="fileUpload($event, 'Attachment')"
-                                    type="file" class="form-control form-control-sm">
-                                <app-form-validation-message [formGroup]="myForm" controlName="image"
-                                    fieldName="image"></app-form-validation-message>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Photo Attachment</label>
+                                <input formControlName="image" (change)="fileUpload($event, 'Attachment')" type="file" class="form-control form-control-sm">
+                                <app-form-validation-message [formGroup]="myForm" controlName="image" fieldName="image"></app-form-validation-message>
                             </div>
+
                             @if(editMode){
-                                <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                    <label>Status of complaint <span class="text-danger">*</span> </label>
-                                    <select formControlName="status" class="form-select form-select-sm">
-                                        <option value="pending" selected>Pending</option>
-                                        <option value="in-progress">In-Progress</option>
-                                        <option value="resolved">Resolved</option>
-                                    </select>
-                                    <app-form-validation-message [formGroup]="myForm" controlName="status"
-                                        fieldName="Complaint status"></app-form-validation-message>
-                                </div>
+                            <div class="col-12">
+                                <label class="form-label">Resolution Status <span class="text-danger">*</span></label>
+                                <select formControlName="status" class="form-select form-select-sm">
+                                    <option value="pending" selected>Pending</option>
+                                    <option value="in-progress">In-Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                </select>
+                                <app-form-validation-message [formGroup]="myForm" controlName="status" fieldName="Complaint status"></app-form-validation-message>
+                            </div>
                             }
-
                         </div>
-
                     </form>
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" (click)="this.myForm.reset()"
-                        class="btn btn-sm btn-xsm btn-danger">reset</button>
-                    <button type="button" (click)="editMode? UPDATE() :add()"
-                        class="btn btn-sm btn-xsm btn-primary">{{editMode ? 'Edit Complaint' : 'Add
-                        Complaint'}}</button>
+                    <button type="button" (click)="this.myForm.reset()" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                    <button type="button" (click)="editMode ? UPDATE() : add()" class="btn btn-sm btn-primary">
+                        <i class="bi bi-check2"></i> {{editMode ? 'Update Ticket' : 'Submit Ticket'}}
+                    </button>
                 </div>
             </div>
         </div> 
     </div>
-    <!-- Add Modal -->
+
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 overflow-hidden shadow-lg">
+                <div class="modal-header border-0 bg-dark text-white py-2 px-3">
+                    <span class="fs-12 fw-medium">Attachment Preview</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0 bg-dark d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                    <img [src]="imgSrc" class="img-fluid rounded" alt="Attachment" style="max-height: 80vh;">
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>

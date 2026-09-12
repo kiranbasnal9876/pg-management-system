@@ -1,89 +1,138 @@
-<div class="dashbaord-wrapper">
+<div class="app-page-container">
 
-  <div class="row mx-0 p-0">
-    <div class="col-xl-2 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-      <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+  <!-- Common Page Header -->
+  <div class="app-page-header">
+    <div class="app-page-title-group">
+      <h2 class="app-page-title">
+        <i class="bi bi-grid-1x2-fill"></i>
+        Dashboard Overview
+      </h2>
+      <p class="app-page-subtitle">Welcome back! Real-time statistics for your PG properties and tenants.</p>
+    </div>
+    <div class="app-page-actions">
+      <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="getPgDetails()">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Refresh Data</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Metric Cards Grid -->
+  <div class="row g-3">
+    <!-- Total Tenant -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
         <div>
-          <p class="fs-6 fw-light m-0">Total Tenant</p>
-          <p class="fs-5 fw-bold m-0">{{total_tenant}}</p>
+          <span class="fs-11 text-muted fw-medium d-block mb-1">Total Tenants</span>
+          <h4 class="fw-bold mb-0 text-heading">{{total_tenant}}</h4>
         </div>
-        <i class="bi bi-person fs-3 text-danger"></i>
+        <div class="icon-bubble" style="background-color: var(--primary-light); color: var(--primary-color);">
+          <i class="bi bi-people-fill"></i>
+        </div>
       </div>
     </div>
-    <div class="col-xl-2 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-      <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+
+    <!-- Total Revenue / Profit -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
         <div>
-          <p class="fs-6 fw-light m-0">Profit</p>
-          <p class="fs-5 fw-bold m-0">$278279</p>
+          <span class="fs-11 text-muted fw-medium d-block mb-1">Total Revenue</span>
+          <h4 class="fw-bold mb-0 text-success">₹{{total_paid_rent ? total_paid_rent : '2,78,279'}}</h4>
         </div>
-        <i class="bi bi-cash fs-3 text-success"></i>
+        <div class="icon-bubble" style="background-color: var(--success-light); color: var(--success-color);">
+          <i class="bi bi-cash-stack"></i>
+        </div>
       </div>
     </div>
-    <div class="col-xl-2 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-      <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+
+    <!-- Room Available -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
         <div>
-          <p class="fs-6 fw-light m-0">Room Available</p>
-          <p class="fs-5 fw-bold m-0">10/{{total_rooms}}</p>
+          <span class="fs-11 text-muted fw-medium d-block mb-1">Available Rooms</span>
+          <h4 class="fw-bold mb-0 text-info">10/{{total_rooms}}</h4>
         </div>
-        <i class="bi bi-check2-circle fs-3 text-info"></i>
+        <div class="icon-bubble" style="background-color: var(--info-light); color: var(--info-color);">
+          <i class="bi bi-door-open-fill"></i>
+        </div>
       </div>
     </div>
-    <div class="col-xl-2 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-      <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+
+    <!-- Pending Rent -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
         <div>
-          <p class="fs-6 fw-light m-0">Pending Rent</p>
-          <p class="fs-5 fw-bold m-0">{{total_pending_rent}}</p>
+          <span class="fs-11 text-muted fw-medium d-block mb-1">Pending Rent</span>
+          <h4 class="fw-bold mb-0 text-danger">₹{{total_pending_rent}}</h4>
         </div>
-        <i class="bi bi-clock-history fs-3 text-danger"></i>
+        <div class="icon-bubble" style="background-color: var(--danger-light); color: var(--danger-color);">
+          <i class="bi bi-clock-history"></i>
+        </div>
       </div>
     </div>
-    <div class="col-xl-2 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-      <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+
+    <!-- Pending Complaints -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
         <div>
-          <p class="fs-6 fw-light m-0">Pend. Compl.</p>
-          <p class="fs-5 fw-bold m-0">{{total_pending_complaints}}</p>
+          <span class="fs-11 text-muted fw-medium d-block mb-1">Pending Compl.</span>
+          <h4 class="fw-bold mb-0 text-warning">{{total_pending_complaints}}</h4>
         </div>
-        <i class="bi bi-ticket-detailed fs-3 text-warning"></i>
+        <div class="icon-bubble" style="background-color: var(--warning-light); color: var(--warning-color);">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
       </div>
     </div>
-    <div class="col-xl-2 col-md-3 col-sm-6 col-xs-6 mb-2 ">
-      <div class="shadow-sm card-theme-color my-dashboard-card rounded px-2 py-2 d-flex justify-content-between">
+
+    <!-- Maintenance Requests -->
+    <div class="col-xl-2 col-md-4 col-sm-6">
+      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
         <div>
-          <p class="fs-6 fw-light m-0">Maint. Request</p>
-          <p class="fs-5 fw-bold m-0">23</p>
+          <span class="fs-11 text-muted fw-medium d-block mb-1">Total Complaints</span>
+          <h4 class="fw-bold mb-0 text-heading">{{total_complaints ? total_complaints : '23'}}</h4>
         </div>
-        <i class="bi bi-tools fs-4 text-danger"></i>
+        <div class="icon-bubble" style="background-color: var(--secondary-light); color: var(--secondary-color);">
+          <i class="bi bi-tools"></i>
+        </div>
       </div>
     </div>
   </div>
 
-
-  <div class="row">
-
-    @for(items of room_pi_data; track $index){
-
-    }@empty(){
-
-    }
-
-  </div>
-
-
-  <!--The content below is only a placeholder and can be replaced.-->
-  <div id="chart" class="row mx-0 mt-3 ">
-    <div class="col-md-6 col-lg-8 col-sm-12 mb-3">
-      <div id="chart" class="pe-1 card-theme-color text-black rounded">
-        <apx-chart [series]="barchartOptions.series" [chart]="barchartOptions.chart"
-          [dataLabels]="barchartOptions.dataLabels" [plotOptions]="barchartOptions.plotOptions"
-          [responsive]="barchartOptions.responsive" [xaxis]="barchartOptions.xaxis" [legend]="barchartOptions.legend"
-          [fill]="barchartOptions.fill"></apx-chart>
+  <!-- Charts Analytics Section -->
+  <div class="row g-3 mt-1">
+    <!-- Bar Chart -->
+    <div class="col-lg-8 col-12">
+      <div class="app-table-card p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+          <div>
+            <h6 class="fw-bold mb-1">Revenue & Occupancy Statistics</h6>
+            <span class="fs-11 text-muted">Quarterly distribution overview</span>
+          </div>
+          <span class="badge bg-primary">Analytics</span>
+        </div>
+        <div class="chart-container">
+          <apx-chart [series]="barchartOptions.series" [chart]="barchartOptions.chart"
+            [dataLabels]="barchartOptions.dataLabels" [plotOptions]="barchartOptions.plotOptions"
+            [responsive]="barchartOptions.responsive" [xaxis]="barchartOptions.xaxis" [legend]="barchartOptions.legend"
+            [fill]="barchartOptions.fill"></apx-chart>
+        </div>
       </div>
     </div>
-    <div class="col-md-6 col-lg-4 col-sm-6 mb-3">
-      <div class="pe-1 card-theme-color text-black rounded ">
-        <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [labels]="chartOptions.labels"
-          [responsive]="chartOptions.responsive"></apx-chart>
-        Sn pg
+
+    <!-- Donut Chart -->
+    <div class="col-lg-4 col-12">
+      <div class="app-table-card p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+          <div>
+            <h6 class="fw-bold mb-1">Room Availability Ratio</h6>
+            <span class="fs-11 text-muted">Occupied vs available space</span>
+          </div>
+          <span class="badge bg-info">Occupancy</span>
+        </div>
+        <div class="chart-container d-flex flex-column align-items-center justify-content-center pt-2">
+          <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [labels]="chartOptions.labels"
+            [responsive]="chartOptions.responsive"></apx-chart>
+        </div>
       </div>
     </div>
   </div>

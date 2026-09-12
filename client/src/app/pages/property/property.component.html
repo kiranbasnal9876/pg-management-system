@@ -1,221 +1,248 @@
-<div class="client-wrapper w-100 h-100 position-relative">
+<div class="app-page-container">
 
-    <div class="add-filter-container d-flex justify-content-end gap-2 position-relative mb-2">
-        <button class="btn btn-sm btn-xsm btn-warning" (click)="filterOption = !filterOption"><i
-                class="bi bi-funnel"></i> Filter</button>
-        <button class="btn btn-sm btn-xsm btn-primary" (click)="openAddpropertyForm()" data-bs-toggle="modal"
-            data-bs-target="#exampleModal"><i class="bi bi-people"></i> Add property</button>
+    <!-- Common Page Header -->
+    <div class="app-page-header">
+        <div class="app-page-title-group">
+            <h2 class="app-page-title">
+                <i class="bi bi-buildings-fill"></i>
+                Property Master
+            </h2>
+            <p class="app-page-subtitle">Manage your PG hostels, branch locations, and total room capacities</p>
+        </div>
+        <div class="app-page-actions">
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="filterOption = !filterOption">
+                <i class="bi bi-funnel"></i>
+                <span>Filter</span>
+                @if (filterOption) {
+                    <span class="badge bg-primary ms-1">Active</span>
+                }
+            </button>
+            <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="openAddpropertyForm()" data-bs-toggle="modal"
+                data-bs-target="#exampleModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Add Property</span>
+            </button>
+        </div>
     </div>
 
+    <!-- Filter Card -->
+    <div class="app-filter-card" [ngClass]="filterOption ? '' : 'd-none'">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+            <span class="fs-12 fw-bold text-heading d-flex align-items-center gap-1">
+                <i class="bi bi-sliders"></i> Filter Properties
+            </span>
+            <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
+        </div>
 
-    <!-- Filter  -->
-
-    <div class="filter-conatiner card-theme-color rounded m-0 p-0 mb-2" [ngClass]="filterOption ? '' : 'd-none' ">
-        <form [formGroup]="filterForm" class="row mx-0 p-0 " (submit)="getTable()">
-
-            <div class="mb-2 col-md-2">
-                <label for="propertyNameId" class="form-label fs-10">Property name</label>
-                <!-- <input type="text" id="propertyNameId" class="form-control form-control-sm " formControlName="name"
-                    placeholder="Enter name"> -->
-                    <select formControlName="id" class="form-select form-select-sm"  >
-                        <option value="">--select pg--</option>
-                        @for(items of property_data ; track $index){
-                            <option value="{{items.id}}" >{{items.name}}</option>
-                        }@empty{
-                            <option value="">no pg found</option>
-                        }
-                    </select>
+        <form [formGroup]="filterForm" class="row g-2 align-items-end" (submit)="getTable()">
+            <div class="col-xl-3 col-md-3 col-sm-6">
+                <label class="form-label">Property Name</label>
+                <select formControlName="id" class="form-select form-select-sm">
+                    <option value="">-- All Properties --</option>
+                    @for(items of property_data; track $index){
+                        <option value="{{items.id}}">{{items.name}}</option>
+                    }@empty{
+                        <option value="">No properties found</option>
+                    }
+                </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="stateId" class="form-label fs-10" >State</label>
-                <select class="form-select form-select-sm" id="stateId" (change)="getDistrict(filter_state.value)" #filter_state  formControlName="state">
-                    <option value="">--select state--</option>
+
+            <div class="col-xl-3 col-md-3 col-sm-6">
+                <label class="form-label">State</label>
+                <select class="form-select form-select-sm" id="stateId" (change)="getDistrict(filter_state.value)" #filter_state formControlName="state">
+                    <option value="">-- Select State --</option>
                     @for (item of state_data; track $index) {
                     <option [value]="item.state_id">{{ item.state_name }}</option>
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="districtId" class="form-label fs-10">District</label>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">District</label>
                 <select class="form-select form-select-sm" id="districtId" formControlName="district">
-                    <option value="">--select district--</option>
+                    <option value="">-- Select District --</option>
                     @for (item of district_data; track $index) {
                     <option [value]="item.district_id">{{ item.district_name }}</option>
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="statusId" class="form-label fs-10">Status</label>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Status</label>
                 <select class="form-select form-select-sm" id="statusId" formControlName="status">
-                    <option value="">select</option>
-                    <option selected value="1">Active</option>
+                    <option value="">All Statuses</option>
+                    <option value="1">Active</option>
                     <option value="0">Inactive</option>
                 </select>
             </div>
-            <div class=" col-md-3 d-flex gap-2 mt-4">
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success"><i
-                        class="bi bi-search"></i> search</button>
-                <button type="button" class="my-btn-size danger"  (click)="resetFilterForm()"><i class="bi bi-x"></i>
-                    reset</button>
-            </div>
 
+            <div class="col-xl-2 col-md-12 d-flex gap-2">
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success flex-grow-1">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                <button type="button" class="my-btn-size danger flex-grow-1" (click)="resetFilterForm()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </button>
+            </div>
         </form>
     </div>
 
-    <!-- Filter  -->
-
-    <!-- Paggination and limit component  -->
+    <!-- Pagination and limit component -->
     <app-pagination [formGroup]="filterForm" [limit]="limit" [total_pages]="total_pages" [page_no]="page"
         [callback]="getTable.bind(this)"></app-pagination>
-    <!-- Paggination and limit component  -->
 
-    <!-- table  -->
+    <!-- Table Container Card -->
+    <div class="app-table-card">
+        <div class="table-wrapper">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">#</th>
+                        <th class="cursor-pointer user-selection-none" (click)="sortingTable('name')">
+                            Property Name 
+                            <i class="bi bi-arrow-up-short" [ngClass]="{'d-none': sortColumn === 'name' && sortOrder === 'ASC'}"></i>
+                            <i class="bi bi-arrow-down-short" [ngClass]="{'d-none': sortColumn === 'name' && sortOrder === 'DESC'}"></i>
+                        </th>
+                        <th class="cursor-pointer user-selection-none" (click)="sortingTable('total_rooms')">
+                            Total Rooms 
+                            <i class="bi bi-arrow-up-short" [ngClass]="{'d-none': sortColumn === 'total_rooms' && sortOrder === 'ASC'}"></i>
+                            <i class="bi bi-arrow-down-short" [ngClass]="{'d-none': sortColumn === 'total_rooms' && sortOrder === 'DESC'}"></i>
+                        </th>
+                        <th>Address / Location</th>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>Status</th>
+                        <th class="text-center" style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
 
-    <div class="table-wrapper  rounded">
-
-        <table class="table fs-10 ">
-            <thead class="cursor-pointer user-selection-none">
-                <tr>
-                    <th>Sno.</th>
-                    <th (click)="sortingTable('name')" >Name <i class="bi bi-arrow-up-short"
-                            [ngClass]="{'d-none': sortColumn === 'name' && sortOrder === 'ASC'}"></i>
-                        <i class="bi bi-arrow-down-short"
-                            [ngClass]="{'d-none': sortColumn === 'name' && sortOrder === 'DESC'}"></i>
-                    </th>
-                    <th (click)="sortingTable('total_rooms')" >Total rooms <i class="bi bi-arrow-up-short"
-                        [ngClass]="{'d-none': sortColumn === 'total_rooms' && sortOrder === 'ASC'}"></i>
-                    <i class="bi bi-arrow-down-short"
-                        [ngClass]="{'d-none': sortColumn === 'total_rooms' && sortOrder === 'DESC'}"></i>
-                    </th>
-                    <th>Address</th>
-                    <th>State</th>
-                    <th>District</th>
-                    <th>Status</th>
-                    <th class="text-center">Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @for(items of table_data ; track $index ; let i = $index){
-                <tr>
-                    <td>{{ (page - 1) * limit + i + 1 }}</td>
-                    <td>{{items.name}}</td>
-                    <td>{{items.total_rooms}}</td>
-                    <td>{{items.location}}</td>
-                    <td>{{ items.state | stateName: state_data }}</td>
-                    <td>{{getDistrictForView(items.district)}}</td>
-                    <td>
-                        <span class="badge bg-success" [ngClass]="items.status === 1 ? 'bg-success' : 'bg-danger'">{{
-                            items.status === 1 ? 'Active' : 'Inactive' }}</span>
-                    </td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <button data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="edit(items.id)"
-                            class="my-btn-size primary"><i class="bi bi-pencil"></i></button>
-                        <button class="my-btn-size danger" (click)="delete(items.id)"><i
-                                class="bi bi-trash"></i></button>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-
+                <tbody>
+                    @for(items of table_data; track $index; let i = $index){
+                    <tr>
+                        <td class="text-muted fw-semibold">{{ (page - 1) * limit + i + 1 }}</td>
+                        <td>
+                            <div class="fw-semibold text-heading d-flex align-items-center gap-2">
+                                <i class="bi bi-building text-primary"></i>
+                                {{items.name}}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-info fw-semibold">{{items.total_rooms}} Rooms</span>
+                        </td>
+                        <td class="text-muted">{{items.location}}</td>
+                        <td>{{ items.state | stateName: state_data }}</td>
+                        <td>{{getDistrictForView(items.district)}}</td>
+                        <td>
+                            <span class="badge" [ngClass]="items.status === 1 ? 'bg-success' : 'bg-danger'">
+                                {{ items.status === 1 ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-btn-group justify-content-center">
+                                <button data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="edit(items.id)"
+                                    class="btn-action-icon primary" title="Edit Property">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn-action-icon danger" (click)="delete(items.id)" title="Delete Property">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }@empty{
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-1 opacity-50"></i>
+                            No properties found matching the criteria.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- table  -->
-
-
-    <!-- Add Modal -->
+    <!-- Add/Edit Property Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fs-6" id="exampleModalLabel">{{editMode ? 'Edit Property' : 'Add Property'}}
+                    <h5 class="modal-title fs-14 fw-bold" id="exampleModalLabel">
+                        <i class="bi" [ngClass]="editMode ? 'bi-pencil-square' : 'bi-building-fill-add'"></i>
+                        {{editMode ? 'Edit Property Details' : 'Register New Property'}}
                     </h5>
-                    <button type="button" #modelClose class="btn-close btn btn-sm btn-xsm" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" #modelClose class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-
-
+                <div class="modal-body p-4">
                     <form [formGroup]="propertyForm">
+                        <div class="row g-3">
+                            <div class="col-xl-4 col-md-4 col-sm-6">
+                                <label class="form-label">Property Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" placeholder="e.g. Sunrise Luxury PG">
+                                <app-form-validation-message [formGroup]="propertyForm" controlName="name" fieldName="Name"></app-form-validation-message>
+                            </div>
 
-                        <div class="row mx-0 p-0">
+                            <div class="col-xl-4 col-md-4 col-sm-6">
+                                <label class="form-label">Total Rooms <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="total_rooms" placeholder="e.g. 25">
+                                <app-form-validation-message [formGroup]="propertyForm" controlName="total_rooms" fieldName="Total rooms"></app-form-validation-message>
+                            </div>
 
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Name <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="name"
-                                    maxlength="30">
-                                <app-form-validation-message [formGroup]="propertyForm" controlName="name"
-                                    fieldName="Name"></app-form-validation-message>
+                            <div class="col-xl-4 col-md-4 col-sm-6">
+                                <label class="form-label">Address / Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="location" maxlength="100" placeholder="Street or Area location">
+                                <app-form-validation-message [formGroup]="propertyForm" controlName="location" fieldName="Location"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Total rooms <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="total_rooms">
-                                <app-form-validation-message [formGroup]="propertyForm" controlName="total_rooms"
-                                    fieldName="Total rooms"></app-form-validation-message>
+
+                            <div class="col-xl-3 col-md-3 col-sm-6">
+                                <label class="form-label">Pincode <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="pincode" maxlength="6" placeholder="Pincode">
+                                <app-form-validation-message [formGroup]="propertyForm" controlName="pincode" fieldName="Pincode"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Location <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="location"
-                                    maxlength="100">
-                                <app-form-validation-message [formGroup]="propertyForm" controlName="location"
-                                    fieldName="Location"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Pincode <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="pincode"
-                                    maxlength="6">
-                                <app-form-validation-message [formGroup]="propertyForm" controlName="pincode"
-                                    fieldName="Pincode"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6  mb-3">
-                                <label> Status <span class="text-danger">*</span> </label>
+
+                            <div class="col-xl-3 col-md-3 col-sm-6">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <select formControlName="status" class="form-select form-select-sm">
                                     <option value="1" selected>Active</option>
                                     <option value="0">Inactive</option>
                                 </select>
-                                <app-form-validation-message [formGroup]="propertyForm" controlName="status"
-                                    fieldName="Status"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="propertyForm" controlName="status" fieldName="Status"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label> State <span class="text-danger">*</span> </label>
-                                <select formControlName="state" (change)="getDistrict(state_id.value)" #state_id
-                                    class="form-select form-select-sm">
-                                    <option value="">--select state--</option>
+
+                            <div class="col-xl-3 col-md-3 col-sm-6">
+                                <label class="form-label">State <span class="text-danger">*</span></label>
+                                <select formControlName="state" (change)="getDistrict(state_id.value)" #state_id class="form-select form-select-sm">
+                                    <option value="">-- Select State --</option>
                                     @for (item of state_data; track $index) {
                                     <option [value]="item.state_id">{{ item.state_name }}</option>
                                     }
                                 </select>
-                                <app-form-validation-message [formGroup]="propertyForm" controlName="state"
-                                    fieldName="State"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="propertyForm" controlName="state" fieldName="State"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label> District <span class="text-danger">*</span> </label>
+
+                            <div class="col-xl-3 col-md-3 col-sm-6">
+                                <label class="form-label">District <span class="text-danger">*</span></label>
                                 <select formControlName="district" class="form-select form-select-sm">
-                                    <option value="">--select district--</option>
+                                    <option value="">-- Select District --</option>
                                     @for (item of district_data; track $index) {
                                     <option [value]="item.district_id">{{ item.district_name }}</option>
                                     }
                                 </select>
-                                <app-form-validation-message [formGroup]="propertyForm" controlName="district"
-                                    fieldName="district"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="propertyForm" controlName="district" fieldName="District"></app-form-validation-message>
                             </div>
-                            
-
                         </div>
-
                     </form>
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" (click)="this.propertyForm.reset()"
-                        class="btn btn-sm btn-xsm btn-danger">reset</button>
-                    <button type="button" (click)="editMode? update() :add()"
-                        class="btn btn-sm btn-xsm btn-primary">{{editMode ? 'Edit Property' : 'Add Property'}}</button>
+                    <button type="button" (click)="this.propertyForm.reset()" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                    <button type="button" (click)="editMode ? update() : add()" class="btn btn-sm btn-primary">
+                        <i class="bi bi-check2"></i> {{editMode ? 'Save Changes' : 'Create Property'}}
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Add Modal -->
 
 </div>

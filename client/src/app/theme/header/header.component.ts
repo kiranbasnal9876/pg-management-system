@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Output , OnInit, HostListener } from '@angular/core';
-import { ThemeService , Theme } from '../../services/theme.service';
+import { Component, EventEmitter, Output, OnInit, HostListener } from '@angular/core';
+import { ThemeService, Theme } from '../../services/theme.service';
+import { GlobalService } from '../../services/global.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,24 +9,26 @@ import { CommonModule } from '@angular/common';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit{
+export class HeaderComponent implements OnInit {
 
-  constructor(private themeService:ThemeService){}
+  constructor(
+    private themeService: ThemeService,
+    private GF: GlobalService
+  ) {}
 
   currentTheme: Theme = 'system';
-  sidebarVisible:boolean = true
+  sidebarVisible: boolean = true;
 
-  @Output() sidebarToggle = new EventEmitter<boolean>()
+  @Output() sidebarToggle = new EventEmitter<boolean>();
 
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
-    this.sidebarToggle.emit(this.sidebarVisible)
+    this.sidebarToggle.emit(this.sidebarVisible);
   }
 
   ngOnInit(): void {
     this.themeService.theme$.subscribe(theme => {
       this.currentTheme = theme;
-      console.log(this.currentTheme)
     });
     
     // Initialize with saved theme
@@ -37,44 +40,12 @@ export class HeaderComponent implements OnInit{
     }
   }
 
-  setTheme(theme: Theme): void {
-    this.currentTheme = localStorage.getItem('app-theme') as Theme
-    if(this.currentTheme == 'light'){
-      this.themeService.setTheme('dark');
-    }else{
-      this.themeService.setTheme('light');
-    }
+  toggleTheme(): void {
+    const nextTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+    this.themeService.setTheme(nextTheme);
   }
 
-  getThemeIcon(): string {
-    switch (this.currentTheme) {
-      case 'system':
-        return 'bi-circle-half';
-      case 'light':
-        return 'bi-sun-fill';
-      case 'dark':
-        return 'bi-moon-stars-fill';
-      default:
-        return 'bi-circle-half';
-    }
+  logout(): void {
+    this.GF.logout();
   }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const toggleContainer = document.querySelector('.theme-toggle-container');
-    
-    // if (toggleContainer && !toggleContainer.contains(target)) {
-    //   this.isDropdownOpen = false;
-    // }
-  }
-
 }
-
-
-// Add this to make TypeScript recognize the global bootstrap object
-declare global {
-  interface Window {
-    bootstrap: any;
-  }
-} 

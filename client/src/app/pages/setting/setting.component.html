@@ -1,59 +1,80 @@
-<div class="body-theme-color">
+<div class="app-page-container">
 
-    <h2 class="mb-0">Settings</h2>
-    <p class="fs-14">Manage your account settings and preferences</p>
-
-    <nav>
-        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <button class="nav-link active fs-11" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
-                type="button" role="tab" aria-controls="nav-home" aria-selected="true">Application</button>
-            <button class="nav-link fs-11" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
-                type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Payment</button>
-        </div>
-    </nav>
-    <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-
-            <div class="row mx-0">
-
-                <div class="col-md-12 mb-3">
-                    <label for="applicationLogoId" class="form-label mb-2">Application logo</label>
-                    <input id="applicationLogoId" type="file" class="form-control form-control-sm">
-                </div>
-
-                <div class="col-md-2">
-
-                    <button class="my-btn-size primary"><i class="bi bi-check2"></i> Save</button>
-                </div>
-
-
-            </div>
-
-        </div>
-        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-
-            <div class="row mx-0">
-
-
-                <div class="col-md-12 mb-3">
-                    <label for="razorpayId" class="form-label mb-2">Razor pay api key</label>
-                    <input id="razorpayId" type="text" class="form-control form-control-sm" placeholder="api key">
-                </div>
-
-                <div class="col-md-12 mb-3">
-                    <label for="razorpayId" class="form-label mb-2">Razor pay api key</label>
-                    <input id="razorpayId" type="text" class="form-control form-control-sm" placeholder="api key">
-                </div>
-
-                <div class="col-md-2">
-                    <button class="my-btn-size primary"><i class="bi bi-check2"></i> Save</button>
-                </div>
-
-
-            </div>
-
+    <!-- Common Page Header -->
+    <div class="app-page-header">
+        <div class="app-page-title-group">
+            <h2 class="app-page-title">
+                <i class="bi bi-gear-fill"></i>
+                System Settings
+            </h2>
+            <p class="app-page-subtitle">Configure application preferences, brand identity, and payment gateway keys</p>
         </div>
     </div>
 
+    <!-- Settings Card -->
+    <div class="app-table-card p-4">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active d-flex align-items-center gap-2 px-3 py-2 fs-12 fw-semibold" id="pills-app-tab" 
+                        data-bs-toggle="pill" data-bs-target="#pills-app" type="button" role="tab">
+                    <i class="bi bi-sliders2-vertical"></i> Application Configuration
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link d-flex align-items-center gap-2 px-3 py-2 fs-12 fw-semibold" id="pills-payment-tab" 
+                        data-bs-toggle="pill" data-bs-target="#pills-payment" type="button" role="tab">
+                    <i class="bi bi-credit-card-2-front-fill"></i> Payment Gateway (Razorpay)
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="pills-tabContent">
+            <!-- Application Tab -->
+            <div class="tab-pane fade show active" id="pills-app" role="tabpanel">
+                <div class="row g-3 max-width-700">
+                    <div class="col-12">
+                        <label for="applicationLogoId" class="form-label">Application Logo</label>
+                        <input id="applicationLogoId" type="file" class="form-control form-control-sm">
+                        <span class="fs-10 text-muted mt-1 d-block">Recommended format: SVG, PNG, or WebP. Transparent background preferred.</span>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <button class="my-btn-size primary">
+                            <i class="bi bi-check2"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Tab -->
+            <div class="tab-pane fade" id="pills-payment" role="tabpanel">
+                <div class="row g-3 max-width-700">
+                    <div class="col-12">
+                        <label for="razorpayKeyId" class="form-label">Razorpay Key ID</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                            <input id="razorpayKeyId" type="text" class="form-control form-control-sm" placeholder="rzp_live_xxxxxxxx">
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="razorpaySecretId" class="form-label">Razorpay Key Secret</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-shield-lock-fill"></i></span>
+                            <input id="razorpaySecretId" type="password" class="form-control form-control-sm" placeholder="••••••••••••••••">
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <button class="my-btn-size primary">
+                            <i class="bi bi-check2"></i> Save API Credentials
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>

@@ -1,12 +1,4 @@
-.client-wrapper{
-
-    .add-filter-container{
-        height: 30px;
-    }
-    
-    .filter-conatiner{
-        /* height: 50px;
-        background-color: red; */
-    }
-
+/* Component specific styles for Client Master */
+.text-heading {
+    color: var(--text-heading-color);
 }

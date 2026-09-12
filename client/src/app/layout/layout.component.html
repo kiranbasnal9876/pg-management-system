@@ -1,20 +1,19 @@
-<div class="vw-100 vh-100 body-theme-color">
+<div class="vw-100 vh-100 body-theme-color app-main-layout d-flex flex-column">
 
-    <div class="header">
+    <header class="header">
         <app-header (sidebarToggle)="sidebarState($event)"></app-header>
-    </div>
+    </header>
 
-    <!-- Add overlay div -->
-    <div class="overlay " [class.active]="sidebarVisible && isMobileView"></div>
+    <!-- Mobile view backdrop overlay -->
+    <div class="overlay" [class.active]="sidebarVisible && isMobileView" (click)="sidebarVisible = false"></div>
 
-    <div class="sidebar-pages-container row mx-0 p-0 body-theme-color">
-        <div class="p-0 card-theme-color" [ngClass]="sidebarVisible? 'sidebar' : 'remove-sidebar sidebar' ">
-            <app-sidebar></app-sidebar>
-        </div>
-        <div class="pages  px-2 pt-1 pb-1 body-theme-color">
+    <div class="sidebar-pages-container d-flex flex-row mx-0 p-0 body-theme-color">
+        <aside class="p-0 card-theme-color sidebar-wrapper" [ngClass]="sidebarVisible ? 'sidebar' : 'remove-sidebar sidebar'">
+            <app-sidebar (logoutClick)="sidebarVisible = false"></app-sidebar>
+        </aside>
+        <main class="pages px-3 py-3 body-theme-color">
            <router-outlet></router-outlet>
-        </div>
-
+        </main>
     </div>
 
 </div>

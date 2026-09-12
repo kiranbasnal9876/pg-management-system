@@ -1,16 +1,30 @@
 .header {
-  height: 40px;
+  height: 60px;
+  flex-shrink: 0;
+  z-index: 1000;
+  position: relative;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--card-bg);
 }
 
 .sidebar-pages-container {
-  height: calc(100% - 40px);
+  height: calc(100vh - 60px);
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
 }
 
+.sidebar-wrapper {
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+}
 
 .sidebar {
-  width: 200px; /* or whatever width you want */
-  transition: transform 0.3s ease-in-out;
+  width: 240px;
   height: 100%;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-color);
+  background-color: var(--card-bg);
 }
 
 .remove-sidebar {
@@ -18,25 +32,28 @@
   overflow: hidden;
   padding: 0; 
   width: 0; 
+  border-right: none;
 }
-
 
 .pages {
   flex: 1;
   overflow-y: auto;
-  width: calc(100% - 200px);
+  overflow-x: hidden;
   height: 100%;
+  background-color: var(--background-color);
 }
 
-/* Mobile/Tablet behavior */
+/* Mobile & Tablet responsiveness */
 @media (max-width: 768px) {
   .sidebar {
     position: absolute;
+    top: 0;
     left: 0;
     height: 100%;
     z-index: 999;
     transform: translateX(-100%);
-    width: 200px; /* Wider for mobile */
+    width: 260px;
+    box-shadow: var(--shadow-lg);
   }
 
   .sidebar:not(.remove-sidebar) {
@@ -45,22 +62,20 @@
 
   .remove-sidebar {
     transform: translateX(-100%);
-  }
-
-  .pages{
-    height: 100%;
+    width: 260px;
   }
 
   .overlay {
     position: fixed;
-    top: 40px; /* Below header */
+    top: 60px;
     left: 0;
     width: 100%;
-    height: calc(100% - 40px);
-    background-color: rgba(0, 0, 0, 0.5);
+    height: calc(100vh - 60px);
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
     z-index: 998;
     display: none;
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.25s ease-in-out;
     opacity: 0;
   }
 

@@ -1,3 +1,10 @@
-.card-bg{
-    background-color: var(--card-bg);
+.chart-container {
+    width: 100%;
+    min-height: 320px;
+    display: flex;
+    justify-content: center;
+}
+
+.text-heading {
+    color: var(--text-heading-color);
 }

@@ -1,19 +1,60 @@
-<div class="row mx-0 p-0  h-100 d-flex align-items-center position-relative card-theme-color">
+<div class="header-container d-flex align-items-center justify-content-between px-3 w-100 h-100 card-theme-color">
 
-    <div class="logo-section  d-flex align-items-center h-100 position-relative">
-        <img src="../../../assets/images/amazon-prime-logo-420x420.webp" class="w-100 h-100 object-fit-contain" alt="">
-        <i (click)="toggleSidebar()" class="cursor-pointer bi bi-justify-right position-absolute" style="right: -5px;"></i>
+    <!-- Left Brand & Sidebar Toggle -->
+    <div class="brand-section d-flex align-items-center gap-3">
+        <button class="sidebar-toggle-btn btn btn-sm d-flex align-items-center justify-content-center" 
+                (click)="toggleSidebar()" 
+                type="button" 
+                title="Toggle Sidebar">
+            <i class="bi bi-list fs-5"></i>
+        </button>
+
+        <div class="brand-logo-wrapper d-flex align-items-center gap-2">
+            <div class="brand-icon-box d-flex align-items-center justify-content-center">
+                <i class="bi bi-building-fill-gear text-white"></i>
+            </div>
+            <div class="brand-text d-none d-sm-flex flex-column">
+                <span class="brand-title fw-bold">PG Manager</span>
+                <span class="brand-subtitle fs-10 text-muted">Management System</span>
+            </div>
+        </div>
     </div>
 
-    <div class="header-section d-flex align-items-center justify-content-end gap-3">
-        <div>
-            <i (click)="setTheme('light')" class="" [ngClass]="currentTheme == 'dark' ? 'bi bi-moon' : 'bi bi-brightness-high'"></i>
-        </div>
-        <div class="align-items-center d-flex">
-            <img src="../../../assets/images/logo.avif" alt="propfile" class="border profile" >
-        </div>
-    </div>
+    <!-- Right Header Actions (Theme Toggle, Profile, Logout Button) -->
+    <div class="header-actions d-flex align-items-center gap-2 gap-md-3">
 
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle-btn btn btn-sm d-flex align-items-center gap-1" 
+                (click)="toggleTheme()" 
+                type="button" 
+                [title]="currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+            <i [ngClass]="currentTheme === 'dark' ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-primary'"></i>
+            <span class="d-none d-lg-inline fs-11 text-muted">{{ currentTheme === 'dark' ? 'Light' : 'Dark' }}</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="vr my-2 opacity-25 d-none d-sm-block"></div>
+
+        <!-- User Profile Pill -->
+        <div class="user-profile-pill d-flex align-items-center gap-2 px-2 py-1 rounded">
+            <div class="profile-avatar-box">
+                <img src="assets/images/logo.avif" alt="Admin" class="profile-img" (error)="$any($event.target).src='https://ui-avatars.com/api/?name=Admin+User&background=4f46e5&color=fff'">
+            </div>
+            <div class="profile-info d-none d-md-flex flex-column text-start">
+                <span class="profile-name fs-12 fw-semibold">Admin</span>
+                <span class="profile-role fs-10 text-muted">PG Owner</span>
+            </div>
+        </div>
+
+        <!-- Prominent Logout Button -->
+        <button class="logout-btn btn btn-sm d-flex align-items-center gap-1" 
+                (click)="logout()" 
+                type="button" 
+                title="Logout from System">
+            <i class="bi bi-box-arrow-right fs-13"></i>
+            <span class="d-none d-sm-inline fs-11 fw-semibold">Logout</span>
+        </button>
+
+    </div>
 
 </div>
-  

@@ -1,10 +1,43 @@
-<div class="sidebar-menu card-theme-color h-100 w-100 px-2 py-1">
+<nav class="sidebar-container d-flex flex-column justify-content-between h-100 w-100 p-3 card-theme-color">
 
-    @for(menus of myMenu ; track $index){
+    <!-- Top Navigation Menu -->
+    <div class="sidebar-top-section">
+        <div class="sidebar-heading px-2 mb-2">
+            <span class="fs-10 fw-bold text-uppercase text-muted letter-spacing-1">Navigation</span>
+        </div>
 
-        <li  class="rounded mb-2 px-2 pt-1 pb-1 fs-13 cursor-pointer" routerLink="{{menus.menu_url}}" routerLinkActive="active-link" ><i class="{{menus.icon_class}}" ></i> {{menus.menu | titlecase}}</li>
+        <ul class="sidebar-nav-list list-unstyled m-0 p-0 d-flex flex-column gap-1">
+            @for(menus of myMenu; track $index){
+                <li class="sidebar-nav-item">
+                    <a class="sidebar-link rounded d-flex align-items-center gap-3 px-3 py-2 text-decoration-none cursor-pointer"
+                       [routerLink]="menus.menu_url" 
+                       routerLinkActive="active-link">
+                        <i class="{{menus.icon_class}} fs-14"></i>
+                        <span class="fs-12 fw-medium">{{menus.menu}}</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
 
-    }
+    <!-- Bottom Sidebar Section (User info & Dedicated Logout) -->
+    <div class="sidebar-bottom-section pt-3 border-top border-secondary-subtle">
+        <div class="sidebar-user-card p-2 rounded mb-2 d-flex align-items-center gap-2">
+            <div class="user-avatar-sm">
+                <i class="bi bi-person-fill text-primary"></i>
+            </div>
+            <div class="user-meta overflow-hidden">
+                <div class="fs-12 fw-bold text-truncate">Administrator</div>
+                <div class="fs-10 text-muted">admin&#64;pgms.com</div>
+            </div>
+        </div>
 
+        <button class="sidebar-logout-btn btn btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+                (click)="logout()"
+                type="button">
+            <i class="bi bi-box-arrow-right"></i>
+            <span class="fs-12 fw-semibold">Sign Out</span>
+        </button>
+    </div>
 
-</div>
+</nav>

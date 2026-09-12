@@ -33,6 +33,8 @@ class Pg_owner_db {
 
         const result = await db.getSingleRow('pg_owners', { email: email });
 
+        console.log(result,'sd')
+
         return result;
 
     }

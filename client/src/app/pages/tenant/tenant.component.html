@@ -1,439 +1,450 @@
-<div class="client-wrapper w-100 h-100 position-relative">
+<div class="app-page-container">
 
-    <div class="add-filter-container d-flex justify-content-end gap-2 position-relative mb-2">
-        <button class="btn btn-sm btn-xsm btn-warning" (click)="filterOption = !filterOption"><i
-                class="bi bi-funnel"></i> Filter</button>
-        <button class="btn btn-sm btn-xsm btn-primary" (click)="openADDForm()" data-bs-toggle="modal"
-            data-bs-target="#exampleModal"><i class="bi bi-people"></i> Add Tenant</button>
+    <!-- Common Page Header -->
+    <div class="app-page-header">
+        <div class="app-page-title-group">
+            <h2 class="app-page-title">
+                <i class="bi bi-person-badge-fill"></i>
+                Tenant Directory
+            </h2>
+            <p class="app-page-subtitle">Comprehensive directory of active and previous tenants, documents, and room allocations</p>
+        </div>
+        <div class="app-page-actions">
+            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="filterOption = !filterOption">
+                <i class="bi bi-funnel"></i>
+                <span>Filter</span>
+                @if (filterOption) {
+                    <span class="badge bg-primary ms-1">Active</span>
+                }
+            </button>
+            <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="openADDForm()" data-bs-toggle="modal"
+                data-bs-target="#exampleModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Add Tenant</span>
+            </button>
+        </div>
     </div>
 
+    <!-- Filter Card -->
+    <div class="app-filter-card" [ngClass]="filterOption ? '' : 'd-none'">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+            <span class="fs-12 fw-bold text-heading d-flex align-items-center gap-1">
+                <i class="bi bi-sliders"></i> Filter Tenants
+            </span>
+            <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
+        </div>
 
-    <!-- Filter  -->
-
-    <div class="filter-conatiner card-theme-color rounded m-0 p-0 mb-2" [ngClass]="filterOption ? '' : 'd-none' ">
-        <form [formGroup]="filterForm" class="row mx-0 p-0 " (submit)="getTable()">
-
-            <div class="mb-2 col-md-2">
-                <label for="propertyNameId" class="form-label fs-10">Property name</label>
+        <form [formGroup]="filterForm" class="row g-2 align-items-end" (submit)="getTable()">
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Property Name</label>
                 <select formControlName="pg_id" class="form-select form-select-sm">
-                    <option value="">--select pg--</option>
-                    @for(items of property_data ; track $index){
+                    <option value="">-- All Properties --</option>
+                    @for(items of property_data; track $index){
                     <option value="{{items.id}}">{{items.name}}</option>
                     }@empty{
-                    <option value="">no pg found</option>
+                    <option value="">No PG found</option>
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="stateId" class="form-label fs-10">State</label>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">State</label>
                 <select class="form-select form-select-sm" id="stateId" (change)="getDistrict(filter_state.value)"
                     #filter_state formControlName="state">
-                    <option value="">--select state--</option>
+                    <option value="">-- Select State --</option>
                     @for (item of state_data; track $index) {
                     <option [value]="item.state_id">{{ item.state_name }}</option>
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="districtId" class="form-label fs-10">District</label>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">District</label>
                 <select class="form-select form-select-sm" id="districtId" formControlName="district">
-                    <option value="">--select district--</option>
+                    <option value="">-- Select District --</option>
                     @for (item of district_data; track $index) {
                     <option [value]="item.district_id">{{ item.district_name }}</option>
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="statusId" class="form-label fs-10">Status</label>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Status</label>
                 <select class="form-select form-select-sm" id="statusId" formControlName="status">
-                    <option value="">select</option>
-                    <option selected value="1">Active</option>
+                    <option value="">All Statuses</option>
+                    <option value="1">Active</option>
                     <option value="0">Inactive</option>
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Tenant name</label>
-                <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="search">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Email</label>
-                <input type="text" class="form-control form-control-sm" formControlName="email" placeholder="search">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Address</label>
-                <input type="text" class="form-control form-control-sm" formControlName="address" placeholder="search">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">DOB</label>
-                <input type="date" class="form-control form-control-sm" formControlName="dob">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Room number</label>
-                <input type="text" class="form-control form-control-sm" formControlName="room_number"
-                    placeholder="i.e 101, 201">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Occupation</label>
-                <input type="text" class="form-control form-control-sm" formControlName="occupation"
-                    placeholder="search">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Phone</label>
-                <input type="text" class="form-control form-control-sm" formControlName="occupation"
-                    placeholder="phone">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Emergency contact</label>
-                <input type="text" class="form-control form-control-sm" formControlName="emergency_contact"
-                    placeholder="search">
-            </div>
-            <div class="mb-2 col-md-2">
-                <label for="tenantNameId" class="form-label fs-10">Phone contact</label>
-                <input type="text" class="form-control form-control-sm" formControlName="parent_contact"
-                    placeholder="search">
-            </div>
-            <div class=" col-md-3 d-flex gap-2 mt-4">
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success"><i
-                        class="bi bi-search"></i> search</button>
-                <button type="button" class="my-btn-size danger" (click)="resetFilterForm()"><i class="bi bi-x"></i>
-                    reset</button>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Tenant Name</label>
+                <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="Search name">
             </div>
 
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Email Address</label>
+                <input type="text" class="form-control form-control-sm" formControlName="email" placeholder="Search email">
+            </div>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-control form-control-sm" formControlName="address" placeholder="Search address">
+            </div>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-control form-control-sm" formControlName="dob">
+            </div>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Room Number</label>
+                <input type="text" class="form-control form-control-sm" formControlName="room_number" placeholder="e.g. 101">
+            </div>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Occupation</label>
+                <input type="text" class="form-control form-control-sm" formControlName="occupation" placeholder="Search occupation">
+            </div>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Emergency Contact</label>
+                <input type="text" class="form-control form-control-sm" formControlName="emergency_contact" placeholder="Search contact">
+            </div>
+
+            <div class="col-xl-2 col-md-3 col-sm-6">
+                <label class="form-label">Parent Contact</label>
+                <input type="text" class="form-control form-control-sm" formControlName="parent_contact" placeholder="Search contact">
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                <button type="button" class="my-btn-size danger" (click)="resetFilterForm()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset Filters
+                </button>
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success">
+                    <i class="bi bi-search"></i> Apply Search
+                </button>
+            </div>
         </form>
     </div>
 
-    <!-- Filter  -->
-
-    <!-- Paggination and limit component  -->
+    <!-- Pagination and limit component -->
     <app-pagination [formGroup]="filterForm" [limit]="limit" [total_pages]="total_pages" [page_no]="page"
         [callback]="getTable.bind(this)"></app-pagination>
-    <!-- Paggination and limit component  -->
 
-    <!-- table  -->
+    <!-- Table Container Card -->
+    <div class="app-table-card">
+        <div class="table-wrapper">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>Photo</th>
+                        <th>Tenant Name</th>
+                        <th>PG Property</th>
+                        <th>Room</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
+                        <th>Rent Status</th>
+                        <th>Occupation</th>
+                        <th>DOB</th>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>Documents</th>
+                        <th>Status</th>
+                        <th class="text-center" style="width: 110px;">Actions</th>
+                    </tr>
+                </thead>
 
-    <div class="table-wrapper  rounded overflow-x-auto">
-
-        <table class="table fs-10 ">
-            <thead class="cursor-pointer user-selection-none white-space">
-                <tr>
-                    <th>Sno.</th>
-                    <th>Pg name</th>
-                    <th>Profile</th>
-                    <th>Tenant name</th>
-                    <th>Phone</th>
-                    <th>Gender</th>
-                    <th>Email</th>
-                    <th>Address</th>
-                    <th>Emergency contact</th>
-                    <th>Parent contact</th>
-                    <th>Rent status</th>
-                    <th>DOB</th>
-                    <th>Room number</th>
-                    <th>Aadhar card</th>
-                    <th>Pan card</th>
-                    <th>Occupation</th>
-                    <th>State</th>
-                    <th>District</th>
-                    <th>Status</th>
-                    <th class="text-center">Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @for(items of table_data ; track $index ; let i = $index){
-                <tr>
-                    <td>{{ (page - 1) * limit + i + 1 }}</td>
-                    <td>{{items.pg_name}}</td>
-                    <td><img (click)="openBigImage(profile_photo.src)" #profile_photo src="{{server_url}}static/{{items.profile_photo}}"
-                            class="rounded-circle object-fit-cover cursor-pointer" alt="profile photo" width="25px" height="25px"
-                            title="profile" data-bs-toggle="modal" data-bs-target="#imageModal"></td>
-                    <td>{{items.tenant_name}}</td>
-                    <td>{{items.phone}}</td>
-                    <td>{{items.gender}} 
-                        @if(items.gender == 'male'){
-                            <i class="bi bi-gender-male"></i>
-                        }@else if(items.gender == 'female'){
-                            <i class="bi bi-gender-female"></i>
-                        }@else{
-                            <i class="bi bi-gender-ambiguous"></i>
-                        }
-
-                    </td>
-                    <td>{{items.email}}</td>
-                    <td>{{items.address}}</td>
-                    <td>{{items.emergency_contact}}</td>
-                    <td>{{items.parent_contact}}</td>
-                    <td>
-                        <span class="badge bg-success"
-                            [ngClass]="items.rent_status === 'paid' ? 'bg-success' : 'bg-danger'">{{
-                            items.rent_status === 'paid' ? 'Paid' : 'Pending' }}</span>
-                    </td>
-                    <td>{{items.dob | date:'mediumDate'}}</td>
-                    <td>{{items.room_number}}</td>
-                    <td><img (click)="openBigImage(aadhar_image.src)" #aadhar_image src="{{server_url}}static/{{items.aadhar}}" class="rounded-circle object-fit-cover cursor-pointer"
-                            alt="aadhar card" width="25px" height="25px" title="aadhar" data-bs-toggle="modal" data-bs-target="#imageModal"></td>
-                    <td><img (click)="openBigImage(pan_image.src)" #pan_image src="{{server_url}}static/{{items.pan}}" class="rounded-circle object-fit-cover cursor-pointer"
-                            alt="pan card" width="25px" height="25px" title="pan" data-bs-toggle="modal" data-bs-target="#imageModal"></td>
-                    <td>{{items.occupation}}</td>
-                    <td>{{ items.state | stateName: state_data }}</td>
-                    <td>{{getDistrictForView(items.district)}}</td>
-                    <td>
-                        <span class="badge bg-success" [ngClass]="items.status === 1 ? 'bg-success' : 'bg-danger'">{{
-                            items.status === 1 ? 'Active' : 'Inactive' }}</span>
-                    </td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <button data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="EDIT(items.id)"
-                            class="my-btn-size primary"><i class="bi bi-pencil"></i></button>
-                        <button class="my-btn-size danger" (click)="DELETE(items.id)"><i
-                                class="bi bi-trash"></i></button>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-
+                <tbody>
+                    @for(items of table_data; track $index; let i = $index){
+                    <tr>
+                        <td class="text-muted fw-semibold">{{ (page - 1) * limit + i + 1 }}</td>
+                        <td>
+                            <img (click)="openBigImage(profile_photo.src)" #profile_photo 
+                                 src="{{server_url}}static/{{items.profile_photo}}"
+                                 (error)="$any($event.target).src='https://ui-avatars.com/api/?name=' + (items.tenant_name || items.name) + '&background=eef2ff&color=4f46e5'"
+                                 class="rounded-circle object-fit-cover cursor-pointer border" 
+                                 alt="Profile" width="34px" height="34px"
+                                 title="Click to view full photo" data-bs-toggle="modal" data-bs-target="#imageModal">
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-heading">{{items.tenant_name || items.name}}</div>
+                            <div class="fs-10 text-muted">{{items.email}}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{items.pg_name}}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">#{{items.room_number}}</span>
+                        </td>
+                        <td>{{items.phone}}</td>
+                        <td>
+                            <span class="text-capitalize d-inline-flex align-items-center gap-1">
+                                @if(items.gender == 'male'){
+                                    <i class="bi bi-gender-male text-primary"></i> Male
+                                }@else if(items.gender == 'female'){
+                                    <i class="bi bi-gender-female text-danger"></i> Female
+                                }@else{
+                                    <i class="bi bi-gender-ambiguous text-secondary"></i> {{items.gender}}
+                                }
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="items.rent_status === 'paid' ? 'bg-success' : 'bg-danger'">
+                                {{ items.rent_status === 'paid' ? 'Paid' : 'Pending' }}
+                            </span>
+                        </td>
+                        <td>{{items.occupation}}</td>
+                        <td class="text-muted">{{items.dob | date:'mediumDate'}}</td>
+                        <td>{{ items.state | stateName: state_data }}</td>
+                        <td>{{ getDistrictForView(items.district) }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <button class="btn btn-sm btn-outline-secondary py-0 px-1 fs-10" (click)="openBigImage(server_url + 'static/' + items.aadhar)"
+                                        data-bs-toggle="modal" data-bs-target="#imageModal" title="View Aadhar">
+                                    <i class="bi bi-file-earmark-person"></i> Aadhar
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary py-0 px-1 fs-10" (click)="openBigImage(server_url + 'static/' + items.pan)"
+                                        data-bs-toggle="modal" data-bs-target="#imageModal" title="View PAN">
+                                    <i class="bi bi-file-earmark-text"></i> PAN
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="items.status === 1 ? 'bg-success' : 'bg-danger'">
+                                {{ items.status === 1 ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-btn-group justify-content-center">
+                                <button data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="EDIT(items.id)"
+                                    class="btn-action-icon primary" title="Edit Tenant">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn-action-icon danger" (click)="DELETE(items.id)" title="Delete Tenant">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }@empty{
+                    <tr>
+                        <td colspan="13" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-1 opacity-50"></i>
+                            No tenants found matching your query.
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- table  -->
-
-
-    <!-- Add Modal -->
+    <!-- Add/Edit Tenant Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fs-6" id="exampleModalLabel">{{editMode ? 'Edit Tenant' : 'Add Tenant'}}
+                    <h5 class="modal-title fs-14 fw-bold" id="exampleModalLabel">
+                        <i class="bi" [ngClass]="editMode ? 'bi-pencil-square' : 'bi-person-plus-fill'"></i>
+                        {{editMode ? 'Edit Tenant Details' : 'Add New Tenant Registration'}}
                     </h5>
-                    <button type="button" #modelClose class="btn-close btn btn-sm btn-xsm" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" #modelClose class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-
-
+                <div class="modal-body p-4">
                     <form [formGroup]="dataForm">
-
-                        <div class="row mx-0 p-0">
-
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Pg name <span class="text-danger">*</span> </label>
+                        <div class="row g-3">
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Property Name <span class="text-danger">*</span></label>
                                 <select formControlName="pg_id" class="form-select form-select-sm" #pgProperty
                                     (change)="getAvailableRooms(pgProperty.value)">
-                                    <option value="">--select pg--</option>
-                                    @for(items of property_data ; track $index){
-                                    <option value="{{items.id}}">{{items.name}} </option>
+                                    <option value="">-- Select PG --</option>
+                                    @for(items of property_data; track $index){
+                                    <option value="{{items.id}}">{{items.name}}</option>
                                     }@empty{
-                                    <option value="">no pg found</option>
+                                    <option value="">No PG found</option>
                                     }
                                 </select>
-                                <app-form-validation-message [formGroup]="dataForm" controlName="pg_id"
-                                    fieldName="Pg name"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="pg_id" fieldName="Property name"></app-form-validation-message>
                             </div>
 
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Room number <span class="text-danger">*</span> </label>
-                                <!-- <input type="text" class="form-control form-control-sm" formControlName="room_id"> -->
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Room Allocation <span class="text-danger">*</span></label>
                                 <select formControlName="room_id" class="form-select form-select-sm">
-                                    @for(items of roomList ; track $index){
-                                    <option value="{{items.id}}">{{items.room_number}}</option>
+                                    <option value="">-- Select Room --</option>
+                                    @for(items of roomList; track $index){
+                                    <option value="{{items.id}}">{{items.room_number}} ({{items.type}} Sharing)</option>
                                     }@empty{
-                                    <option value="">no room is available</option>
+                                    <option value="">No rooms available</option>
                                     }
                                 </select>
-                                <app-form-validation-message [formGroup]="dataForm" controlName="room_id"
-                                    fieldName="Room number"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="room_id" fieldName="Room number"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Tenant Name <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="name"
-                                    maxlength="30">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="name"
-                                    fieldName="Name"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Tenant Phone <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="phone"
-                                    maxlength="10">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="phone"
-                                    fieldName="Phone number"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Tenant email <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="email"
-                                    maxlength="50">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="email"
-                                    fieldName="Email"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Parent contact <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="parent_contact"
-                                    maxlength="10">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="parent_contact"
-                                    fieldName="Parent contact"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Emergency contact <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm"
-                                    formControlName="emergency_contact" maxlength="10">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="emergency_contact"
-                                    fieldName="Emergency contact"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Password <span class="text-danger">*</span> </label>
-                                <input type="password" class="form-control form-control-sm" formControlName="password"
-                                    maxlength="15">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="password"
-                                    fieldName="Password"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Gender <span class="text-danger">*</span> </label><br>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input " type="radio" formControlName="gender"
-                                        id="tenantGenderId1" value="male">
-                                    <label class="form-check-label" for="tenantGenderId1">Male</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" formControlName="gender"
-                                        id="tenantGenderId2" value="female">
-                                    <label class="form-check-label" for="tenantGenderId2">Female</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" formControlName="gender"
-                                        id="tenantGenderId3" value="other">
-                                    <label class="form-check-label" for="tenantGenderId3">other</label>
-                                </div><br>
 
-                                <app-form-validation-message [formGroup]="dataForm" controlName="gender"
-                                    fieldName="Gender"></app-form-validation-message>
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Tenant Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" placeholder="Full name">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="name" fieldName="Name"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>DOB <span class="text-danger">*</span> </label>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="phone" maxlength="10" placeholder="10 digits">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="phone" fieldName="Phone"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="email" maxlength="50" placeholder="Email address">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="email" fieldName="Email"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Password @if (!editMode) { <span class="text-danger">*</span> }</label>
+                                <input type="password" class="form-control form-control-sm" formControlName="password" maxlength="15" placeholder="Set password">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="password" fieldName="Password"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                <select formControlName="gender" class="form-select form-select-sm">
+                                    <option value="">-- Select Gender --</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="gender" fieldName="Gender"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control form-control-sm" formControlName="dob">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="dob"
-                                    fieldName="DOB"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="dob" fieldName="DOB"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Occupation <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="occupation"
-                                    maxlength="70">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="occupation"
-                                    fieldName="Occupation"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Check in date <span class="text-danger">*</span> </label>
-                                <input type="date" class="form-control form-control-sm" formControlName="check_in_date">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="check_in_date"
-                                    fieldName="Check in date"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Rent status <span class="text-danger">*</span> </label><br>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input " type="radio" formControlName="rent_status"
-                                        id="tenantPaymentId1" value="pending">
-                                    <label class="form-check-label" for="tenantPaymentId1">Pending</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" formControlName="rent_status"
-                                        id="tenantPaymentId2" value="paid">
-                                    <label class="form-check-label" for="tenantPaymentId2">Paid</label>
-                                </div><br>
 
-                                <app-form-validation-message [formGroup]="dataForm" controlName="rent_status"
-                                    fieldName="Rent status"></app-form-validation-message>
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Check-in Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm" formControlName="check_in_date">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="check_in_date" fieldName="Check-in date"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6  mb-3">
-                                <label> Address <span class="text-danger">*</span> </label>
-                                <input type="text" formControlName="address" class="form-control form-control-sm">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="address"
-                                    fieldName="Address"></app-form-validation-message>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Rent Status <span class="text-danger">*</span></label>
+                                <select formControlName="rent_status" class="form-select form-select-sm">
+                                    <option value="">-- Select Status --</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="rent_status" fieldName="Rent status"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6  mb-3">
-                                <label> Status <span class="text-danger">*</span> </label>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Occupation <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="occupation" placeholder="Student / Employee">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="occupation" fieldName="Occupation"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Parent / Guardian Contact <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="parent_contact" maxlength="10" placeholder="Phone number">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="parent_contact" fieldName="Parent contact"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Emergency Contact <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="emergency_contact" maxlength="10" placeholder="Emergency number">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="emergency_contact" fieldName="Emergency contact"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-6 col-md-8 col-sm-12">
+                                <label class="form-label">Permanent Address <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="address" placeholder="Full residential address">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="address" fieldName="Address"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <select formControlName="status" class="form-select form-select-sm">
                                     <option value="1" selected>Active</option>
                                     <option value="0">Inactive</option>
                                 </select>
-                                <app-form-validation-message [formGroup]="dataForm" controlName="status"
-                                    fieldName="Status"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="status" fieldName="Status"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label> State <span class="text-danger">*</span> </label>
-                                <select formControlName="state" (change)="getDistrict(state_id.value)" #state_id
-                                    class="form-select form-select-sm">
-                                    <option value="">--select state--</option>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">State <span class="text-danger">*</span></label>
+                                <select formControlName="state" (change)="getDistrict(state_id.value)" #state_id class="form-select form-select-sm">
+                                    <option value="">-- Select State --</option>
                                     @for (item of state_data; track $index) {
                                     <option [value]="item.state_id">{{ item.state_name }}</option>
                                     }
                                 </select>
-                                <app-form-validation-message [formGroup]="dataForm" controlName="state"
-                                    fieldName="State"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="state" fieldName="State"></app-form-validation-message>
                             </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label> District <span class="text-danger">*</span> </label>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">District <span class="text-danger">*</span></label>
                                 <select formControlName="district" class="form-select form-select-sm">
-                                    <option value="">--select district--</option>
+                                    <option value="">-- Select District --</option>
                                     @for (item of district_data; track $index) {
                                     <option [value]="item.district_id">{{ item.district_name }}</option>
                                     }
                                 </select>
-                                <app-form-validation-message [formGroup]="dataForm" controlName="district"
-                                    fieldName="district"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label> Pincode <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="pincode"
-                                    maxlength="6">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="pincode"
-                                    fieldName="Pincode"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Profile photo <span class="text-danger">*</span> </label>
-                                <input type="file" (change)="fileUpload($event ,'profileFile')"
-                                    class="form-control form-control-sm" formControlName="profile_photo">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="profile_photo"
-                                    fieldName="Profile photo"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Addhar card <span class="text-danger">*</span> </label>
-                                <input type="file" (change)="fileUpload($event ,'aadharFile')"
-                                    class="form-control form-control-sm" formControlName="aadhar">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="aadhar"
-                                    fieldName="Aadhar card"></app-form-validation-message>
-                            </div>
-                            <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
-                                <label>Pan card <span class="text-danger">*</span> </label>
-                                <input type="file" (change)="fileUpload($event ,'panCardFile')"
-                                    class="form-control form-control-sm" formControlName="pan">
-                                <app-form-validation-message [formGroup]="dataForm" controlName="pan"
-                                    fieldName="Pan card"></app-form-validation-message>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="district" fieldName="District"></app-form-validation-message>
                             </div>
 
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Pincode <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" formControlName="pincode" maxlength="6" placeholder="Pincode">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="pincode" fieldName="Pincode"></app-form-validation-message>
+                            </div>
 
+                            <div class="col-xl-4 col-md-4 col-sm-6">
+                                <label class="form-label">Profile Photo <span class="text-danger">*</span></label>
+                                <input type="file" (change)="fileUpload($event, 'profileFile')" class="form-control form-control-sm" formControlName="profile_photo">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="profile_photo" fieldName="Profile photo"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-4 col-md-4 col-sm-6">
+                                <label class="form-label">Aadhar Card Document <span class="text-danger">*</span></label>
+                                <input type="file" (change)="fileUpload($event, 'aadharFile')" class="form-control form-control-sm" formControlName="aadhar">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="aadhar" fieldName="Aadhar card"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-4 col-md-4 col-sm-6">
+                                <label class="form-label">PAN Card Document <span class="text-danger">*</span></label>
+                                <input type="file" (change)="fileUpload($event, 'panCardFile')" class="form-control form-control-sm" formControlName="pan">
+                                <app-form-validation-message [formGroup]="dataForm" controlName="pan" fieldName="Pan card"></app-form-validation-message>
+                            </div>
                         </div>
-
                     </form>
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" (click)="this.dataForm.reset()"
-                        class="btn btn-sm btn-xsm btn-danger">reset</button>
-                    <button type="button" (click)="editMode? UPDATE() :ADD()"
-                        class="btn btn-sm btn-xsm btn-primary">{{editMode ? 'Edit Tenant' : 'Add Tenant'}}</button>
+                    <button type="button" (click)="this.dataForm.reset()" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                    <button type="button" (click)="editMode ? UPDATE() : ADD()" class="btn btn-sm btn-primary">
+                        <i class="bi bi-check2"></i> {{editMode ? 'Save Changes' : 'Register Tenant'}}
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Add Modal -->
 
-
-    <!-- Image Modal -->
+    <!-- Image Preview Modal -->
     <div class="modal fade" id="imageModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-transparent border-0">
-                <div class="modal-body p-0">
-                    <img  src="{{imgSrc}}" class="img-fluid w-100" alt="Image">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 overflow-hidden shadow-lg">
+                <div class="modal-header border-0 bg-dark text-white py-2 px-3">
+                    <span class="fs-12 fw-medium">Document Preview</span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0 bg-dark d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                    <img [src]="imgSrc" class="img-fluid rounded" alt="Document Preview" style="max-height: 80vh;">
                 </div>
             </div>
         </div>
     </div>
-    <!-- Image Modal  -->
+
 </div>
