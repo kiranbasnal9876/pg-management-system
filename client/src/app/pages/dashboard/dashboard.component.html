@@ -1,140 +1,465 @@
 <div class="app-page-container">
 
-  <!-- Common Page Header -->
-  <div class="app-page-header">
-    <div class="app-page-title-group">
-      <h2 class="app-page-title">
-        <i class="bi bi-grid-1x2-fill"></i>
-        Dashboard Overview
-      </h2>
-      <p class="app-page-subtitle">Welcome back! Real-time statistics for your PG properties and tenants.</p>
-    </div>
-    <div class="app-page-actions">
-      <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="getPgDetails()">
-        <i class="bi bi-arrow-clockwise"></i>
-        <span>Refresh Data</span>
-      </button>
-    </div>
-  </div>
+  <!-- ========================================== -->
+  <!-- 1. PG OWNER DASHBOARD VIEW                 -->
+  <!-- ========================================== -->
+  @if (userRole === 'owner') {
 
-  <!-- KPI Metric Cards Grid -->
-  <div class="row g-3">
-    <!-- Total Tenant -->
-    <div class="col-xl-2 col-md-4 col-sm-6">
-      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
-        <div>
-          <span class="fs-11 text-muted fw-medium d-block mb-1">Total Tenants</span>
-          <h4 class="fw-bold mb-0 text-heading">{{total_tenant}}</h4>
-        </div>
-        <div class="icon-bubble" style="background-color: var(--primary-light); color: var(--primary-color);">
-          <i class="bi bi-people-fill"></i>
-        </div>
+    <!-- Common Page Header -->
+    <div class="app-page-header">
+      <div class="app-page-title-group">
+        <h2 class="app-page-title">
+          <i class="bi bi-grid-1x2-fill text-primary"></i>
+          Landlord Dashboard Overview
+        </h2>
+        <p class="app-page-subtitle">Real-time rent collections, occupancy metrics, and tenant WhatsApp alerts.</p>
+      </div>
+      <div class="app-page-actions">
+        <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm" (click)="refreshAll()">
+          <i class="bi bi-arrow-clockwise"></i>
+          <span>Refresh Data</span>
+        </button>
       </div>
     </div>
 
-    <!-- Total Revenue / Profit -->
-    <div class="col-xl-2 col-md-4 col-sm-6">
-      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
-        <div>
-          <span class="fs-11 text-muted fw-medium d-block mb-1">Total Revenue</span>
-          <h4 class="fw-bold mb-0 text-success">₹{{total_paid_rent ? total_paid_rent : '2,78,279'}}</h4>
-        </div>
-        <div class="icon-bubble" style="background-color: var(--success-light); color: var(--success-color);">
-          <i class="bi bi-cash-stack"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Room Available -->
-    <div class="col-xl-2 col-md-4 col-sm-6">
-      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
-        <div>
-          <span class="fs-11 text-muted fw-medium d-block mb-1">Available Rooms</span>
-          <h4 class="fw-bold mb-0 text-info">10/{{total_rooms}}</h4>
-        </div>
-        <div class="icon-bubble" style="background-color: var(--info-light); color: var(--info-color);">
-          <i class="bi bi-door-open-fill"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pending Rent -->
-    <div class="col-xl-2 col-md-4 col-sm-6">
-      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
-        <div>
-          <span class="fs-11 text-muted fw-medium d-block mb-1">Pending Rent</span>
-          <h4 class="fw-bold mb-0 text-danger">₹{{total_pending_rent}}</h4>
-        </div>
-        <div class="icon-bubble" style="background-color: var(--danger-light); color: var(--danger-color);">
-          <i class="bi bi-clock-history"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pending Complaints -->
-    <div class="col-xl-2 col-md-4 col-sm-6">
-      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
-        <div>
-          <span class="fs-11 text-muted fw-medium d-block mb-1">Pending Compl.</span>
-          <h4 class="fw-bold mb-0 text-warning">{{total_pending_complaints}}</h4>
-        </div>
-        <div class="icon-bubble" style="background-color: var(--warning-light); color: var(--warning-color);">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Maintenance Requests -->
-    <div class="col-xl-2 col-md-4 col-sm-6">
-      <div class="my-dashboard-card d-flex align-items-center justify-content-between">
-        <div>
-          <span class="fs-11 text-muted fw-medium d-block mb-1">Total Complaints</span>
-          <h4 class="fw-bold mb-0 text-heading">{{total_complaints ? total_complaints : '23'}}</h4>
-        </div>
-        <div class="icon-bubble" style="background-color: var(--secondary-light); color: var(--secondary-color);">
-          <i class="bi bi-tools"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Charts Analytics Section -->
-  <div class="row g-3 mt-1">
-    <!-- Bar Chart -->
-    <div class="col-lg-8 col-12">
-      <div class="app-table-card p-3 h-100">
-        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+    <!-- KPI Metric Cards Grid -->
+    <div class="row g-3 mb-4">
+      
+      <!-- Total Tenants -->
+      <div class="col-xl-3 col-md-6">
+        <div class="my-dashboard-card d-flex align-items-center justify-content-between p-3 rounded-4 shadow-sm card-theme-color border-0">
           <div>
-            <h6 class="fw-bold mb-1">Revenue & Occupancy Statistics</h6>
-            <span class="fs-11 text-muted">Quarterly distribution overview</span>
+            <span class="fs-11 text-muted fw-semibold text-uppercase letter-spacing-1 d-block mb-1">Total Tenants</span>
+            <h3 class="fw-bold mb-0 text-heading">{{ total_tenant }}</h3>
+            <span class="fs-11 text-muted">Across all your active PGs</span>
           </div>
-          <span class="badge bg-primary">Analytics</span>
+          <div class="icon-bubble" style="background-color: var(--primary-light); color: var(--primary-color);">
+            <i class="bi bi-people-fill fs-4"></i>
+          </div>
         </div>
-        <div class="chart-container">
-          <apx-chart [series]="barchartOptions.series" [chart]="barchartOptions.chart"
-            [dataLabels]="barchartOptions.dataLabels" [plotOptions]="barchartOptions.plotOptions"
-            [responsive]="barchartOptions.responsive" [xaxis]="barchartOptions.xaxis" [legend]="barchartOptions.legend"
-            [fill]="barchartOptions.fill"></apx-chart>
+      </div>
+
+      <!-- Tenants Paid Rent -->
+      <div class="col-xl-3 col-md-6">
+        <div class="my-dashboard-card d-flex align-items-center justify-content-between p-3 rounded-4 shadow-sm card-theme-color border-0 border-start border-success border-4">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="fs-11 text-success fw-bold text-uppercase letter-spacing-1">Rent Paid</span>
+              <span class="badge bg-success-subtle text-success fs-10 px-2 py-0.5 rounded-pill">
+                <i class="bi bi-check-circle-fill me-1"></i>{{ total_paid_rent }} Tenants
+              </span>
+            </div>
+            <h3 class="fw-bold mb-0 text-success">
+              ₹{{ paid_amount.toLocaleString('en-IN') }}
+            </h3>
+            <span class="fs-11 text-muted">Collected for current cycle</span>
+          </div>
+          <div class="icon-bubble" style="background-color: var(--success-light); color: var(--success-color);">
+            <i class="bi bi-cash-stack fs-4"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tenants Pending Rent (Unpaid) -->
+      <div class="col-xl-3 col-md-6">
+        <div class="my-dashboard-card d-flex align-items-center justify-content-between p-3 rounded-4 shadow-sm card-theme-color border-0 border-start border-danger border-4">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="fs-11 text-danger fw-bold text-uppercase letter-spacing-1">Rent Pending</span>
+              <span class="badge bg-danger-subtle text-danger fs-10 px-2 py-0.5 rounded-pill">
+                <i class="bi bi-exclamation-circle-fill me-1"></i>{{ total_pending_rent }} Unpaid
+              </span>
+            </div>
+            <h3 class="fw-bold mb-0 text-danger">
+              ₹{{ pending_amount.toLocaleString('en-IN') }}
+            </h3>
+            <span class="fs-11 text-muted">Awaiting collection</span>
+          </div>
+          <div class="icon-bubble" style="background-color: var(--danger-light); color: var(--danger-color);">
+            <i class="bi bi-clock-history fs-4"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Rooms -->
+      <div class="col-xl-3 col-md-6">
+        <div class="my-dashboard-card d-flex align-items-center justify-content-between p-3 rounded-4 shadow-sm card-theme-color border-0">
+          <div>
+            <span class="fs-11 text-muted fw-semibold text-uppercase letter-spacing-1 d-block mb-1">Occupancy & Rooms</span>
+            <h3 class="fw-bold mb-0 text-info">{{ total_rooms_available }} / {{ total_rooms }}</h3>
+            <span class="fs-11 text-muted">Available / Total Rooms</span>
+          </div>
+          <div class="icon-bubble" style="background-color: var(--info-light); color: var(--info-color);">
+            <i class="bi bi-door-open-fill fs-4"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Rent Collection Breakdown & WhatsApp Reminders Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-theme-color mb-4">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 pb-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+          <h5 class="fw-bold fs-15 text-heading mb-1 d-flex align-items-center gap-2">
+            <i class="bi bi-cash-coin text-success"></i>
+            Tenant Rent Status & WhatsApp Reminders
+          </h5>
+          <span class="fs-12 text-muted">Review who has paid their rent and instantly ping unpaid tenants via WhatsApp.</span>
+        </div>
+
+        <!-- Filter Pills: All / Pending / Paid (High Contrast in Light & Dark Mode) -->
+        <div class="dashboard-filter-pills">
+          <button type="button" class="dashboard-filter-btn"
+                  [class.active-all]="rentFilterTab === 'all'"
+                  (click)="rentFilterTab = 'all'">
+            All Tenants ({{ allTenantsList.length }})
+          </button>
+          <button type="button" class="dashboard-filter-btn"
+                  [class.active-pending]="rentFilterTab === 'pending'"
+                  (click)="rentFilterTab = 'pending'">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            Unpaid / Pending ({{ pendingTenantsList.length }})
+          </button>
+          <button type="button" class="dashboard-filter-btn"
+                  [class.active-paid]="rentFilterTab === 'paid'"
+                  (click)="rentFilterTab = 'paid'">
+            <i class="bi bi-check-circle-fill"></i>
+            Paid ({{ paidTenantsList.length }})
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        @if (filteredTenants.length === 0) {
+          <div class="text-center py-5">
+            <i class="bi bi-check2-circle fs-1 text-success opacity-50"></i>
+            <p class="fs-13 text-muted mt-2 mb-0">No tenants found in this category.</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 fs-12">
+              <thead class="fs-11 text-uppercase">
+                <tr>
+                  <th class="ps-4">Tenant Name</th>
+                  <th>Room & PG</th>
+                  <th>Phone Number</th>
+                  <th>Monthly Rent</th>
+                  <th>Rent Status</th>
+                  <th class="text-end pe-4">Actions / WhatsApp</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (t of filteredTenants; track t.id) {
+                  <tr>
+                    <!-- Name & Avatar -->
+                    <td class="ps-4">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 11px;">
+                          {{ t.name ? t.name.substring(0,2).toUpperCase() : 'TN' }}
+                        </div>
+                        <div>
+                          <div class="fw-semibold text-heading">{{ t.name }}</div>
+                          <div class="fs-10 text-muted">{{ t.email }}</div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Room & PG -->
+                    <td>
+                      <span class="badge badge-subtle me-1">Room {{ t.room_number || '-' }}</span>
+                      <span class="fs-11 text-muted">{{ t.pg_name }}</span>
+                    </td>
+
+                    <!-- Phone -->
+                    <td class="text-muted fw-mono">
+                      {{ t.phone }}
+                    </td>
+
+                    <!-- Monthly Rent -->
+                    <td class="fw-bold text-heading">
+                      ₹{{ (+t.monthly_rent).toLocaleString('en-IN') }}
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                      @if (t.rent_status === 'paid') {
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                          <i class="bi bi-check-circle-fill me-1"></i> PAID
+                        </span>
+                      } @else {
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                          <i class="bi bi-exclamation-triangle-fill me-1"></i> PENDING
+                        </span>
+                      }
+                    </td>
+
+                    <!-- Action Buttons -->
+                    <td class="text-end pe-4">
+                      <div class="d-inline-flex align-items-center gap-2">
+                        @if (t.rent_status !== 'paid') {
+                          <!-- Send WhatsApp Reminder Button -->
+                          <button class="btn btn-sm btn-success rounded-pill px-3 py-1 fs-11 d-flex align-items-center gap-1 shadow-sm"
+                                  (click)="sendWhatsAppReminder(t)"
+                                  title="Send WhatsApp rent reminder">
+                            <i class="bi bi-whatsapp"></i>
+                            <span>Remind on WhatsApp</span>
+                          </button>
+                          
+                          <!-- Mark as Paid via Cash -->
+                          <button class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 fs-11"
+                                  (click)="toggleTenantRentStatus(t, 'paid')"
+                                  title="Tenant paid in cash">
+                            Mark Paid
+                          </button>
+                        } @else {
+                          <!-- Send Receipt on WhatsApp -->
+                          <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fs-11 d-flex align-items-center gap-1"
+                                  (click)="sendWhatsAppReceipt(t)"
+                                  title="Send rent payment receipt on WhatsApp">
+                            <i class="bi bi-whatsapp"></i>
+                            <span>Send Receipt</span>
+                          </button>
+
+                          <!-- Reset to Pending -->
+                          <button class="btn-table-reset"
+                                  (click)="toggleTenantRentStatus(t, 'pending')"
+                                  title="Reset status to pending">
+                            Reset
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Secondary Charts & Analytics Row -->
+    <div class="row g-3">
+      <!-- Rent Status Donut Breakdown -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 card-theme-color h-100">
+          <h5 class="fw-bold fs-14 text-heading mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-pie-chart-fill text-primary"></i>
+            Rent Collection Ratio
+          </h5>
+          <div class="d-flex justify-content-center py-2">
+            <apx-chart
+              [series]="chartOptions.series"
+              [chart]="chartOptions.chart"
+              [labels]="chartOptions.labels"
+              [responsive]="chartOptions.responsive">
+            </apx-chart>
+          </div>
+          <div class="d-flex justify-content-around mt-3 pt-2 border-top fs-12">
+            <div class="text-center">
+              <span class="text-muted d-block fs-11">Paid Tenants</span>
+              <strong class="text-success fs-14">{{ total_paid_rent }}</strong>
+            </div>
+            <div class="text-center">
+              <span class="text-muted d-block fs-11">Pending Tenants</span>
+              <strong class="text-danger fs-14">{{ total_pending_rent }}</strong>
+            </div>
+            <div class="text-center">
+              <span class="text-muted d-block fs-11">Collection %</span>
+              <strong class="text-primary fs-14">
+                {{ total_tenant > 0 ? (total_paid_rent / total_tenant * 100 | number:'1.0-0') : '0' }}%
+              </strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions & Complaints Card -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 card-theme-color h-100 d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="fw-bold fs-14 text-heading mb-3 d-flex align-items-center gap-2">
+              <i class="bi bi-lightning-charge-fill text-warning"></i>
+              Quick Actions & Maintenance
+            </h5>
+
+            <div class="row g-2 mb-3">
+              <div class="col-sm-6">
+                <a routerLink="/tenant" class="card border p-3 text-decoration-none text-heading h-100 rounded-3 hover-shadow card-theme-color">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-person-plus-fill text-primary fs-5"></i>
+                    <strong class="fs-12">Add New Tenant</strong>
+                  </div>
+                  <span class="fs-11 text-muted">Register resident, upload KYC and assign room.</span>
+                </a>
+              </div>
+              <div class="col-sm-6">
+                <a routerLink="/complaints" class="card border p-3 text-decoration-none text-heading h-100 rounded-3 hover-shadow card-theme-color">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-exclamation-octagon-fill text-danger fs-5"></i>
+                    <strong class="fs-12">Review Complaints ({{ total_pending_complaints }})</strong>
+                  </div>
+                  <span class="fs-11 text-muted">Resolve open Wi-Fi, Food, and plumbing issues.</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-subtle-box rounded-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-shield-check text-success fs-4"></i>
+              <div>
+                <strong class="fs-12 d-block">Razorpay Online Payments Enabled</strong>
+                <span class="fs-10 text-muted">Tenants can directly clear rent from their resident panel.</span>
+              </div>
+            </div>
+            <span class="badge bg-success text-white px-2 py-1 fs-10">Active</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Donut Chart -->
-    <div class="col-lg-4 col-12">
-      <div class="app-table-card p-3 h-100">
-        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-          <div>
-            <h6 class="fw-bold mb-1">Room Availability Ratio</h6>
-            <span class="fs-11 text-muted">Occupied vs available space</span>
-          </div>
-          <span class="badge bg-info">Occupancy</span>
-        </div>
-        <div class="chart-container d-flex flex-column align-items-center justify-content-center pt-2">
-          <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [labels]="chartOptions.labels"
-            [responsive]="chartOptions.responsive"></apx-chart>
-        </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- 2. TENANT RESIDENT DASHBOARD VIEW          -->
+  <!-- ========================================== -->
+  @if (userRole === 'tenant') {
+
+    <!-- Tenant Page Header -->
+    <div class="app-page-header">
+      <div class="app-page-title-group">
+        <h2 class="app-page-title">
+          <i class="bi bi-house-door-fill text-primary"></i>
+          Welcome, {{ currentUser?.name || 'Resident' }}!
+        </h2>
+        <p class="app-page-subtitle">Manage your room, track monthly rent, and pay securely via Razorpay.</p>
+      </div>
+      <div class="app-page-actions">
+        <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-2" (click)="chatWithLandlord()">
+          <i class="bi bi-whatsapp"></i>
+          <span>WhatsApp Landlord</span>
+        </button>
+        <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm" (click)="loadTenantDashboard()">
+          <i class="bi bi-arrow-clockwise"></i>
+          <span>Refresh</span>
+        </button>
       </div>
     </div>
-  </div>
+
+    <!-- Main Rent Card for Tenant -->
+    <div class="row g-3 mb-4">
+      
+      <!-- Primary Rent Status Box -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 card-theme-color h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fs-11 text-muted fw-bold text-uppercase letter-spacing-1">Current Billing Cycle</span>
+              <span class="badge rounded-pill px-3 py-1.5 fs-11"
+                    [ngClass]="tenantRentData?.rent_status === 'paid' ? 'bg-success text-white' : 'bg-danger text-white'">
+                {{ tenantRentData?.rent_status === 'paid' ? 'PAID / CLEARED ✅' : 'PENDING PAYMENT ⚠️' }}
+              </span>
+            </div>
+
+            <div class="my-3">
+              <span class="fs-12 text-muted fw-medium d-block">Monthly Room Rent</span>
+              <h1 class="display-6 fw-bold text-primary mb-1">
+                ₹{{ tenantRentData?.monthly_rent ? (+tenantRentData?.monthly_rent).toLocaleString('en-IN') : '8,000' }}
+                <span class="fs-14 text-muted fw-normal">/ month</span>
+              </h1>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap align-items-center gap-3 mt-3 pt-3 border-top">
+            @if (tenantRentData?.rent_status !== 'paid') {
+              <a routerLink="/pay-rent" class="btn btn-primary btn-lg rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow">
+                <i class="bi bi-lightning-charge-fill text-warning"></i>
+                <span class="fw-semibold">Pay via Razorpay Now</span>
+              </a>
+            } @else {
+              <a routerLink="/pay-rent" class="btn btn-success btn-lg rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-receipt me-1"></i>
+                <span class="fw-semibold">View Payment Receipt</span>
+              </a>
+            }
+
+            <button class="btn btn-outline-success rounded-pill px-3 py-2 d-flex align-items-center gap-2"
+                    (click)="chatWithLandlord()">
+              <i class="bi bi-whatsapp"></i>
+              <span>Chat with Landlord</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stay Details Card -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 card-theme-color h-100">
+          <h5 class="fw-bold fs-14 text-heading mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-geo-alt-fill text-primary"></i>
+            Room & Property Details
+          </h5>
+
+          <ul class="list-unstyled mb-0 d-flex flex-column gap-2 fs-12">
+            <li class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-muted">PG Name:</span>
+              <strong class="text-heading">{{ tenantRentData?.pg_name || 'PG Residency' }}</strong>
+            </li>
+            <li class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-muted">Assigned Room:</span>
+              <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1">Room {{ tenantRentData?.room_number || '-' }}</span>
+            </li>
+            <li class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-muted">Location:</span>
+              <span>{{ tenantRentData?.pg_location || 'Noida' }}</span>
+            </li>
+            <li class="d-flex justify-content-between border-bottom pb-2">
+              <span class="text-muted">Landlord / Caretaker:</span>
+              <span>{{ tenantRentData?.owner_name || 'Office Desk' }}</span>
+            </li>
+            <li class="d-flex justify-content-between">
+              <span class="text-muted">Landlord WhatsApp:</span>
+              <span class="text-success fw-bold">{{ tenantRentData?.owner_phone || '-' }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick Navigation Tiles for Tenant -->
+    <div class="row g-3">
+      <div class="col-md-6">
+        <a routerLink="/pay-rent" class="card border-0 shadow-sm rounded-4 p-4 text-decoration-none text-heading card-theme-color h-100 hover-shadow">
+          <div class="d-flex align-items-center gap-3">
+            <div class="icon-bubble" style="background-color: var(--primary-light); color: var(--primary-color);">
+              <i class="bi bi-credit-card-2-front-fill fs-3"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold fs-14 mb-1">Razorpay Online Rent Gateway</h5>
+              <span class="fs-12 text-muted">Pay monthly rent via UPI (GPay, PhonePe), Cards or NetBanking.</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-6">
+        <a routerLink="/complaints" class="card border-0 shadow-sm rounded-4 p-4 text-decoration-none text-heading card-theme-color h-100 hover-shadow">
+          <div class="d-flex align-items-center gap-3">
+            <div class="icon-bubble" style="background-color: var(--danger-light); color: var(--danger-color);">
+              <i class="bi bi-exclamation-octagon-fill fs-3"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold fs-14 mb-1">Service & Maintenance Requests</h5>
+              <span class="fs-12 text-muted">Report Wi-Fi, Food, Water, or Cleaning issues directly to management.</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+  }
 
 </div>

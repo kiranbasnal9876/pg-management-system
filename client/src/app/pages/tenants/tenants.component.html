@@ -1,41 +1,51 @@
 <div class="client-wrapper w-100 h-100 position-relative">
 
     <div class="add-filter-container d-flex justify-content-end gap-2 position-relative mb-2">
-        <button class="btn btn-sm btn-xsm btn-warning" (click)="filterOption = !filterOption"><i
-                class="bi bi-funnel"></i> Filter</button>
-        <button class="btn btn-sm btn-xsm btn-primary" (click)="openAddpropertyForm()" data-bs-toggle="modal"
-            data-bs-target="#exampleModal"><i class="bi bi-people"></i> Add property</button>
+        <button class="btn-filter-toggle" [class.active]="filterOption" (click)="filterOption = !filterOption" type="button">
+            <i class="bi bi-funnel-fill"></i>
+            <span>Filter</span>
+            @if (filterOption) {
+                <span class="filter-active-dot"></span>
+            }
+        </button>
+        <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="openAddpropertyForm()" data-bs-toggle="modal"
+            data-bs-target="#exampleModal"><i class="bi bi-plus-lg"></i> Add property</button>
     </div>
 
 
     <!-- Filter  -->
 
-    <div class="filter-conatiner card-theme-color rounded m-0 p-0 mb-2" [ngClass]="filterOption ? '' : 'd-none' ">
-        <form [formGroup]="filterForm" class="row mx-0 p-0 " (submit)="getTable()">
+    <div class="app-filter-card" [ngClass]="filterOption ? '' : 'd-none'">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+            <span class="filter-header-title">
+                <i class="bi bi-sliders"></i> Filter Properties
+            </span>
+            <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
+        </div>
 
-            <div class="mb-2 col-md-2">
+        <form [formGroup]="filterForm" class="row g-2 align-items-end" (submit)="getTable()">
+
+            <div class="col-md-3 col-sm-6">
                 <label for="propertyNameId" class="form-label fs-10">Property name</label>
-                <!-- <input type="text" id="propertyNameId" class="form-control form-control-sm " formControlName="name"
-                    placeholder="Enter name"> -->
-                    <select formControlName="id" class="form-select form-select-sm"  >
-                        <option value="">--select pg--</option>
-                        @for(items of property_data ; track $index){
-                            <option value="{{items.id}}" >{{items.name}}</option>
-                        }@empty{
-                            <option value="">no pg found</option>
-                        }
-                    </select>
+                <select formControlName="id" class="form-select form-select-sm">
+                    <option value="">--select pg--</option>
+                    @for(items of property_data ; track $index){
+                        <option value="{{items.id}}">{{items.name}}</option>
+                    }@empty{
+                        <option value="">no pg found</option>
+                    }
+                </select>
             </div>
-            <div class="mb-2 col-md-2">
-                <label for="stateId" class="form-label fs-10" >State</label>
-                <select class="form-select form-select-sm" id="stateId" (change)="getDistrict(filter_state.value)" #filter_state  formControlName="state">
+            <div class="col-md-3 col-sm-6">
+                <label for="stateId" class="form-label fs-10">State</label>
+                <select class="form-select form-select-sm" id="stateId" (change)="getDistrict(filter_state.value)" #filter_state formControlName="state">
                     <option value="">--select state--</option>
                     @for (item of state_data; track $index) {
                     <option [value]="item.state_id">{{ item.state_name }}</option>
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
+            <div class="col-md-2 col-sm-6">
                 <label for="districtId" class="form-label fs-10">District</label>
                 <select class="form-select form-select-sm" id="districtId" formControlName="district">
                     <option value="">--select district--</option>
@@ -44,7 +54,7 @@
                     }
                 </select>
             </div>
-            <div class="mb-2 col-md-2">
+            <div class="col-md-2 col-sm-6">
                 <label for="statusId" class="form-label fs-10">Status</label>
                 <select class="form-select form-select-sm" id="statusId" formControlName="status">
                     <option value="">select</option>
@@ -52,11 +62,13 @@
                     <option value="0">Inactive</option>
                 </select>
             </div>
-            <div class=" col-md-3 d-flex gap-2 mt-4">
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success"><i
-                        class="bi bi-search"></i> search</button>
-                <button type="button" class="my-btn-size danger"  (click)="resetFilterForm()"><i class="bi bi-x"></i>
-                    reset</button>
+            <div class="col-md-2 col-sm-12 d-flex gap-2">
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="btn-filter-apply flex-grow-1">
+                    <i class="bi bi-search"></i> Apply
+                </button>
+                <button type="button" class="btn-filter-reset flex-grow-1" (click)="resetFilterForm()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </button>
             </div>
 
         </form>
@@ -144,27 +156,28 @@
                             <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
                                 <label>Name <span class="text-danger">*</span> </label>
                                 <input type="text" class="form-control form-control-sm" formControlName="name"
-                                    maxlength="30">
+                                    maxlength="30" (input)="GF.enforceMaxLength($event, 30)">
                                 <app-form-validation-message [formGroup]="propertyForm" controlName="name"
                                     fieldName="Name"></app-form-validation-message>
                             </div>
                             <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
                                 <label>Total rooms <span class="text-danger">*</span> </label>
-                                <input type="text" class="form-control form-control-sm" formControlName="total_rooms">
+                                <input type="text" class="form-control form-control-sm" formControlName="total_rooms"
+                                    maxlength="4" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 4)" (input)="GF.enforceMaxLength($event, 4)">
                                 <app-form-validation-message [formGroup]="propertyForm" controlName="total_rooms"
                                     fieldName="Total rooms"></app-form-validation-message>
                             </div>
                             <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
                                 <label>Location <span class="text-danger">*</span> </label>
                                 <input type="text" class="form-control form-control-sm" formControlName="location"
-                                    maxlength="50">
+                                    maxlength="50" (input)="GF.enforceMaxLength($event, 50)">
                                 <app-form-validation-message [formGroup]="propertyForm" controlName="location"
                                     fieldName="Location"></app-form-validation-message>
                             </div>
                             <div class="col-xl-3 col-md-3 col-sm-6 mb-3">
                                 <label>Pincode <span class="text-danger">*</span> </label>
                                 <input type="text" class="form-control form-control-sm" formControlName="pincode"
-                                    maxlength="6">
+                                    maxlength="6" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 6)" (input)="GF.enforceMaxLength($event, 6)">
                                 <app-form-validation-message [formGroup]="propertyForm" controlName="pincode"
                                     fieldName="Pincode"></app-form-validation-message>
                             </div>

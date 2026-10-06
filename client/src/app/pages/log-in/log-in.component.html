@@ -1,67 +1,200 @@
-<div class="container-fluid login-container d-flex flex-column flex-md-row p-0 vh-100 body-theme-color">
-    <!-- Left: Image Section -->
-    <div class="d-none d-md-flex col-md-6 p-0 login-hero-side position-relative align-items-center justify-content-center overflow-hidden">
-        <img src="../../../assets/images/log-6.avif" class="img-fluid hero-bg-img" alt="PG Living Experience" />
-        <div class="hero-overlay d-flex flex-column justify-content-end p-5">
-            <div class="hero-badge mb-3 d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill">
-                <i class="bi bi-shield-check text-success"></i>
-                <span class="fs-12 fw-semibold text-white">Verified PG Management System</span>
-            </div>
-            <h2 class="text-white fw-bold mb-2">Smart Living, Simplified.</h2>
-            <p class="text-white-50 fs-13 mb-0">Manage hostels, monitor occupancy, track rent collections, and handle maintenance tickets with ease.</p>
-        </div>
+<div class="login-wrapper position-relative overflow-hidden min-vh-100 d-flex flex-column justify-content-between">
+
+  <!-- Ambient Glowing Mesh Background -->
+  <div class="mesh-glow mesh-glow-1"></div>
+  <div class="mesh-glow mesh-glow-2"></div>
+  <div class="mesh-glow mesh-glow-3"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="login-header d-flex justify-content-between align-items-center px-4 py-3 position-relative z-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="brand-logo-box d-flex align-items-center justify-content-center shadow-sm">
+        <i class="bi bi-building-fill-gear text-white fs-5"></i>
+      </div>
+      <div class="d-flex flex-column">
+        <span class="fw-bold fs-14 text-heading letter-spacing-1">PG MANAGER</span>
+        <span class="fs-10 text-muted">Cloud Management Suite</span>
+      </div>
     </div>
 
-    <!-- Right: Login Form -->
-    <div class="form-wrapper col-12 col-md-6 d-flex align-items-center justify-content-center px-4 py-5">
-        <div class="card shadow-lg p-4 login-card card-theme-color border">
-            <div class="mb-4 text-center">
-                <div class="login-brand-icon mx-auto mb-2 d-flex align-items-center justify-content-center">
-                    <i class="bi bi-building-fill-gear text-white fs-4"></i>
+    <!-- Theme Switcher & Status -->
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-theme-toggle d-flex align-items-center gap-1.5 rounded-pill px-3 py-1.5"
+              (click)="toggleTheme()"
+              [title]="currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        <i [ngClass]="currentTheme === 'dark' ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-primary'"></i>
+        <span class="fs-11 fw-medium">{{ currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="container-fluid d-flex flex-grow-1 align-items-center justify-content-center px-3 px-md-5 py-4 position-relative z-2">
+    <div class="row w-100 max-w-6xl align-items-center justify-content-center g-4 g-lg-5">
+
+      <!-- Left Hero Showcase (Hidden on Mobile) -->
+      <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-center pe-xl-5">
+        <div class="hero-badge-pill d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3 w-fit">
+          <span class="status-pulse-dot"></span>
+          <span class="fs-11 fw-bold text-uppercase letter-spacing-1 text-primary">Enterprise PG Operations</span>
+        </div>
+
+        <h1 class="display-6 fw-extrabold text-heading mb-3 tracking-tight">
+          Modern Living, <br>
+          <span class="gradient-text">Intelligently Managed.</span>
+        </h1>
+
+        <p class="fs-14 text-muted mb-4 pe-lg-4 lh-base">
+          All-in-one management suite for PG landlords and property owners. Track occupancy, monitor rent collections, collect payments via Razorpay, and stay connected with tenants over WhatsApp.
+        </p>
+
+        <!-- Feature Highlight Pills -->
+        <div class="d-flex flex-column gap-3 mb-4">
+          <div class="feature-glass-card d-flex align-items-center gap-3 p-3 rounded-4">
+            <div class="feature-icon-box bg-blue-subtle text-primary rounded-3 d-flex align-items-center justify-content-center">
+              <i class="bi bi-credit-card-2-front-fill fs-5"></i>
+            </div>
+            <div>
+              <strong class="fs-13 d-block text-heading">Razorpay Rent Collections</strong>
+              <span class="fs-11 text-muted">Tenants pay instantly via UPI, GPay, PhonePe, Cards, or NetBanking.</span>
+            </div>
+          </div>
+
+          <div class="feature-glass-card d-flex align-items-center gap-3 p-3 rounded-4">
+            <div class="feature-icon-box bg-emerald-subtle text-success rounded-3 d-flex align-items-center justify-content-center">
+              <i class="bi bi-whatsapp fs-5"></i>
+            </div>
+            <div>
+              <strong class="fs-13 d-block text-heading">Automated WhatsApp Reminders</strong>
+              <span class="fs-11 text-muted">1-Click rent reminders and verified digital payment receipts.</span>
+            </div>
+          </div>
+
+          <div class="feature-glass-card d-flex align-items-center gap-3 p-3 rounded-4">
+            <div class="feature-icon-box bg-cyan-subtle text-info rounded-3 d-flex align-items-center justify-content-center">
+              <i class="bi bi-door-open-fill fs-5"></i>
+            </div>
+            <div>
+              <strong class="fs-13 d-block text-heading">Real-Time Bed Occupancy</strong>
+              <span class="fs-11 text-muted">Capacity-safe room allocations and instant maintenance resolution.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Login Form Card -->
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="login-glass-card p-4 p-sm-5 rounded-4 shadow-lg position-relative">
+
+          <!-- Role Toggle Tabs -->
+          <div class="role-switch-container p-1 rounded-pill mb-4 d-flex">
+            <a routerLink="/log-in" class="role-tab active flex-fill text-center py-2 rounded-pill text-decoration-none fw-semibold fs-12">
+              <i class="bi bi-building me-1"></i> PG Owner
+            </a>
+            <a routerLink="/tenant-log-in" class="role-tab flex-fill text-center py-2 rounded-pill text-decoration-none text-muted fw-semibold fs-12">
+              <i class="bi bi-person me-1"></i> Tenant
+            </a>
+          </div>
+
+          <!-- Form Header -->
+          <div class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <h3 class="fw-bold text-heading mb-0 fs-20">PG Owner Sign In</h3>
+              <button type="button" class="btn btn-sm btn-demo-pill d-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fs-11"
+                      (click)="quickFillDemo()"
+                      title="Auto-fill demo owner credentials">
+                <i class="bi bi-lightning-charge-fill text-warning"></i>
+                <span>Demo Fill</span>
+              </button>
+            </div>
+            <p class="fs-12 text-muted mb-0">Enter your credentials to access your properties & rent stats.</p>
+          </div>
+
+          <!-- Form -->
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Email Input -->
+            <div class="mb-3">
+              <label for="owner-email" class="form-label fs-12 fw-medium text-heading">Email Address</label>
+              <div class="input-glass-group d-flex align-items-center rounded-3 px-3 py-2">
+                <i class="bi bi-envelope text-muted me-2 fs-14"></i>
+                <input id="owner-email" 
+                       type="email" 
+                       class="form-control border-0 bg-transparent p-0 fs-13 text-heading" 
+                       formControlName="email" 
+                       placeholder="owner@example.com"
+                       autocomplete="email">
+              </div>
+              @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+                <div class="text-danger fs-11 mt-1 d-flex align-items-center gap-1">
+                  <i class="bi bi-exclamation-circle-fill"></i> Please enter a valid email address
                 </div>
-                <h4 class="fw-bold mb-1 text-heading">PG Owner Portal</h4>
-                <p class="fs-12 text-muted">Sign in to manage your properties and tenants</p>
+              }
             </div>
 
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input id="email" type="email" class="form-control" formControlName="email" placeholder="owner@example.com"
-                            [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" />
-                    </div>
-                    @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-                        <div class="invalid-feedback d-block">
-                            Valid email required
-                        </div>
-                    }
-                </div>
-
-                <div class="mb-4">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input id="password" type="password" class="form-control" formControlName="password" placeholder="••••••••"
-                            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" />
-                    </div>
-                    @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-                        <div class="invalid-feedback d-block">
-                            Password required
-                        </div>
-                    }
-                </div>
-
-                <button class="btn w-100 login-btn d-flex align-items-center justify-content-center gap-2 mb-3" type="submit" [disabled]="loginForm.invalid">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    <span>Sign In to Dashboard</span>
+            <!-- Password Input with Eye Toggle -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="owner-password" class="form-label fs-12 fw-medium text-heading mb-0">Password</label>
+                <span class="fs-11 text-muted">Encrypted</span>
+              </div>
+              <div class="input-glass-group d-flex align-items-center rounded-3 px-3 py-2">
+                <i class="bi bi-lock text-muted me-2 fs-14"></i>
+                <input id="owner-password" 
+                       [type]="showPassword ? 'text' : 'password'" 
+                       class="form-control border-0 bg-transparent p-0 fs-13 text-heading" 
+                       formControlName="password" 
+                       placeholder="Enter password"
+                       autocomplete="current-password">
+                <button type="button" class="btn btn-sm text-muted p-0 ms-2" (click)="togglePasswordVisibility()" tabindex="-1">
+                  <i [ngClass]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                 </button>
-            </form>
-
-            <div class="pt-3 border-top text-center">
-                <span class="fs-12 text-muted">Are you a tenant? </span>
-                <a href="/tenant-log-in" class="fs-12 fw-semibold text-primary text-decoration-none">Tenant Portal Login</a>
+              </div>
+              @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                <div class="text-danger fs-11 mt-1 d-flex align-items-center gap-1">
+                  <i class="bi bi-exclamation-circle-fill"></i> Password is required
+                </div>
+              }
             </div>
+
+            <!-- Submit Button -->
+            <button class="btn btn-primary-gradient w-100 rounded-3 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow mb-3"
+                    type="submit" 
+                    [disabled]="loginForm.invalid || loading">
+              @if (loading) {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span>Authenticating...</span>
+              } @else {
+                <i class="bi bi-box-arrow-in-right fs-15"></i>
+                <span class="fw-semibold fs-13">Sign In to Dashboard</span>
+              }
+            </button>
+
+          </form>
+
+          <!-- Divider & Switch Link -->
+          <div class="pt-3 border-top text-center mt-3">
+            <span class="fs-12 text-muted">Are you a resident/tenant? </span>
+            <a routerLink="/tenant-log-in" class="fs-12 fw-semibold text-primary text-decoration-none">
+              Tenant Portal Login &rarr;
+            </a>
+          </div>
+
+          <!-- Bottom Security Badge -->
+          <div class="d-flex align-items-center justify-content-center gap-2 mt-4 pt-2 text-muted fs-11">
+            <i class="bi bi-shield-check text-success"></i>
+            <span>256-Bit SSL Encrypted & Secure Session</span>
+          </div>
+
         </div>
+      </div>
+
     </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="login-footer text-center py-3 text-muted fs-11 position-relative z-2">
+    <span>&copy; PG Management System. Designed for modern living & secure rent management.</span>
+  </footer>
+
 </div>

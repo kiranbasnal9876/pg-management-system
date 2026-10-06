@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pipes/state-name.pipe.ts"],
+  "sourcesContent": ["import { Pipe, PipeTransform } from '@angular/core';\n\n@Pipe({\n  name: 'stateName'\n})\nexport class StateNamePipe implements PipeTransform {\n\n  transform(stateId: number, stateData: any[]): unknown {\n\n    const state = stateData.find((ele:any) => ele.state_id == stateId);\n    return state ? state.state_name : 'Unknown';\n\n  }\n\n}\n"],
+  "mappings": ";;;;;;;AAKM,IAAO,gBAAP,MAAO,eAAa;EAExB,UAAU,SAAiB,WAAgB;AAEzC,UAAM,QAAQ,UAAU,KAAK,CAAC,QAAY,IAAI,YAAY,OAAO;AACjE,WAAO,QAAQ,MAAM,aAAa;EAEpC;;qCAPW,gBAAa;EAAA;wFAAb,gBAAa,MAAA,KAAA,CAAA;;;sEAAb,eAAa,CAAA;UAHzB;WAAK;MACJ,MAAM;KACP;;;",
+  "names": []
+}

@@ -10,11 +10,11 @@
             <p class="app-page-subtitle">Comprehensive directory of active and previous tenants, documents, and room allocations</p>
         </div>
         <div class="app-page-actions">
-            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="filterOption = !filterOption">
-                <i class="bi bi-funnel"></i>
+            <button class="btn-filter-toggle" [class.active]="filterOption" (click)="filterOption = !filterOption" type="button">
+                <i class="bi bi-funnel-fill"></i>
                 <span>Filter</span>
                 @if (filterOption) {
-                    <span class="badge bg-primary ms-1">Active</span>
+                    <span class="filter-active-dot"></span>
                 }
             </button>
             <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="openADDForm()" data-bs-toggle="modal"
@@ -28,7 +28,7 @@
     <!-- Filter Card -->
     <div class="app-filter-card" [ngClass]="filterOption ? '' : 'd-none'">
         <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-            <span class="fs-12 fw-bold text-heading d-flex align-items-center gap-1">
+            <span class="filter-header-title">
                 <i class="bi bi-sliders"></i> Filter Tenants
             </span>
             <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
@@ -118,11 +118,11 @@
             </div>
 
             <div class="col-12 d-flex justify-content-end gap-2 mt-2">
-                <button type="button" class="my-btn-size danger" (click)="resetFilterForm()">
-                    <i class="bi bi-arrow-counterclockwise"></i> Reset Filters
+                <button type="button" class="btn-filter-reset" (click)="resetFilterForm()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </button>
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success">
-                    <i class="bi bi-search"></i> Apply Search
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="btn-filter-apply">
+                    <i class="bi bi-search"></i> Apply Filter
                 </button>
             </div>
         </form>
@@ -218,6 +218,15 @@
                         </td>
                         <td class="text-center">
                             <div class="action-btn-group justify-content-center">
+                                @if (items.rent_status !== 'paid') {
+                                    <button class="btn-action-icon text-success border-success" (click)="sendWhatsAppReminder(items)" title="Send WhatsApp Rent Reminder">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </button>
+                                } @else {
+                                    <button class="btn-action-icon text-success border-success" (click)="sendWhatsAppReceipt(items)" title="Send WhatsApp Receipt Confirmation">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </button>
+                                }
                                 <button data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="EDIT(items.id)"
                                     class="btn-action-icon primary" title="Edit Tenant">
                                     <i class="bi bi-pencil"></i>
@@ -284,25 +293,25 @@
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Tenant Full Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" placeholder="Full name">
+                                <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" (input)="GF.enforceMaxLength($event, 30)" placeholder="Full name">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="name" fieldName="Name"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="phone" maxlength="10" placeholder="10 digits">
+                                <input type="text" class="form-control form-control-sm" formControlName="phone" maxlength="10" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 10)" (input)="GF.enforceMaxLength($event, 10)" placeholder="10 digits">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="phone" fieldName="Phone"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="email" maxlength="50" placeholder="Email address">
+                                <input type="text" class="form-control form-control-sm" formControlName="email" maxlength="50" (input)="GF.enforceMaxLength($event, 50)" placeholder="Email address">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="email" fieldName="Email"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Password @if (!editMode) { <span class="text-danger">*</span> }</label>
-                                <input type="password" class="form-control form-control-sm" formControlName="password" maxlength="15" placeholder="Set password">
+                                <input type="password" class="form-control form-control-sm" formControlName="password" maxlength="15" (input)="GF.enforceMaxLength($event, 15)" placeholder="Set password">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="password" fieldName="Password"></app-form-validation-message>
                             </div>
 
@@ -341,25 +350,25 @@
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Occupation <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="occupation" placeholder="Student / Employee">
+                                <input type="text" class="form-control form-control-sm" formControlName="occupation" maxlength="70" (input)="GF.enforceMaxLength($event, 70)" placeholder="Student / Employee">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="occupation" fieldName="Occupation"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Parent / Guardian Contact <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="parent_contact" maxlength="10" placeholder="Phone number">
+                                <input type="text" class="form-control form-control-sm" formControlName="parent_contact" maxlength="10" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 10)" (input)="GF.enforceMaxLength($event, 10)" placeholder="Phone number">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="parent_contact" fieldName="Parent contact"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Emergency Contact <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="emergency_contact" maxlength="10" placeholder="Emergency number">
+                                <input type="text" class="form-control form-control-sm" formControlName="emergency_contact" maxlength="10" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 10)" (input)="GF.enforceMaxLength($event, 10)" placeholder="Emergency number">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="emergency_contact" fieldName="Emergency contact"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-6 col-md-8 col-sm-12">
                                 <label class="form-label">Permanent Address <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="address" placeholder="Full residential address">
+                                <input type="text" class="form-control form-control-sm" formControlName="address" maxlength="100" (input)="GF.enforceMaxLength($event, 100)" placeholder="Full residential address">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="address" fieldName="Address"></app-form-validation-message>
                             </div>
 
@@ -396,7 +405,7 @@
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Pincode <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="pincode" maxlength="6" placeholder="Pincode">
+                                <input type="text" class="form-control form-control-sm" formControlName="pincode" maxlength="6" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 6)" (input)="GF.enforceMaxLength($event, 6)" placeholder="Pincode">
                                 <app-form-validation-message [formGroup]="dataForm" controlName="pincode" fieldName="Pincode"></app-form-validation-message>
                             </div>
 

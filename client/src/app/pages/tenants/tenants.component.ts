@@ -41,7 +41,7 @@ export class TenantsComponent {
   property_data: any
   @ViewChild('modelClose') modelClose!: ElementRef;
 
-  constructor(private api: ApiService, private GF: GlobalService) { }
+  constructor(private api: ApiService, public GF: GlobalService) { }
 
   ngOnInit(): void {
     this.getTable()

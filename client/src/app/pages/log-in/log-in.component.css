@@ -1,70 +1,186 @@
-.login-container {
-    min-height: 100vh;
+/* Modern Clean Login Styling */
+
+.login-wrapper {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease;
+  position: relative;
 }
 
-.login-hero-side {
-    background-color: #0f172a;
+/* Ambient Clean Background Mesh (Crisp, no blurry fog) */
+.mesh-glow {
+  display: none;
 }
 
-.hero-bg-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.65;
-    filter: brightness(0.85);
+.brand-logo-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--gradient-bg);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
-.hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.3) 100%);
-    z-index: 2;
+.btn-theme-toggle {
+  background-color: var(--card-bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  transition: all 0.2s ease;
 }
 
-.hero-badge {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    width: fit-content;
+.btn-theme-toggle:hover {
+  border-color: var(--primary-color);
+  background-color: var(--primary-light);
 }
 
-.login-card {
-    max-width: 440px;
-    width: 100%;
-    border-radius: var(--radius-lg);
-    background-color: var(--card-bg);
-    border-color: var(--border-color) !important;
+.hero-badge-pill {
+  background-color: var(--primary-light);
+  border: 1px solid rgba(37, 99, 235, 0.25);
 }
 
-.login-brand-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    background: var(--gradient-bg);
-    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+.status-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #2563eb;
+  box-shadow: 0 0 8px #2563eb;
+  animation: pulse 2s infinite;
 }
 
-.login-btn {
-    height: 42px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    background: var(--gradient-bg);
-    border: none;
-    color: #ffffff;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
 }
 
-.login-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
-    opacity: 0.95;
+.gradient-text {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.login-btn:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    background: var(--secondary-color);
-    box-shadow: none;
+.gradient-text-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Feature Showcase Cards */
+.feature-glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+}
+
+.feature-glass-card:hover {
+  transform: translateX(4px);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow);
+}
+
+.feature-icon-box {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+}
+
+.bg-blue-subtle {
+  background-color: var(--primary-light) !important;
+}
+
+.bg-emerald-subtle {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+.bg-cyan-subtle {
+  background-color: rgba(6, 182, 212, 0.15) !important;
+}
+
+/* Right Login Card (Crisp modern card) */
+.login-glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Role Toggle Tabs */
+.role-switch-container {
+  background-color: var(--table-header-bg);
+  border: 1px solid var(--border-color);
+}
+
+.role-tab {
+  color: var(--text-muted-color);
+  transition: all 0.2s ease;
+}
+
+.role-tab.active {
+  background: var(--primary-color);
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+}
+
+/* Demo Fill Button */
+.btn-demo-pill {
+  background-color: var(--primary-light);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  color: var(--primary-color);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-demo-pill:hover {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* Inputs with Glassy Styling */
+.input-glass-group {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  transition: all 0.2s ease;
+}
+
+.input-glass-group:focus-within {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.input-glass-group input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Gradient Action Button */
+.btn-primary-gradient {
+  background: var(--gradient-bg);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary-gradient:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+}
+
+.btn-primary-gradient:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.letter-spacing-1 {
+  letter-spacing: 0.06em;
+}
+
+.w-fit {
+  width: fit-content;
+}
+
+.max-w-6xl {
+  max-width: 1140px;
 }

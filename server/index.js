@@ -9,6 +9,7 @@ import delete_ from './controller/delete.js'
 import getList from './controller/getList.js'
 import trimRequestData from './middleware/trimRequestBody.js';
 import complaint from './controller/complaint.js'
+import rent_payment from './controller/rent_payment.js'
 const app = express();
 const port = 5005;
 
@@ -24,6 +25,13 @@ app.use('/static', express.static('uploads'))
 app.use('/pg-owner-login' , pg_owner.pg_owner_login())
 app.use('/tenant-login' , tenant.tenant_login())
 app.use(authMiddleware)
+
+// Rent & Razorpay Payment APIs
+app.use('/create-razorpay-order', rent_payment.create_order())
+app.use('/verify-rent-payment', rent_payment.verify_payment())
+app.use('/tenant-rent-info', rent_payment.tenant_rent_info())
+app.use('/owner-rent-summary', rent_payment.owner_rent_summary())
+app.use('/toggle-rent-status', rent_payment.toggle_rent_status())
 
 // Pg owner apis 
 app.use('/add-pg-owner' , pg_owner.add_pg_owner())

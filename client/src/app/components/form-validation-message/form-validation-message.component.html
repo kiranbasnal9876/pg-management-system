@@ -1,11 +1,11 @@
-<div class="position-absolute">
+<div class="position-absolute" style="margin-top: 1px; z-index: 5;">
 @if (control?.invalid && (control?.dirty || control?.touched)) {
 
   @if (control?.hasError('required')) {
     <small class="text-danger fs-10">{{ fieldName }} is required.</small>
   }
   @else if (control?.hasError('email')) {
-    <small class="text-danger fs-10">Enter a valid email.</small>
+    <small class="text-danger fs-10">Enter a valid email address.</small>
   }
   @else if (control?.hasError('minlength')) {
     <small class="text-danger fs-10">
@@ -19,19 +19,28 @@
       {{ control?.errors?.['maxlength']?.requiredLength }} characters long.
     </small>
   }
+  @else if (control?.hasError('numberOnly')) {
+    <small class="text-danger fs-10">{{ fieldName }} must contain only numbers.</small>
+  }
+  @else if (control?.hasError('alphabetOnly')) {
+    <small class="text-danger fs-10">{{ fieldName }} must contain only letters.</small>
+  }
   @else if (control?.hasError('pattern')) {
     @if (fieldName === 'Password') {
       <small class="text-danger fs-10">
         Password must include uppercase, lowercase, number, and special character.
       </small>
     }
-    @else if (fieldName === 'Mobile No') {
-      <small class="text-danger fs-10">Enter a valid mobile number.</small>
+    @else if (fieldName === 'Mobile No' || fieldName === 'Phone' || fieldName === 'Parent contact' || fieldName === 'Emergency contact') {
+      <small class="text-danger fs-10">Enter a valid 10-digit phone number.</small>
     }
     @else if (fieldName === 'Username') {
       <small class="text-danger fs-10">
         Username can contain only letters, numbers, and underscores.
       </small>
+    }
+    @else if (fieldName === 'Total rooms' || fieldName === 'Room number' || fieldName === 'Pincode') {
+      <small class="text-danger fs-10">{{ fieldName }} must contain only numbers.</small>
     }
     @else {
       <small class="text-danger fs-10">{{ fieldName }} format is invalid.</small>

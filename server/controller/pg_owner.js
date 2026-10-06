@@ -32,7 +32,14 @@ class Pg_owner {
                             if (!match) {
                                 fx.sendResponse(res, { status: false, message: 'Incorrect password' })
                             } else {
-                                fx.sendResponse(res, { message: 'Login successfully', token: encodeToken(response.data) })
+                                const ownerUser = { ...response.data, role: 'owner' };
+                                delete ownerUser.password;
+                                fx.sendResponse(res, { 
+                                    message: 'Login successfully', 
+                                    token: encodeToken(ownerUser),
+                                    role: 'owner',
+                                    user: ownerUser
+                                })
                             }
 
                         }

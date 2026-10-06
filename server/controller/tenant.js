@@ -141,7 +141,14 @@ class Tenant{
                             if (!match) {
                                 fx.sendResponse(res, { status: false, message: 'Incorrect password' })
                             } else {
-                                fx.sendResponse(res, { message: 'Login successfully', token: encodeToken(response.data) })
+                                const tenantUser = { ...response.data, role: 'tenant' };
+                                delete tenantUser.password;
+                                fx.sendResponse(res, { 
+                                    message: 'Login successfully', 
+                                    token: encodeToken(tenantUser),
+                                    role: 'tenant',
+                                    user: tenantUser
+                                })
                             }
 
                         }

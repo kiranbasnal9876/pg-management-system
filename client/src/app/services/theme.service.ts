@@ -46,10 +46,14 @@ export class ThemeService {
     const isDark = this.isDarkMode();
     const root = document.documentElement;
 
-    // Apply Bootstrap theme
+    // Apply Bootstrap theme attribute
     root.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
 
-    // Optional: Add a theme class to body (for your own CSS)
+    // Toggle Tailwind dark class
+    root.classList.toggle('dark', isDark);
+    document.body.classList.toggle('dark', isDark);
+
+    // Toggle custom theme classes on body
     document.body.classList.toggle('dark-theme', isDark);
     document.body.classList.toggle('light-theme', !isDark);
   }

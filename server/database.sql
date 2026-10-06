@@ -45,7 +45,8 @@ INSERT INTO `complaints` (`id`, `tenant_id`, `pg_id`, `room_id`, `category`, `de
 -- Dumping structure for table gg.pg_owners
 CREATE TABLE IF NOT EXISTS `pg_owners` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) DEFAULT NULL,
+  `name` varchar(AULT NULL,
+  `created_at` timestamp 30) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL,
   `password` text DEFAULT NULL,
   `phone` varchar(10) DEFAULT NULL,
@@ -53,8 +54,7 @@ CREATE TABLE IF NOT EXISTS `pg_owners` (
   `address` text DEFAULT NULL,
   `state` int(11) DEFAULT NULL,
   `district` int(11) DEFAULT NULL,
-  `pincode` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `pincode` int(11) DEFNOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `created_by` int(11) DEFAULT NULL,
   `updated_by` int(11) DEFAULT NULL,

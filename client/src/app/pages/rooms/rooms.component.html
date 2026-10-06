@@ -10,11 +10,11 @@
             <p class="app-page-subtitle">Configure room numbers, sharing capacities, and occupancy states</p>
         </div>
         <div class="app-page-actions">
-            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="filterOption = !filterOption">
-                <i class="bi bi-funnel"></i>
+            <button class="btn-filter-toggle" [class.active]="filterOption" (click)="filterOption = !filterOption" type="button">
+                <i class="bi bi-funnel-fill"></i>
                 <span>Filter</span>
                 @if (filterOption) {
-                    <span class="badge bg-primary ms-1">Active</span>
+                    <span class="filter-active-dot"></span>
                 }
             </button>
             <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="openaddRoomForm()" data-bs-toggle="modal"
@@ -28,7 +28,7 @@
     <!-- Filter Card -->
     <div class="app-filter-card" [ngClass]="filterOption ? '' : 'd-none'">
         <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-            <span class="fs-12 fw-bold text-heading d-flex align-items-center gap-1">
+            <span class="filter-header-title">
                 <i class="bi bi-sliders"></i> Filter Rooms
             </span>
             <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
@@ -51,13 +51,13 @@
                 <label class="form-label">Room Number</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text"><i class="bi bi-door-closed"></i></span>
-                    <input type="text" class="form-control form-control-sm" formControlName="room_number" placeholder="e.g. 101, 202">
+                    <input type="text" class="form-control form-control-sm" formControlName="room_number" maxlength="10" (input)="GF.enforceMaxLength($event, 10)" placeholder="e.g. 101, 202">
                 </div>
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Sharing Type</label>
-                <input type="text" class="form-control form-control-sm" formControlName="type" placeholder="e.g. 1, 2, 3">
+                <input type="text" class="form-control form-control-sm" formControlName="type" maxlength="2" (keypress)="GF.numberOnly($event)" (input)="GF.enforceMaxLength($event, 2)" placeholder="e.g. 1, 2, 3">
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
@@ -70,10 +70,10 @@
             </div>
 
             <div class="col-xl-2 col-md-12 d-flex gap-2">
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success flex-grow-1">
-                    <i class="bi bi-search"></i> Search
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="btn-filter-apply flex-grow-1">
+                    <i class="bi bi-search"></i> Apply
                 </button>
-                <button type="button" class="my-btn-size danger flex-grow-1" (click)="resetFilterForm()">
+                <button type="button" class="btn-filter-reset flex-grow-1" (click)="resetFilterForm()">
                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </button>
             </div>
@@ -186,7 +186,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Room Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="room_number" maxlength="10" placeholder="e.g. 101">
+                                <input type="text" class="form-control form-control-sm" formControlName="room_number" maxlength="10" (input)="GF.enforceMaxLength($event, 10)" placeholder="e.g. 101">
                                 <app-form-validation-message [formGroup]="roomForm" controlName="room_number" fieldName="Room number"></app-form-validation-message>
                             </div>
 

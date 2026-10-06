@@ -39,7 +39,7 @@ export class PropertyComponent implements OnInit {
   property_data: any
   @ViewChild('modelClose') modelClose!: ElementRef;
 
-  constructor(private api: ApiService, private GF: GlobalService) { }
+  constructor(private api: ApiService, public GF: GlobalService) { }
 
   ngOnInit(): void {
     this.getTable()
@@ -66,7 +66,7 @@ export class PropertyComponent implements OnInit {
     district: new FormControl('', [Validators.required]),
     status: new FormControl('', Validators.required),
     pincode: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]),
-    total_rooms: new FormControl('', [Validators.required, Validators.pattern(/^[0-9]+$/)]),
+    total_rooms: new FormControl('', [Validators.required, Validators.pattern(/^[0-9]+$/), Validators.maxLength(4)]),
     id: new FormControl('')
   })
 

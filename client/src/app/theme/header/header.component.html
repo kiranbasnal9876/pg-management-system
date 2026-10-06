@@ -38,11 +38,13 @@
         <!-- User Profile Pill -->
         <div class="user-profile-pill d-flex align-items-center gap-2 px-2 py-1 rounded">
             <div class="profile-avatar-box">
-                <img src="assets/images/logo.avif" alt="Admin" class="profile-img" (error)="$any($event.target).src='https://ui-avatars.com/api/?name=Admin+User&background=4f46e5&color=fff'">
+                <img [src]="'https://ui-avatars.com/api/?name=' + (currentUser?.name || 'User') + '&background=' + (userRole === 'tenant' ? '10b981' : '4f46e5') + '&color=fff'" 
+                     alt="Profile" 
+                     class="profile-img rounded-circle" style="width: 28px; height: 28px;">
             </div>
             <div class="profile-info d-none d-md-flex flex-column text-start">
-                <span class="profile-name fs-12 fw-semibold">Admin</span>
-                <span class="profile-role fs-10 text-muted">PG Owner</span>
+                <span class="profile-name fs-12 fw-semibold text-truncate" style="max-width: 140px;">{{ currentUser?.name || 'Administrator' }}</span>
+                <span class="profile-role fs-10 text-muted">{{ userRole === 'tenant' ? 'PG Resident' : 'PG Landlord' }}</span>
             </div>
         </div>
 

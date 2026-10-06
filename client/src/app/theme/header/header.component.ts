@@ -18,6 +18,8 @@ export class HeaderComponent implements OnInit {
 
   currentTheme: Theme = 'system';
   sidebarVisible: boolean = true;
+  currentUser: any = null;
+  userRole: 'tenant' | 'owner' = 'owner';
 
   @Output() sidebarToggle = new EventEmitter<boolean>();
 
@@ -27,6 +29,9 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.currentUser = this.GF.getUser();
+    this.userRole = this.GF.getUserRole() || 'owner';
+
     this.themeService.theme$.subscribe(theme => {
       this.currentTheme = theme;
     });

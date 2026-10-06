@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/client/client.component.css"],
+  "sourcesContent": ["/* Component specific styles for Client Master */\n.text-heading {\n    color: var(--text-heading-color);\n}"],
+  "mappings": ";AACA,CAAC;AACG,SAAO,IAAI;AACf;",
+  "names": []
+}

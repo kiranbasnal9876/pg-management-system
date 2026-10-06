@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/pay-rent/pay-rent.component.css"],
+  "sourcesContent": [".fw-mono {\n  font-family: monospace;\n}\n\n.card {\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n\n.card:hover {\n  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06) !important;\n}\n\n.letter-spacing-1 {\n  letter-spacing: 0.08em;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACC,eAAa;AACf;AAEA,CAAC;AACC,cAAY,UAAU,KAAK,IAAI,EAAE,WAAW,KAAK;AACnD;AAEA,CAJC,IAII;AACH,cAAY,EAAE,KAAK,KAAK,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AACxC;AAEA,CAAC;AACC,kBAAgB;AAClB;",
+  "names": []
+}

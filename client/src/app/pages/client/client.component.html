@@ -10,11 +10,11 @@
             <p class="app-page-subtitle">Manage registered clients, contact details, and account status</p>
         </div>
         <div class="app-page-actions">
-            <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="filterOption = !filterOption">
-                <i class="bi bi-funnel"></i>
+            <button class="btn-filter-toggle" [class.active]="filterOption" (click)="filterOption = !filterOption" type="button">
+                <i class="bi bi-funnel-fill"></i>
                 <span>Filter</span>
                 @if (filterOption) {
-                    <span class="badge bg-primary ms-1">Active</span>
+                    <span class="filter-active-dot"></span>
                 }
             </button>
             <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="openAddClientForm()" data-bs-toggle="modal"
@@ -28,8 +28,8 @@
     <!-- Filter Card -->
     <div class="app-filter-card" [ngClass]="filterOption ? '' : 'd-none'">
         <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-            <span class="fs-12 fw-bold text-heading d-flex align-items-center gap-1">
-                <i class="bi bi-sliders"></i> Filter Records
+            <span class="filter-header-title">
+                <i class="bi bi-sliders"></i> Filter Clients
             </span>
             <button type="button" class="btn-close btn-sm" (click)="filterOption = false" aria-label="Close"></button>
         </div>
@@ -55,7 +55,7 @@
                 <label class="form-label">Phone Number</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                    <input type="text" class="form-control form-control-sm" formControlName="phone" placeholder="Search phone">
+                    <input type="text" class="form-control form-control-sm" formControlName="phone" maxlength="10" (keypress)="GF.numberOnly($event)" (input)="GF.enforceMaxLength($event, 10)" placeholder="Search phone">
                 </div>
             </div>
 
@@ -69,10 +69,10 @@
             </div>
 
             <div class="col-xl-2 col-md-12 d-flex gap-2">
-                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="my-btn-size success flex-grow-1">
-                    <i class="bi bi-search"></i> Search
+                <button type="submit" (click)="this.filterForm.get('page')?.setValue(1)" class="btn-filter-apply flex-grow-1">
+                    <i class="bi bi-search"></i> Apply
                 </button>
-                <button type="button" class="my-btn-size danger flex-grow-1" (click)="resetFilterForm()">
+                <button type="button" class="btn-filter-reset flex-grow-1" (click)="resetFilterForm()">
                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </button>
             </div>
@@ -162,37 +162,37 @@
                         <div class="row g-3">
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" placeholder="Enter full name">
+                                <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" (input)="GF.enforceMaxLength($event, 30)" placeholder="Enter full name">
                                 <app-form-validation-message [formGroup]="clientForm" controlName="name" fieldName="Name"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="email" maxlength="50" placeholder="Enter email">
+                                <input type="text" class="form-control form-control-sm" formControlName="email" maxlength="50" (input)="GF.enforceMaxLength($event, 50)" placeholder="Enter email">
                                 <app-form-validation-message [formGroup]="clientForm" controlName="email" fieldName="Email"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="phone" maxlength="10" placeholder="10-digit number">
+                                <input type="text" class="form-control form-control-sm" formControlName="phone" maxlength="10" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 10)" (input)="GF.enforceMaxLength($event, 10)" placeholder="10-digit number">
                                 <app-form-validation-message [formGroup]="clientForm" controlName="phone" fieldName="Phone"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control form-control-sm" formControlName="password" maxlength="15" placeholder="Set password">
+                                <input type="password" class="form-control form-control-sm" formControlName="password" maxlength="15" (input)="GF.enforceMaxLength($event, 15)" placeholder="Set password">
                                 <app-form-validation-message [formGroup]="clientForm" controlName="password" fieldName="Password"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Address <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="address" placeholder="Street address">
+                                <input type="text" class="form-control form-control-sm" formControlName="address" maxlength="100" (input)="GF.enforceMaxLength($event, 100)" placeholder="Street address">
                                 <app-form-validation-message [formGroup]="clientForm" controlName="address" fieldName="Address"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">
                                 <label class="form-label">Pincode <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" formControlName="pincode" maxlength="6" placeholder="Pincode">
+                                <input type="text" class="form-control form-control-sm" formControlName="pincode" maxlength="6" (keypress)="GF.numberOnly($event)" (paste)="GF.handleNumberPaste($event, 6)" (input)="GF.enforceMaxLength($event, 6)" placeholder="Pincode">
                                 <app-form-validation-message [formGroup]="clientForm" controlName="pincode" fieldName="Pincode"></app-form-validation-message>
                             </div>
 
@@ -232,6 +232,7 @@
                                 <input formControlName="profile" (change)="fileUpload($event, 'ownerProfile')" type="file" class="form-control form-control-sm">
                                 <app-form-validation-message [formGroup]="clientForm" controlName="profile" fieldName="Profile"></app-form-validation-message>
                             </div>
+                            
                         </div>
                     </form>
                 </div>

@@ -1,0 +1,286 @@
+<div class="app-page-container">
+
+  <!-- Page Header -->
+  <div class="app-page-header">
+    <div class="app-page-title-group">
+      <h2 class="app-page-title">
+        <i class="bi bi-credit-card-2-front-fill text-primary"></i>
+        Rent & Online Payments
+      </h2>
+      <p class="app-page-subtitle">Pay your monthly room rent securely via Razorpay (UPI, Credit/Debit Card, NetBanking, Wallets).</p>
+    </div>
+    <div class="app-page-actions">
+      <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-2" (click)="chatWithLandlord()">
+        <i class="bi bi-whatsapp"></i>
+        <span>WhatsApp Landlord</span>
+      </button>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" (click)="loadRentInfo()">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span>Refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading rent details...</span>
+      </div>
+      <p class="fs-12 text-muted mt-2">Loading your rent statement...</p>
+    </div>
+  } @else {
+
+    <!-- Main Payment Banner & Overview -->
+    <div class="row g-3 mb-4">
+      
+      <!-- Primary Payment Box -->
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 card-theme-color">
+          <div class="card-header border-0 bg-transparent pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+            <span class="badge rounded-pill px-3 py-2 fs-11 fw-semibold text-uppercase"
+                  [ngClass]="tenantData?.rent_status === 'paid' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'">
+              <i [class]="tenantData?.rent_status === 'paid' ? 'bi bi-check-circle-fill me-1' : 'bi bi-exclamation-triangle-fill me-1'"></i>
+              Rent Status: {{ tenantData?.rent_status === 'paid' ? 'PAID / CLEARED' : 'PENDING PAYMENT' }}
+            </span>
+
+            <div class="d-flex align-items-center gap-2 text-muted fs-11">
+              <i class="bi bi-shield-lock-fill text-primary"></i>
+              <span>256-Bit SSL Encrypted</span>
+            </div>
+          </div>
+
+          <div class="card-body px-4 py-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 my-2">
+              <div>
+                <span class="fs-12 text-muted fw-medium d-block">Monthly Room Rent</span>
+                <h1 class="display-6 fw-bold text-heading mb-0 text-primary">
+                  ₹{{ tenantData?.monthly_rent ? (+tenantData?.monthly_rent).toLocaleString('en-IN') : '8,000' }}
+                  <span class="fs-14 fw-normal text-muted">/ month</span>
+                </h1>
+              </div>
+
+              <!-- Action Button -->
+              <div>
+                @if (tenantData?.rent_status !== 'paid') {
+                  <button class="btn btn-primary btn-lg rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow"
+                          (click)="initiateRazorpayPayment()"
+                          [disabled]="paying">
+                    @if (paying) {
+                      <span class="spinner-border spinner-border-sm" role="status"></span>
+                      <span>Processing...</span>
+                    } @else {
+                      <i class="bi bi-lightning-charge-fill text-warning"></i>
+                      <span class="fw-semibold">Pay via Razorpay</span>
+                    }
+                  </button>
+                } @else {
+                  <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-success btn-lg rounded-pill px-4 py-2 d-flex align-items-center gap-2 shadow-sm"
+                            (click)="shareReceiptOnWhatsApp()">
+                      <i class="bi bi-whatsapp"></i>
+                      <span class="fw-semibold">Share Receipt</span>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Razorpay Brand Pill & Methods Supported -->
+            <div class="mt-4 pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white px-2 py-1 fs-10 fw-bold letter-spacing-1">RAZORPAY</span>
+                <span class="fs-11 text-muted">Supported: UPI (GPay, PhonePe, Paytm), Visa/Mastercard, NetBanking, Wallets</span>
+              </div>
+              @if (tenantData?.rent_status === 'paid') {
+                <span class="text-success fs-12 fw-medium d-flex align-items-center gap-1">
+                  <i class="bi bi-check2-circle fs-15"></i> All dues settled for this cycle
+                </span>
+              } @else {
+                <span class="text-danger fs-12 fw-medium d-flex align-items-center gap-1">
+                  <i class="bi bi-clock-history"></i> Please clear dues to avoid late fees
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stay Details & Owner Contact Card -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 card-theme-color p-4 d-flex flex-column justify-content-between">
+          <div>
+            <h5 class="fw-bold fs-14 text-heading mb-3 d-flex align-items-center gap-2">
+              <i class="bi bi-building-check text-primary"></i>
+              Accommodation Details
+            </h5>
+
+            <ul class="list-unstyled mb-0 d-flex flex-column gap-2 fs-12">
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">PG Name:</span>
+                <span class="fw-semibold text-heading">{{ tenantData?.pg_name || 'N/A' }}</span>
+              </li>
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">Room Number:</span>
+                <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1">Room {{ tenantData?.room_number || '-' }}</span>
+              </li>
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">Tenant Name:</span>
+                <span class="fw-medium">{{ tenantData?.name }}</span>
+              </li>
+              <li class="d-flex justify-content-between border-bottom pb-2">
+                <span class="text-muted">Registered Phone:</span>
+                <span class="fw-medium">{{ tenantData?.phone }}</span>
+              </li>
+              <li class="d-flex justify-content-between">
+                <span class="text-muted">Landlord Phone:</span>
+                <span class="fw-medium text-primary">{{ tenantData?.owner_phone || 'Available in Office' }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-3 pt-3 border-top">
+            <button class="btn btn-outline-success w-100 btn-sm rounded-3 d-flex align-items-center justify-content-center gap-2 py-2"
+                    (click)="chatWithLandlord()">
+              <i class="bi bi-whatsapp fs-14"></i>
+              <span class="fw-semibold fs-11">Chat with Landlord on WhatsApp</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Payment History Table Section -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden card-theme-color mt-4">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="fw-bold fs-14 text-heading mb-1 d-flex align-items-center gap-2">
+            <i class="bi bi-journal-text text-primary"></i>
+            Rent Payment History
+          </h5>
+          <span class="fs-11 text-muted">All successful and logged online transactions for your room.</span>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        @if (transactions.length === 0) {
+          <div class="text-center py-5">
+            <i class="bi bi-receipt-cutoff fs-1 text-muted opacity-50"></i>
+            <p class="fs-12 text-muted mt-2 mb-0">No past payment transactions recorded yet.</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 fs-12">
+              <thead class="fs-11 text-uppercase">
+                <tr>
+                  <th class="ps-4">Transaction ID</th>
+                  <th>Amount</th>
+                  <th>Payment Method</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th class="text-end pe-4">Receipt</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (txn of transactions; track txn.id) {
+                  <tr>
+                    <td class="ps-4 fw-mono text-primary fw-medium">
+                      {{ txn.transaction_id || ('TXN-' + txn.id) }}
+                    </td>
+                    <td class="fw-bold text-heading">
+                      ₹{{ (+txn.amount).toLocaleString('en-IN') }}
+                    </td>
+                    <td>
+                      <span class="badge badge-subtle">
+                        <i class="bi bi-credit-card me-1"></i>
+                        {{ txn.payment_method || 'Razorpay' }}
+                      </span>
+                    </td>
+                    <td class="text-muted">
+                      {{ txn.payment_date | date:'dd MMM yyyy, hh:mm a' }}
+                    </td>
+                    <td>
+                      <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                        <i class="bi bi-check-circle-fill me-1"></i> Paid
+                      </span>
+                    </td>
+                    <td class="text-end pe-4">
+                      <button class="btn btn-sm btn-outline-success rounded-pill px-2 py-1 fs-11 d-inline-flex align-items-center gap-1"
+                              (click)="shareReceiptOnWhatsApp(txn)"
+                              title="Share receipt on WhatsApp">
+                        <i class="bi bi-whatsapp"></i>
+                        <span>Receipt</span>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+  }
+
+</div>
+
+<!-- Payment Success Modal -->
+@if (showSuccessModal) {
+  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); z-index: 1055;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+        <div class="modal-header border-0 bg-success text-white py-4 px-4 flex-column align-items-center text-center position-relative">
+          <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" (click)="closeReceiptModal()"></button>
+          <div class="bg-white rounded-circle p-3 d-flex align-items-center justify-content-center shadow mb-2 text-success">
+            <i class="bi bi-check2-circle fs-1"></i>
+          </div>
+          <h4 class="fw-bold mb-1">Payment Successful!</h4>
+          <span class="fs-12 opacity-75">Your monthly rent has been credited and confirmed.</span>
+        </div>
+
+        <div class="modal-body p-4 fs-12">
+          <div class="bg-subtle-box p-3 rounded-3 mb-3">
+            <div class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted">Tenant:</span>
+              <span class="fw-semibold text-heading">{{ tenantData?.name }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted">PG Property:</span>
+              <span class="fw-semibold">{{ tenantData?.pg_name }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted">Room Number:</span>
+              <span class="badge bg-primary px-2 py-1">Room {{ tenantData?.room_number }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 border-bottom">
+              <span class="text-muted">Amount Paid:</span>
+              <span class="fw-bold text-success fs-14">₹{{ tenantData?.monthly_rent ? (+tenantData?.monthly_rent).toLocaleString('en-IN') : '8,000' }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-1">
+              <span class="text-muted">Transaction ID:</span>
+              <span class="fw-mono text-muted fs-11">{{ lastPaymentReceipt?.transaction?.transaction_id }}</span>
+            </div>
+          </div>
+
+          <div class="alert alert-success d-flex align-items-center gap-2 py-2 px-3 mb-0" role="alert">
+            <i class="bi bi-info-circle-fill fs-14"></i>
+            <span>Rent status is now marked as <strong>PAID</strong> across your landlord's dashboard.</span>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0 p-4 pt-0 d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary flex-fill rounded-pill py-2" (click)="closeReceiptModal()">
+            Close
+          </button>
+          <button type="button" class="btn btn-success flex-fill rounded-pill py-2 d-flex align-items-center justify-content-center gap-2 shadow"
+                  (click)="shareReceiptOnWhatsApp()">
+            <i class="bi bi-whatsapp"></i>
+            <span>WhatsApp Receipt</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

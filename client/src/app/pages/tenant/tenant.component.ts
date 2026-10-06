@@ -45,7 +45,7 @@ export class TenantComponent {
   imgSrc:any
   @ViewChild('modelClose') modelClose!: ElementRef;
 
-  constructor(private api: ApiService, private GF: GlobalService) { }
+  constructor(private api: ApiService, public GF: GlobalService) { }
 
   ngOnInit(): void {
     this.getTable()
@@ -376,6 +376,33 @@ export class TenantComponent {
   openBigImage(imgUrl:any){
     console.log("Open image")
     this.imgSrc = imgUrl
+  }
+
+  sendWhatsAppReminder(tenant: any): void {
+    const rentAmt = Number(tenant.monthly_rent || 8000).toLocaleString('en-IN');
+    const message = 
+      `Hi ${tenant.tenant_name || tenant.name}! 👋\n\n` +
+      `This is a friendly reminder from *${tenant.pg_name || 'PG Management'}*.\n` +
+      `Your monthly room rent of *₹${rentAmt}* for *Room ${tenant.room_number || '-'}* is currently *PENDING*.\n\n` +
+      `Please log in to your tenant portal to pay securely online via Razorpay/UPI.\n` +
+      `Thank you! 🏠`;
+
+    this.GF.openWhatsApp(tenant.phone, message);
+  }
+
+  sendWhatsAppReceipt(tenant: any): void {
+    const rentAmt = Number(tenant.monthly_rent || 8000).toLocaleString('en-IN');
+    const message = 
+      `*🏠 PG Rent Payment Receipt*\n\n` +
+      `Tenant Name: ${tenant.tenant_name || tenant.name}\n` +
+      `PG: ${tenant.pg_name || 'PG Residency'}\n` +
+      `Room: ${tenant.room_number || '-'}\n` +
+      `Amount Paid: ₹${rentAmt}\n` +
+      `Status: PAID (Confirmed) ✅\n` +
+      `Date: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}\n\n` +
+      `Thank you for paying on time! 😊`;
+
+    this.GF.openWhatsApp(tenant.phone, message);
   }
 
 }
