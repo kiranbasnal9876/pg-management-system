@@ -5,9 +5,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ApiService } from '../../services/api.service';
 import { GlobalService } from '../../services/global.service';
 import { FormValidationMessageComponent } from '../../components/form-validation-message/form-validation-message.component';
-import {environment} from '../../../environments/environment.development'
+import { environment } from '../../../environments/environment.development';
 
-const server_url = environment.apiUrl
+const server_url = environment.apiUrl;
 
 @Component({
   selector: 'app-complaints',
@@ -17,29 +17,29 @@ const server_url = environment.apiUrl
 })
 export class ComplaintsComponent implements OnInit {
 
-  server_url = server_url
-  filterOption: boolean = false
-  editMode: boolean = false
-  table_data: any
-  total_records: number = 0
-  page: number = 0
-  limit: number = 0
-  total_pages: number = 0
-  editId: string = ''
-  pending_complaints: any[] = []
-  in_progress_complaints: any[] = []
-  resolved_complaints: any[] = []
-  imgSrc: string = ''
+  server_url = server_url;
+  filterOption: boolean = false;
+  editMode: boolean = false;
+  table_data: any[] = [];
+  total_records: number = 0;
+  page: number = 1;
+  limit: number = 10;
+  total_pages: number = 0;
+  editId: string = '';
+  pending_complaints: any[] = [];
+  in_progress_complaints: any[] = [];
+  resolved_complaints: any[] = [];
+  imgSrc: string = '';
+  userRole: 'tenant' | 'owner' = 'tenant';
 
   @ViewChild('modelClose') modelClose!: ElementRef;
 
   constructor(private api: ApiService, public GF: GlobalService) { }
 
-
   ngOnInit(): void {
-    this.getTable()
+    this.userRole = (this.GF.getUserRole() as any) || 'tenant';
+    this.getTable();
   }
-
 
   filterForm = new FormGroup({
     description: new FormControl(''),
@@ -49,19 +49,18 @@ export class ComplaintsComponent implements OnInit {
     order: new FormControl("DESC"),
     sort_by: new FormControl('id'),
     page: new FormControl(1),
-  })
+  });
 
   myForm = new FormGroup({
     description: new FormControl('', [Validators.required, Validators.maxLength(300), Validators.minLength(3)]),
-    category: new FormControl('', [Validators.required]),
-    // category: new FormControl('', [Validators.required, Validators.pattern(/^(Food|Water|Wi-Fi|Electricity|Other')$/)]),
-    status: new FormControl('', [Validators.pattern(/^(pending|in-progress|resolved)$/)]),
+    category: new FormControl('Food', [Validators.required, Validators.pattern(/^(Food|Water|Wi-Fi|Electricity|Other)$/)]),
+    status: new FormControl('pending', [Validators.pattern(/^(pending|in-progress|resolved)$/)]),
     image: new FormControl('')
-  })
+  });
 
   resetFilterForm() {
-    this.filterForm.get('page')?.setValue(1)
-    this.GF.preserveField(this.filterForm, ['action', 'limit', 'sort'], null)
+    this.filterForm.get('page')?.setValue(1);
+    this.GF.preserveField(this.filterForm, ['action', 'limit', 'sort'], null);
     this.filterForm.patchValue({
       status: '',
       limit: 10,
@@ -69,126 +68,171 @@ export class ComplaintsComponent implements OnInit {
       sort_by: 'id',
       page: 1,
       description: ''
-    })
-    this.getTable()
+    });
+    this.getTable();
   }
 
   getTable() {
-    this.api.postApi('tenant-complaint-table', this.filterForm.value).subscribe(
-      (res: any) => {
-        if (res.status) {
-          this.limit = res.limit
-          this.total_pages = res.total_pages
-          this.page = res.page
-          this.total_records = res.total_records
-          this.table_data = res.data
-          this.filterComplaints()
+    this.api.postApi('tenant-complaint-table', this.filterForm.value).subscribe({
+      next: (res: any) => {
+        if (res && res.status) {
+          this.limit = Number(res.limit) || 10;
+          this.total_pages = Number(res.total_pages) || 1;
+          this.page = Number(res.page) || 1;
+          this.total_records = Number(res.total_records) || 0;
+          this.table_data = Array.isArray(res.data) ? res.data : [];
+          this.filterComplaints();
         } else {
-          this.GF.showToast(res.message, 'danger')
+          this.table_data = [];
+          this.filterComplaints();
+          if (res?.message) {
+            this.GF.showToast(res.message, 'danger');
+          }
         }
       },
-      (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+      error: (err: any) => {
+        this.table_data = [];
+        this.filterComplaints();
+        this.GF.showToast(err?.error?.message || 'Failed to load complaints', 'danger');
       }
-    )
+    });
   }
 
   OpenAddForm() {
-    this.myForm.reset()
-    this.myForm.markAsUntouched()
+    this.myForm.reset({
+      category: 'Food',
+      status: 'pending',
+      description: '',
+      image: ''
+    });
+    this.myForm.markAsUntouched();
+    this.Attachment = '';
     this.editMode = false;
   }
 
   add() {
     this.myForm.markAllAsTouched();
 
-    const formData = {
-      ...this.myForm.value,
-      image: this.Attachment
-    };
-
     if (this.myForm.valid) {
-      this.api.postApi('add-complaint', formData).subscribe(
-        (res: any) => {
+      const formData = {
+        ...this.myForm.value,
+        status: this.myForm.value.status || 'pending',
+        image: this.Attachment || ''
+      };
+
+      this.api.postApi('add-complaint', formData).subscribe({
+        next: (res: any) => {
           if (res.status) {
-            this.GF.showToast(res.message, 'success')
-            this.closeForm()
-            this.getTable()
+            this.GF.showToast(res.message || 'Complaint submitted successfully', 'success');
+            this.closeForm();
+            this.getTable();
           } else {
-            this.GF.showToast(res.message, 'danger')
+            this.GF.showToast(res.message || 'Failed to submit complaint', 'danger');
           }
         },
-        (err: any) => {
-          this.GF.showToast(err.error.message, 'danger')
+        error: (err: any) => {
+          this.GF.showToast(err?.error?.message || 'Error submitting complaint', 'danger');
         }
-      )
+      });
     }
-
   }
 
   closeForm() {
-    this.modelClose.nativeElement.click()
-    this.myForm.reset()
-    this.getTable()
+    if (this.modelClose?.nativeElement) {
+      this.modelClose.nativeElement.click();
+    }
+    this.myForm.reset({
+      category: 'Food',
+      status: 'pending',
+      description: '',
+      image: ''
+    });
+    this.Attachment = '';
+    this.getTable();
   }
 
   UPDATE() {
     this.myForm.markAllAsTouched();
-    const formData = {
-      ...this.myForm.value,
-      image: this.Attachment,
-      id: this.editId
-    };
     if (this.myForm.valid) {
-      this.api.postApi('update-complaint', formData).subscribe(
-        (res: any) => {
+      const formData = {
+        ...this.myForm.value,
+        image: this.Attachment,
+        id: this.editId
+      };
+      this.api.postApi('update-complaint', formData).subscribe({
+        next: (res: any) => {
           if (res.status) {
-            this.GF.showToast(res.message, 'success')
-            this.closeForm()
+            this.GF.showToast(res.message || 'Complaint updated successfully', 'success');
+            this.closeForm();
           } else {
-            this.GF.showToast(res.message, 'danger')
+            this.GF.showToast(res.message || 'Failed to update complaint', 'danger');
           }
         },
-        (err: any) => {
-          this.GF.showToast(err.error.message, 'danger')
+        error: (err: any) => {
+          this.GF.showToast(err?.error?.message || 'Error updating complaint', 'danger');
         }
-      )
+      });
     }
   }
 
   EDIT(clientId: string) {
-    this.myForm.markAsUntouched()
-    this.editMode = true
-    this.Attachment = ''
-    this.api.postApi('get-list', { action: 'tenant_complaint', id: clientId }).subscribe(
-      (res: any) => {
-        if (res.status) {
-          this.editId = res.data.id
-          delete res.data['image']
-          delete res.data['password']
-          delete res.data['id']
+    this.myForm.markAsUntouched();
+    this.editMode = true;
+    this.Attachment = '';
+    this.api.postApi('get-list', { action: 'tenant_complaint', id: clientId }).subscribe({
+      next: (res: any) => {
+        if (res.status && res.data) {
+          this.editId = res.data.id;
+          delete res.data['image'];
+          delete res.data['password'];
+          delete res.data['id'];
+          res.data.status = res.data.status || 'pending';
           this.myForm.patchValue(res.data);
         } else {
-          this.GF.showToast(res.message, 'danger')
+          this.GF.showToast(res.message || 'Failed to load details', 'danger');
         }
       },
-      (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+      error: (err: any) => {
+        this.GF.showToast(err?.error?.message || 'Error loading details', 'danger');
       }
-    )
+    });
   }
 
+  async deleteComplaint(id: any) {
+    const confirmed = await this.GF.confirm({
+      title: 'Delete Complaint',
+      message: 'Are you sure you want to permanently delete this complaint ticket?',
+      confirmText: 'Delete Ticket',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
 
-  // In your component class
-  Attachment: any;
+    if (confirmed) {
+      this.api.postApi('delete', { action: 'complaints', id: id }).subscribe({
+        next: (res: any) => {
+          if (res.status) {
+            this.GF.showToast(res.message || 'Complaint deleted successfully', 'success');
+            this.getTable();
+          } else {
+            this.GF.showToast(res.message || 'Failed to delete complaint', 'danger');
+          }
+        },
+        error: (err: any) => {
+          this.GF.showToast(err?.error?.message || 'Error deleting complaint', 'danger');
+        }
+      });
+    }
+  }
+
+  Attachment: any = '';
 
   fileUpload(event: any, fieldName: string) {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.readAsDataURL(file); // Convert file to base64
+      reader.readAsDataURL(file);
       reader.onload = () => {
-        (this as any)[fieldName] = reader.result; // Dynamically assign to correct variable
+        (this as any)[fieldName] = reader.result;
       };
     }
   }
@@ -198,7 +242,7 @@ export class ComplaintsComponent implements OnInit {
     this.resolved_complaints = [];
     this.in_progress_complaints = [];
 
-    this.table_data.forEach((ele: any) => {
+    (this.table_data || []).forEach((ele: any) => {
       switch (ele.status) {
         case 'pending':
           this.pending_complaints.push(ele);
@@ -209,17 +253,15 @@ export class ComplaintsComponent implements OnInit {
         case 'in-progress':
           this.in_progress_complaints.push(ele);
           break;
+        default:
+          this.pending_complaints.push(ele);
+          break;
       }
     });
-
-    console.log(this.pending_complaints, 'hello ji');
   }
-
 
   openBigImage(imgUrl: any) {
-    console.log("Open image")
-    this.imgSrc = imgUrl
+    this.imgSrc = imgUrl;
   }
-
 
 }

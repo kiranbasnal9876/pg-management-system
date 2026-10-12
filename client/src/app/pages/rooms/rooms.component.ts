@@ -148,8 +148,18 @@ export class RoomsComponent {
 
 
 
-  deleteRoom(clinetId: string) {
-    this.api.postApi('delete', { action: 'property', id: clinetId }).subscribe(
+  async deleteRoom(clinetId: string) {
+    const confirmed = await this.GF.confirm({
+      title: 'Delete Room',
+      message: 'Are you sure you want to delete this room? This room and associated allocations will be removed.',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    this.api.postApi('delete', { action: 'rooms', id: clinetId }).subscribe(
       (res: any) => {
         if (res.status) {
           this.GF.showToast('Room deleted successfully', 'success')
@@ -159,7 +169,7 @@ export class RoomsComponent {
         }
       },
       (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+        this.GF.showToast(err.error?.message || 'Failed to delete room', 'danger')
       }
     )
   }

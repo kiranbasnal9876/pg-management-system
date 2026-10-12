@@ -164,8 +164,10 @@ export class PropertyComponent implements OnInit {
 
   }
 
-  getDistrictForView(district_id:string):string{
-        return this.state_district_data.district.filter((ele: any) => { return ele.district_id == district_id})[0].district_name
+  getDistrictForView(district_id: string): string {
+    if (!this.state_district_data?.district) return district_id || '-';
+    const found = this.state_district_data.district.find((ele: any) => ele.district_id == district_id);
+    return found ? found.district_name : (district_id || '-');
   }
 
   getDistrict(state_id: string) {
@@ -174,7 +176,17 @@ export class PropertyComponent implements OnInit {
         this.district_data = this.state_district_data.district.filter((ele: any) => { return ele.state_id == state_id })
   }
 
-  delete(clinetId: string) {
+  async delete(clinetId: string) {
+    const confirmed = await this.GF.confirm({
+      title: 'Delete Property',
+      message: 'Are you sure you want to delete this PG property? Associated rooms and tenant records may be affected.',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
     this.api.postApi('delete', { action: 'property', id: clinetId }).subscribe(
       (res: any) => {
         if (res.status) {
@@ -185,7 +197,7 @@ export class PropertyComponent implements OnInit {
         }
       },
       (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+        this.GF.showToast(err.error?.message || 'Failed to delete property', 'danger')
       }
     )
   }

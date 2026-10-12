@@ -10,6 +10,7 @@ import getList from './controller/getList.js'
 import trimRequestData from './middleware/trimRequestBody.js';
 import complaint from './controller/complaint.js'
 import rent_payment from './controller/rent_payment.js'
+import admin from './controller/admin.js'
 const app = express();
 const port = 5005;
 
@@ -24,14 +25,27 @@ app.use('/static', express.static('uploads'))
 // Login Apis
 app.use('/pg-owner-login' , pg_owner.pg_owner_login())
 app.use('/tenant-login' , tenant.tenant_login())
+app.use('/super-admin-login', admin.super_admin_login())
 app.use(authMiddleware)
 
-// Rent & Razorpay Payment APIs
+// Admin & Plan APIs
+app.use('/super-admin-stats', admin.super_admin_stats())
+app.use('/plan-list', admin.plan_list())
+app.use('/plan-table', admin.plan_table())
+app.use('/add-plan', admin.add_plan())
+app.use('/update-plan', admin.update_plan())
+app.use('/delete-plan', admin.delete_plan())
+
+// Rent, Razorpay & Dynamic UPI QR Payment APIs
 app.use('/create-razorpay-order', rent_payment.create_order())
 app.use('/verify-rent-payment', rent_payment.verify_payment())
 app.use('/tenant-rent-info', rent_payment.tenant_rent_info())
 app.use('/owner-rent-summary', rent_payment.owner_rent_summary())
 app.use('/toggle-rent-status', rent_payment.toggle_rent_status())
+app.use('/generate-tenant-upi-qr', rent_payment.generate_tenant_upi_qr())
+app.use('/submit-upi-payment', rent_payment.submit_upi_payment())
+app.use('/get-owner-settings', rent_payment.get_owner_settings())
+app.use('/save-owner-settings', rent_payment.save_owner_settings())
 
 // Pg owner apis 
 app.use('/add-pg-owner' , pg_owner.add_pg_owner())
@@ -53,6 +67,7 @@ app.use('/room-list',pg_room.available_rooms())
 
 // Tenant apis
 app.use('/add-tenant' , tenant.add_tenant())
+app.use('/update-tenant', tenant.tenant_update())
 app.use('/tenant-table' , tenant.tenant_table())
 
 // Complaint apis

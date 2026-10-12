@@ -22,6 +22,14 @@ export class PayRentComponent implements OnInit {
   lastPaymentReceipt: any = null;
   showSuccessModal: boolean = false;
 
+  qrCodeImage: string | null = null;
+  upiUrl: string = '';
+  payeeUpiId: string = '';
+  payeeName: string = '';
+  utrNumber: string = '';
+  submittingUtr: boolean = false;
+  activePaymentTab: 'qr' | 'razorpay' = 'qr';
+
   constructor(
     private api: ApiService,
     public GF: GlobalService
@@ -39,6 +47,10 @@ export class PayRentComponent implements OnInit {
         if (res.status) {
           this.tenantData = res.tenant;
           this.transactions = res.transactions || [];
+          this.qrCodeImage = res.qr_code_image || null;
+          this.upiUrl = res.upi_url || '';
+          this.payeeUpiId = res.payee_upi_id || '';
+          this.payeeName = res.payee_name || '';
         } else {
           this.GF.showToast(res.message || 'Failed to load rent details', 'danger');
         }
@@ -190,5 +202,55 @@ export class PayRentComponent implements OnInit {
 
   closeReceiptModal(): void {
     this.showSuccessModal = false;
+  }
+
+  openMobileUpi(): void {
+    if (!this.upiUrl) {
+      this.GF.showToast('UPI link not available', 'warning');
+      return;
+    }
+    window.location.href = this.upiUrl;
+  }
+
+  downloadQr(): void {
+    if (!this.qrCodeImage) return;
+    const a = document.createElement('a');
+    a.href = this.qrCodeImage;
+    const name = (this.tenantData?.name || 'Tenant').replace(/\s+/g, '_');
+    a.download = `Rent_QR_${name}_Room_${this.tenantData?.room_number || 'Room'}.png`;
+    a.click();
+    this.GF.showToast('QR Code downloaded', 'success');
+  }
+
+  submitUtrPayment(): void {
+    if (!this.utrNumber || this.utrNumber.trim() === '') {
+      this.GF.showToast('Please enter the 12-digit UPI Reference (UTR) number', 'warning');
+      return;
+    }
+
+    this.submittingUtr = true;
+    this.api.postApi('submit-upi-payment', {
+      tenant_id: this.tenantData.id,
+      transaction_id: this.utrNumber.trim(),
+      amount: this.tenantData.monthly_rent || 8000
+    }).subscribe({
+      next: (res: any) => {
+        this.submittingUtr = false;
+        if (res.status) {
+          this.GF.showToast('UPI payment recorded successfully! Rent marked as PAID.', 'success');
+          this.tenantData.rent_status = 'paid';
+          this.lastPaymentReceipt = res;
+          this.showSuccessModal = true;
+          this.utrNumber = '';
+          this.loadRentInfo();
+        } else {
+          this.GF.showToast(res.message || 'Payment submission failed', 'danger');
+        }
+      },
+      error: (err: any) => {
+        this.submittingUtr = false;
+        this.GF.showToast(err.error?.message || 'Server error submitting UTR', 'danger');
+      }
+    });
   }
 }

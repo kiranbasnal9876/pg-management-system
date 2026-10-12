@@ -12,15 +12,17 @@ import bcrypt from 'bcrypt';
 class Tenant{
 
     add_tenant(){
-        const router = express.Router()
-        router.use(tenantAdd)
-        router.post('/' , add_tenant_validation , form_error_message , imageUpload , async (req , res)=>{
+        const router = express.Router();
+        router.post('/', add_tenant_validation, form_error_message, tenantAdd, imageUpload, async (req, res) => {
             try{
 
                 const token = getAuthHeader(req);
                 const client_data = decodeToken(token);
 
-                tenant_model.add_tenant_data(req.body , client_data.id , res)
+                delete req.body['id'];
+                delete req.body['action'];
+
+                tenant_model.add_tenant_data(req.body, client_data.id, res);
 
             }catch(err){
                 fx.sendResponse(res, { status: false, statusCode: 400, message: err.message })
@@ -106,15 +108,19 @@ class Tenant{
     }
 
 
-    tenant_update(){
-
+    tenant_update() {
         const router = express.Router();
-
-        router.post('/',update_tenant, form_error_message, async (req, res) => {
-
-        })
-
-
+        router.post('/', update_tenant, form_error_message, imageUpload, async (req, res) => {
+            try {
+                const { id } = req.body;
+                delete req.body['id'];
+                delete req.body['action'];
+                tenant_model.update_tenant_data(req.body, id, res);
+            } catch (err) {
+                fx.sendResponse(res, { status: false, statusCode: 400, message: err.message });
+            }
+        });
+        return router;
     }
 
     tenant_login() {

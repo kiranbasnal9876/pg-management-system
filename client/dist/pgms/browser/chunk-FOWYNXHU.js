@@ -1,0 +1,1 @@
+import{H as a}from"./chunk-KVR4LQ7H.js";var i=class t{transform(n,e){let r=e.find(s=>s.state_id==n);return r?r.state_name:"Unknown"}static \u0275fac=function(e){return new(e||t)};static \u0275pipe=a({name:"stateName",type:t,pure:!0})};export{i as a};

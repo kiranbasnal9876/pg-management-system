@@ -42,8 +42,15 @@ export class TenantComponent {
   EDITId: string = ''
   property_data: any
   roomList: any
-  imgSrc:any
+  imgSrc: any
+  selectedTenantIds: Set<any> = new Set()
+  selectAll: boolean = false
   @ViewChild('modelClose') modelClose!: ElementRef;
+  @ViewChild('qrModalClose') qrModalClose!: ElementRef;
+
+  selectedQrTenant: any = null;
+  loadingQr: boolean = false;
+  qrData: any = null;
 
   constructor(private api: ApiService, public GF: GlobalService) { }
 
@@ -136,30 +143,43 @@ export class TenantComponent {
     this.api.postApi('tenant-table', this.filterForm.value).subscribe(
       (res: any) => {
         if (res.status) {
-          this.limit = res.limit
-          this.total_pages = res.total_pages
-          this.page = res.page
-          this.total_records = res.total_records
-          this.table_data = res.data
+          this.limit = res.limit;
+          this.total_pages = res.total_pages;
+          this.page = res.page;
+          this.total_records = res.total_records;
+          this.table_data = res.data;
+          this.selectedTenantIds.clear();
+          this.selectAll = false;
         } else {
-          this.GF.showToast(res.message, 'danger')
+          this.GF.showToast(res.message, 'danger');
         }
       },
       (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+        this.GF.showToast(err.error?.message || 'Failed to fetch tenants', 'danger');
       }
-    )
+    );
   }
 
-  getAvailableRooms(pg_id: string) {
-    this.api.postApi('room-list', { pg_id: pg_id }).subscribe(
+  getAvailableRooms(pg_id: string, current_room_id?: string) {
+    if (!pg_id) {
+      this.roomList = [];
+      return;
+    }
+    this.api.postApi('room-list', { pg_id: pg_id, current_room_id: current_room_id }).subscribe(
       (res: any) => {
-        this.roomList = res
+        if (Array.isArray(res)) {
+          this.roomList = res;
+        } else if (res?.data && Array.isArray(res.data)) {
+          this.roomList = res.data;
+        } else {
+          this.roomList = [];
+        }
       },
       (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+        this.roomList = [];
+        this.GF.showToast(err.error?.message || 'Failed to load rooms', 'danger');
       }
-    )
+    );
   }
 
 
@@ -199,160 +219,335 @@ export class TenantComponent {
   }
 
   ADD() {
-
-     // Make password required
+    // Make password required with standard constraints
     const passwordControl = this.dataForm.get('password');
-    passwordControl?.setValidators([Validators.required]);
+    passwordControl?.setValidators([
+      Validators.required,
+      Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$'),
+      Validators.minLength(8),
+      Validators.maxLength(15)
+    ]);
     passwordControl?.updateValueAndValidity();
-    this.dataForm.markAllAsTouched();
+
+    this.dataForm.get('profile_photo')?.setValidators([Validators.required]);
+    this.dataForm.get('profile_photo')?.updateValueAndValidity();
+    this.dataForm.get('aadhar')?.setValidators([Validators.required]);
+    this.dataForm.get('aadhar')?.updateValueAndValidity();
+    this.dataForm.get('pan')?.setValidators([Validators.required]);
+    this.dataForm.get('pan')?.updateValueAndValidity();
 
     this.dataForm.markAllAsTouched();
-    const formData = {
+
+    if (this.dataForm.invalid) {
+      this.GF.showToast('Please fill all required fields correctly', 'danger');
+      return;
+    }
+
+    const formData: any = {
       ...this.dataForm.value,
       aadhar: this.aadharFile,
       profile_photo: this.profileFile,
       pan: this.panCardFile
     };
+    delete formData.id;
 
-    if (this.dataForm.valid) {
-      this.api.postApi('add-tenant', formData).subscribe(
-        (res: any) => {
-          if (res.status) {
-            this.GF.showToast(res.message, 'success')
-            this.closedataForm()
-            this.getTable()
-          } else {
-            this.GF.showToast(res.message, 'danger')
-          }
-        },
-        (err: any) => {
-          this.GF.showToast(err.error.message, 'danger')
+    this.api.postApi('add-tenant', formData).subscribe(
+      (res: any) => {
+        if (res.status) {
+          this.GF.showToast(res.message, 'success');
+          this.closedataForm();
+        } else {
+          this.GF.showToast(res.message, 'danger');
         }
-      )
-    }
+      },
+      (err: any) => {
+        this.GF.showToast(err.error?.message || 'Failed to register tenant', 'danger');
+      }
+    );
   }
 
   getState() {
-
     this.api.getState().subscribe(
       (res: any) => {
-        this.state_district_data = res
-        this.state_data = this.state_district_data.state
+        this.state_district_data = res;
+        this.state_data = this.state_district_data.state;
       },
       (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+        this.GF.showToast(err.error?.message || 'Failed to fetch states', 'danger');
       }
-    )
-
+    );
   }
 
   getDistrictForView(district_id: string): string {
-    return this.state_district_data.district.filter((ele: any) => { return ele.district_id == district_id })[0].district_name
+    if (!this.state_district_data?.district) return district_id || '-';
+    const found = this.state_district_data.district.find((ele: any) => ele.district_id == district_id);
+    return found ? found.district_name : (district_id || '-');
   }
 
   getDistrict(state_id: string) {
-    this.dataForm.get('district')?.setValue('')
-    this.filterForm.get('district')?.setValue('')
-    this.district_data = this.state_district_data.district.filter((ele: any) => { return ele.state_id == state_id })
+    this.dataForm.get('district')?.setValue('');
+    this.filterForm.get('district')?.setValue('');
+    if (!this.state_district_data?.district) {
+      this.district_data = [];
+      return;
+    }
+    this.district_data = this.state_district_data.district.filter((ele: any) => ele.state_id == state_id);
   }
 
-  DELETE(clinetId: string) {
-    this.api.postApi('delete', { action: 'property', id: clinetId }).subscribe(
+  toggleSelectAll(event: any) {
+    this.selectAll = event.target.checked;
+    if (this.selectAll && Array.isArray(this.table_data)) {
+      this.table_data.forEach(item => this.selectedTenantIds.add(item.id));
+    } else {
+      this.selectedTenantIds.clear();
+    }
+  }
+
+  toggleSelectTenant(id: any) {
+    if (this.selectedTenantIds.has(id)) {
+      this.selectedTenantIds.delete(id);
+    } else {
+      this.selectedTenantIds.add(id);
+    }
+    this.selectAll = !!(this.table_data && this.table_data.length > 0 && this.selectedTenantIds.size === this.table_data.length);
+  }
+
+  isTenantSelected(id: any): boolean {
+    return this.selectedTenantIds.has(id);
+  }
+
+  async deleteSelected() {
+    if (this.selectedTenantIds.size === 0) {
+      this.GF.showToast('Please select at least one tenant to delete', 'warning');
+      return;
+    }
+    const count = this.selectedTenantIds.size;
+    const confirmed = await this.GF.confirm({
+      title: 'Delete Selected Tenants',
+      message: `Are you sure you want to permanently delete ${count} selected tenant(s)? Associated complaints and rent records will also be removed.`,
+      confirmText: `Yes, Delete (${count})`,
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    this.api.postApi('delete', { action: 'tenants', ids: Array.from(this.selectedTenantIds) }).subscribe(
       (res: any) => {
         if (res.status) {
-          this.GF.showToast('Tenant deleted successfully', 'success')
-          this.getTable()
+          this.GF.showToast(res.message || `${count} tenants deleted successfully`, 'success');
+          this.selectedTenantIds.clear();
+          this.selectAll = false;
+          this.getTable();
         } else {
-          this.GF.showToast(res.message, 'danger')
+          this.GF.showToast(res.message, 'danger');
         }
       },
       (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+        this.GF.showToast(err.error?.message || 'Failed to delete selected tenants', 'danger');
       }
-    )
+    );
+  }
+
+  async DELETE(clinetId: string) {
+    const confirmed = await this.GF.confirm({
+      title: 'Delete Tenant',
+      message: 'Are you sure you want to delete this tenant? This action will permanently remove all associated tenant records.',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    this.api.postApi('delete', { action: 'tenants', id: clinetId }).subscribe(
+      (res: any) => {
+        if (res.status) {
+          this.GF.showToast('Tenant deleted successfully', 'success');
+          this.getTable();
+        } else {
+          this.GF.showToast(res.message, 'danger');
+        }
+      },
+      (err: any) => {
+        this.GF.showToast(err.error?.message || 'Failed to delete tenant', 'danger');
+      }
+    );
   }
 
   EDIT(clientId: string) {
-    this.dataForm.markAsUntouched()
-    this.editMode = true
+    this.dataForm.markAsUntouched();
+    this.editMode = true;
     this.api.postApi('get-list', { action: 'tenants', id: clientId }).subscribe(
       (res: any) => {
         if (res.status) {
-          this.EDITId = res.data.id
-          delete res.data['profile_photo']
-          delete res.data['password']
-          delete res.data['aadhar']
-          delete res.data['pan']
-          delete res.data['id']
-          res.data['dob'] = res.data['dob'].split('T')[0]
-          res.data['check_in_date'] = res.data['check_in_date'].split('T')[0]
+          this.EDITId = res.data.id;
+          delete res.data['profile_photo'];
+          delete res.data['password'];
+          delete res.data['aadhar'];
+          delete res.data['pan'];
+          delete res.data['id'];
+
+          if (res.data['dob']) {
+            res.data['dob'] = res.data['dob'].split('T')[0];
+          }
+          if (res.data['check_in_date']) {
+            res.data['check_in_date'] = res.data['check_in_date'].split('T')[0];
+          }
+
+          // Clear password & document validators for edit
+          this.dataForm.get('password')?.clearValidators();
+          this.dataForm.get('password')?.updateValueAndValidity();
+          this.dataForm.get('profile_photo')?.clearValidators();
+          this.dataForm.get('profile_photo')?.updateValueAndValidity();
+          this.dataForm.get('aadhar')?.clearValidators();
+          this.dataForm.get('aadhar')?.updateValueAndValidity();
+          this.dataForm.get('pan')?.clearValidators();
+          this.dataForm.get('pan')?.updateValueAndValidity();
+
+          // Reset uploaded file buffers
+          this.aadharFile = null;
+          this.profileFile = null;
+          this.panCardFile = null;
+
+          // Fetch available rooms for this PG including the tenant's current room
+          if (res.data.pg_id) {
+            this.getAvailableRooms(res.data.pg_id, res.data.room_id);
+          }
+
           this.dataForm.patchValue(res.data);
           setTimeout(() => {
-            this.getDistrict(res.data.state)
-            this.dataForm.get('district')?.setValue(res.data.district)
-          }, 200)
+            if (res.data.state && this.state_district_data?.district) {
+              this.district_data = this.state_district_data.district.filter((ele: any) => ele.state_id == res.data.state);
+              this.dataForm.get('district')?.setValue(res.data.district);
+            }
+          }, 200);
         } else {
-          this.GF.showToast(res.message, 'danger')
+          this.GF.showToast(res.message, 'danger');
         }
       },
       (err: any) => {
-        this.GF.showToast(err.error.message, 'danger')
+        this.GF.showToast(err.error?.message || 'Failed to load tenant', 'danger');
       }
-    )
+    );
   }
 
   UPDATE() {
-
-    // setting password validation 
+    // setting password validation conditionally if user typed new password
     const passwordControl = this.dataForm.get('password');
-    passwordControl?.setValidators([Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$'), Validators.minLength(8), Validators.maxLength(15)]);
+    const enteredPassword = passwordControl?.value;
+
+    if (enteredPassword && enteredPassword.trim() !== '') {
+      passwordControl?.setValidators([
+        Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$'),
+        Validators.minLength(8),
+        Validators.maxLength(15)
+      ]);
+    } else {
+      passwordControl?.clearValidators();
+    }
     passwordControl?.updateValueAndValidity();
-    // setting profile validation 
-    const profileControl = this.dataForm.get('profile_photo');
-    const aadharControl = this.dataForm.get('aadhar');
-    const panControl = this.dataForm.get('pan');
-    profileControl?.clearValidators();  
-    profileControl?.updateValueAndValidity(); 
-    aadharControl?.clearValidators();  
-    aadharControl?.updateValueAndValidity(); 
-    panControl?.clearValidators();  
-    panControl?.updateValueAndValidity(); 
+
+    // Document validators are cleared on edit
+    this.dataForm.get('profile_photo')?.clearValidators();
+    this.dataForm.get('profile_photo')?.updateValueAndValidity();
+    this.dataForm.get('aadhar')?.clearValidators();
+    this.dataForm.get('aadhar')?.updateValueAndValidity();
+    this.dataForm.get('pan')?.clearValidators();
+    this.dataForm.get('pan')?.updateValueAndValidity();
 
     this.dataForm.markAllAsTouched();
 
-    const formData = {
+    if (this.dataForm.invalid) {
+      this.GF.showToast('Please fill all required fields correctly', 'danger');
+      return;
+    }
+
+    const formData: any = {
       ...this.dataForm.value,
       id: this.EDITId
     };
 
-    if (this.dataForm.valid) {
-      this.api.postApi('update-pg-property', formData).subscribe(
-        (res: any) => {
-          if (res.status) {
-            this.GF.showToast(res.message, 'success')
-            this.closedataForm()
-          } else {
-            this.GF.showToast(res.message, 'danger')
-          }
-        },
-        (err: any) => {
-          this.GF.showToast(err.error.message, 'danger')
-        }
-      )
+    if (this.aadharFile) {
+      formData.aadhar = this.aadharFile;
+    } else {
+      delete formData.aadhar;
     }
+
+    if (this.profileFile) {
+      formData.profile_photo = this.profileFile;
+    } else {
+      delete formData.profile_photo;
+    }
+
+    if (this.panCardFile) {
+      formData.pan = this.panCardFile;
+    } else {
+      delete formData.pan;
+    }
+
+    if (!enteredPassword || enteredPassword.trim() === '') {
+      delete formData.password;
+    }
+
+    this.api.postApi('update-tenant', formData).subscribe(
+      (res: any) => {
+        if (res.status) {
+          this.GF.showToast(res.message || 'Tenant updated successfully', 'success');
+          this.closedataForm();
+        } else {
+          this.GF.showToast(res.message, 'danger');
+        }
+      },
+      (err: any) => {
+        this.GF.showToast(err.error?.message || 'Failed to update tenant', 'danger');
+      }
+    );
   }
 
   closedataForm() {
-    this.modelClose.nativeElement.click()
-    this.dataForm.reset()
-    this.getTable()
+    this.modelClose.nativeElement.click();
+    this.dataForm.reset();
+    this.aadharFile = null;
+    this.profileFile = null;
+    this.panCardFile = null;
+    this.roomList = [];
+    this.district_data = [];
+    this.getTable();
   }
 
   openADDForm() {
-    this.dataForm.reset()
-    this.dataForm.markAsUntouched()
+    this.dataForm.reset();
+    this.dataForm.markAsUntouched();
     this.editMode = false;
-    this.district_data = []
+    this.district_data = [];
+    this.roomList = [];
+    this.aadharFile = null;
+    this.profileFile = null;
+    this.panCardFile = null;
+
+    this.dataForm.patchValue({
+      status: 1 as any,
+      rent_status: 'pending'
+    });
+
+    const passwordControl = this.dataForm.get('password');
+    passwordControl?.setValidators([
+      Validators.required,
+      Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$'),
+      Validators.minLength(8),
+      Validators.maxLength(15)
+    ]);
+    passwordControl?.updateValueAndValidity();
+
+    this.dataForm.get('profile_photo')?.setValidators([Validators.required]);
+    this.dataForm.get('profile_photo')?.updateValueAndValidity();
+
+    this.dataForm.get('aadhar')?.setValidators([Validators.required]);
+    this.dataForm.get('aadhar')?.updateValueAndValidity();
+
+    this.dataForm.get('pan')?.setValidators([Validators.required]);
+    this.dataForm.get('pan')?.updateValueAndValidity();
   }
 
 
@@ -403,6 +598,85 @@ export class TenantComponent {
       `Thank you for paying on time! 😊`;
 
     this.GF.openWhatsApp(tenant.phone, message);
+  }
+
+  openTenantQrModal(tenant: any): void {
+    this.selectedQrTenant = tenant;
+    this.loadingQr = true;
+    this.qrData = null;
+
+    this.api.postApi('generate-tenant-upi-qr', { tenant_id: tenant.id }).subscribe({
+      next: (res: any) => {
+        this.loadingQr = false;
+        if (res.status) {
+          this.qrData = res;
+        } else {
+          this.GF.showToast(res.message || 'Failed to generate QR code', 'danger');
+        }
+      },
+      error: (err: any) => {
+        this.loadingQr = false;
+        this.GF.showToast(err.error?.message || 'Server error generating QR code', 'danger');
+      }
+    });
+  }
+
+  downloadQrImage(): void {
+    if (!this.qrData?.qr_code_image) return;
+    const link = document.createElement('a');
+    link.href = this.qrData.qr_code_image;
+    const tenantName = (this.selectedQrTenant?.tenant_name || this.selectedQrTenant?.name || 'Tenant').replace(/\s+/g, '_');
+    const roomNo = this.selectedQrTenant?.room_number || 'Room';
+    link.download = `PG_Rent_QR_${tenantName}_Room_${roomNo}.png`;
+    link.click();
+    this.GF.showToast('QR Code image downloaded!', 'success');
+  }
+
+  printQrCard(): void {
+    window.print();
+  }
+
+  sendWhatsAppQr(tenant: any): void {
+    if (!tenant) return;
+    const rentAmt = Number(tenant.monthly_rent || 8000).toLocaleString('en-IN');
+    const upiLink = this.qrData?.upi_url || '';
+    const message = 
+      `Hi ${tenant.tenant_name || tenant.name}! 👋\n\n` +
+      `Here is your monthly rent payment QR code & UPI payment link for *${tenant.pg_name || 'PG Management'}*.\n\n` +
+      `🏠 *Room:* ${tenant.room_number || '-'}\n` +
+      `💰 *Amount Due:* ₹${rentAmt}\n` +
+      `📱 *Payee UPI ID:* ${this.qrData?.payee?.upi_id || 'PG Owner UPI'}\n\n` +
+      `Tap this link to open Google Pay / PhonePe / Paytm and pay directly:\n${upiLink}\n\n` +
+      `Thank you! 🏠`;
+
+    this.GF.openWhatsApp(tenant.phone, message);
+  }
+
+  markRentPaid(tenant: any): void {
+    const name = tenant.tenant_name || tenant.name || 'Tenant';
+    if (!confirm(`Confirm mark rent as PAID for ${name}?`)) return;
+
+    this.api.postApi('toggle-rent-status', {
+      tenant_id: tenant.id,
+      rent_status: 'paid',
+      payment_method: 'UPI',
+      amount: tenant.monthly_rent || 8000
+    }).subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.GF.showToast('Rent marked as PAID successfully!', 'success');
+          tenant.rent_status = 'paid';
+          if (this.selectedQrTenant) this.selectedQrTenant.rent_status = 'paid';
+          if (this.qrData?.tenant) this.qrData.tenant.rent_status = 'paid';
+          this.getTable();
+        } else {
+          this.GF.showToast(res.message || 'Failed to update rent status', 'danger');
+        }
+      },
+      error: (err: any) => {
+        this.GF.showToast(err.error?.message || 'Error updating rent status', 'danger');
+      }
+    });
   }
 
 }

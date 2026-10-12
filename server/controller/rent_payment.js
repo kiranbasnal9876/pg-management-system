@@ -1,6 +1,7 @@
 import express from 'express';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import QRCode from 'qrcode';
 import db from '../services/db.conn.js';
 import fx from '../shared/fx.js';
 import { getAuthHeader, decodeToken } from '../auth/jwtTokenAuth.js';
@@ -239,7 +240,7 @@ class RentPayment {
                     `SELECT t.id, t.name, t.email, t.phone, t.monthly_rent, t.rent_status, t.check_in_date,
                             r.room_number, r.type AS room_type,
                             p.id AS property_id, p.name AS pg_name, p.location AS pg_location,
-                            po.name AS owner_name, po.phone AS owner_phone
+                            po.name AS owner_name, po.phone AS owner_phone, po.upi_id AS owner_upi_id
                      FROM tenants t
                      LEFT JOIN rooms r ON t.room_id = r.id
                      LEFT JOIN pg_properties p ON t.pg_id = p.id
@@ -253,6 +254,29 @@ class RentPayment {
                 }
 
                 const tenant = tenantQuery.data[0];
+                const rentAmount = Number(tenant.monthly_rent || 8000);
+                const payeeUpi = tenant.owner_upi_id || process.env.DEFAULT_UPI_ID || (tenant.owner_phone ? `${tenant.owner_phone}@upi` : 'pgresidency@upi');
+                const payeeName = tenant.pg_name || tenant.owner_name || 'PG Residency';
+                const txnNote = `Rent ${tenant.name || 'Tenant'} Rm ${tenant.room_number || '-'}`;
+
+                // UPI Deep Link Format (GPay / PhonePe / Paytm / BHIM)
+                const upiUrl = `upi://pay?pa=${encodeURIComponent(payeeUpi)}&pn=${encodeURIComponent(payeeName)}&am=${rentAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(txnNote)}`;
+
+                let qrCodeImage = null;
+                try {
+                    qrCodeImage = await QRCode.toDataURL(upiUrl, {
+                        errorCorrectionLevel: 'H',
+                        type: 'image/png',
+                        margin: 2,
+                        width: 360,
+                        color: {
+                            dark: '#0f172a',
+                            light: '#ffffff'
+                        }
+                    });
+                } catch (qrErr) {
+                    console.error('QR code generation error:', qrErr);
+                }
 
                 // Fetch recent transaction history
                 const txnQuery = await db.query(
@@ -266,6 +290,10 @@ class RentPayment {
                 return res.status(200).json({
                     status: true,
                     tenant,
+                    qr_code_image: qrCodeImage,
+                    upi_url: upiUrl,
+                    payee_upi_id: payeeUpi,
+                    payee_name: payeeName,
                     transactions: txnQuery.data || []
                 });
 
@@ -422,6 +450,282 @@ class RentPayment {
                 return fx.sendResponse(res, {
                     status: true,
                     message: `Rent status updated to ${rent_status.toUpperCase()} successfully!`
+                });
+
+            } catch (err) {
+                return fx.sendResponse(res, { status: false, message: err.message, statusCode: 500 });
+            }
+        });
+
+        return router;
+    }
+
+    // 6. Generate Dynamic UPI QR Code for any Tenant (used by Owner and Tenant)
+    generate_tenant_upi_qr() {
+        const router = express.Router();
+
+        router.post('/', async (req, res) => {
+            try {
+                const token = getAuthHeader(req);
+                const user = decodeToken(token);
+
+                if (!user) {
+                    return fx.sendResponse(res, { status: false, message: 'Unauthorized', statusCode: 401 });
+                }
+
+                const tenantId = req.body.tenant_id || user.id;
+
+                if (!tenantId) {
+                    return fx.sendResponse(res, { status: false, message: 'Tenant ID is required', statusCode: 400 });
+                }
+
+                const tenantQuery = await db.query(
+                    `SELECT t.id, t.name, t.email, t.phone, t.monthly_rent, t.rent_status, t.check_in_date,
+                            r.room_number, r.type AS room_type,
+                            p.id AS property_id, p.name AS pg_name, p.location AS pg_location,
+                            po.id AS owner_id, po.name AS owner_name, po.phone AS owner_phone, po.upi_id AS owner_upi_id
+                     FROM tenants t
+                     LEFT JOIN rooms r ON t.room_id = r.id
+                     LEFT JOIN pg_properties p ON t.pg_id = p.id
+                     LEFT JOIN pg_owners po ON t.owner_id = po.id
+                     WHERE t.id = $1`,
+                    [tenantId]
+                );
+
+                if (!tenantQuery.status || tenantQuery.data.length === 0) {
+                    return fx.sendResponse(res, { status: false, message: 'Tenant not found', statusCode: 404 });
+                }
+
+                const tenant = tenantQuery.data[0];
+                const rentAmount = Number(req.body.amount || tenant.monthly_rent || 8000);
+                const payeeUpi = tenant.owner_upi_id || process.env.DEFAULT_UPI_ID || (tenant.owner_phone ? `${tenant.owner_phone}@upi` : 'pgowner@upi');
+                const payeeName = tenant.pg_name || tenant.owner_name || 'PG Residency';
+                const txnNote = `Rent ${tenant.name || 'Tenant'} Rm ${tenant.room_number || '-'}`;
+
+                // UPI Deep Link Format
+                const upiUrl = `upi://pay?pa=${encodeURIComponent(payeeUpi)}&pn=${encodeURIComponent(payeeName)}&am=${rentAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(txnNote)}`;
+
+                // Generate QR Code PNG Data URL
+                const qrDataUrl = await QRCode.toDataURL(upiUrl, {
+                    errorCorrectionLevel: 'H',
+                    type: 'image/png',
+                    margin: 2,
+                    width: 380,
+                    color: {
+                        dark: '#0f172a',
+                        light: '#ffffff'
+                    }
+                });
+
+                return res.status(200).json({
+                    status: true,
+                    qr_code_image: qrDataUrl,
+                    upi_url: upiUrl,
+                    amount: rentAmount,
+                    formatted_amount: rentAmount.toLocaleString('en-IN'),
+                    payee: {
+                        upi_id: payeeUpi,
+                        name: payeeName,
+                        phone: tenant.owner_phone
+                    },
+                    tenant: {
+                        id: tenant.id,
+                        name: tenant.name,
+                        phone: tenant.phone,
+                        email: tenant.email,
+                        room_number: tenant.room_number,
+                        pg_name: tenant.pg_name,
+                        pg_location: tenant.pg_location,
+                        monthly_rent: rentAmount,
+                        rent_status: tenant.rent_status
+                    }
+                });
+
+            } catch (err) {
+                console.error('Error generating UPI QR code:', err);
+                return fx.sendResponse(res, { status: false, message: err.message, statusCode: 500 });
+            }
+        });
+
+        return router;
+    }
+
+    // 7. Submit UPI Payment UTR / Transaction ID (from Tenant or Owner after QR scan)
+    submit_upi_payment() {
+        const router = express.Router();
+
+        router.post('/', async (req, res) => {
+            try {
+                const token = getAuthHeader(req);
+                const user = decodeToken(token);
+
+                if (!user) {
+                    return fx.sendResponse(res, { status: false, message: 'Unauthorized', statusCode: 401 });
+                }
+
+                const { tenant_id, transaction_id, amount } = req.body;
+                const targetTenantId = tenant_id || user.id;
+
+                if (!targetTenantId) {
+                    return fx.sendResponse(res, { status: false, message: 'Tenant ID is required', statusCode: 400 });
+                }
+
+                if (!transaction_id || String(transaction_id).trim() === '') {
+                    return fx.sendResponse(res, { status: false, message: 'UPI Reference ID / UTR is required', statusCode: 400 });
+                }
+
+                const tenantQuery = await db.query(
+                    `SELECT t.id, t.name, t.phone, t.email, t.room_id, t.pg_id, t.owner_id, t.monthly_rent,
+                            r.room_number, p.name AS pg_name, po.phone AS owner_phone
+                     FROM tenants t
+                     LEFT JOIN rooms r ON t.room_id = r.id
+                     LEFT JOIN pg_properties p ON t.pg_id = p.id
+                     LEFT JOIN pg_owners po ON t.owner_id = po.id
+                     WHERE t.id = $1`,
+                    [targetTenantId]
+                );
+
+                if (!tenantQuery.status || tenantQuery.data.length === 0) {
+                    return fx.sendResponse(res, { status: false, message: 'Tenant not found' });
+                }
+
+                const tenant = tenantQuery.data[0];
+                const paymentAmount = Number(amount || tenant.monthly_rent || 8000);
+                const utr = String(transaction_id).trim();
+
+                // Insert into rent_transactions
+                const insertTxn = await db.query(
+                    `INSERT INTO rent_transactions 
+                     (tenant_id, pg_id, room_id, amount, payment_method, transaction_id, status, payment_date)
+                     VALUES ($1, $2, $3, $4, 'UPI', $5, 'Success', CURRENT_TIMESTAMP)
+                     RETURNING *`,
+                    [tenant.id, tenant.pg_id, tenant.room_id, paymentAmount, utr]
+                );
+
+                // Update tenant rent_status to 'paid'
+                await db.query(
+                    `UPDATE tenants SET rent_status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                    [tenant.id]
+                );
+
+                const receiptMessage = encodeURIComponent(
+                    `*🏠 PG Rent Payment Confirmed (UPI)*\n\n` +
+                    `Tenant Name: ${tenant.name}\n` +
+                    `PG: ${tenant.pg_name || 'PG Residency'}\n` +
+                    `Room: ${tenant.room_number || '-'}\n` +
+                    `Amount Paid: ₹${paymentAmount.toLocaleString('en-IN')}\n` +
+                    `Payment Method: UPI / GPay / PhonePe\n` +
+                    `UPI Reference (UTR): ${utr}\n` +
+                    `Status: PAID (Confirmed) ✅\n` +
+                    `Date: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}\n\n` +
+                    `Thank you! Payment recorded successfully. 😊`
+                );
+
+                const cleanPhone = tenant.phone ? (tenant.phone.startsWith('91') ? tenant.phone : '91' + tenant.phone.replace(/[^0-9]/g, '')) : '';
+                const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${receiptMessage}` : null;
+
+                return res.status(200).json({
+                    status: true,
+                    message: 'UPI payment recorded successfully! Rent marked as PAID.',
+                    transaction: insertTxn.data?.[0],
+                    whatsapp_receipt_url: whatsappUrl
+                });
+
+            } catch (err) {
+                console.error('Error recording UPI payment:', err);
+                return fx.sendResponse(res, { status: false, message: err.message, statusCode: 500 });
+            }
+        });
+
+        return router;
+    }
+
+    // 8. Get Owner Settings (UPI ID & Payment Info)
+    get_owner_settings() {
+        const router = express.Router();
+
+        router.post('/', async (req, res) => {
+            try {
+                const token = getAuthHeader(req);
+                const user = decodeToken(token);
+
+                if (!user) {
+                    return fx.sendResponse(res, { status: false, message: 'Unauthorized', statusCode: 401 });
+                }
+
+                const ownerQuery = await db.query(
+                    `SELECT id, name, email, phone, profile, address, upi_id FROM pg_owners WHERE id = $1`,
+                    [user.id]
+                );
+
+                if (!ownerQuery.status || ownerQuery.data.length === 0) {
+                    return fx.sendResponse(res, { status: false, message: 'Owner profile not found' });
+                }
+
+                const owner = ownerQuery.data[0];
+                const upiId = owner.upi_id || (owner.phone ? `${owner.phone}@upi` : '');
+
+                // Generate sample test QR for owner preview
+                let testQr = null;
+                const testUpiUrl = upiId ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(owner.name || 'PG Owner')}&cu=INR&tn=${encodeURIComponent('Test PG Rent Payment')}` : '';
+                if (testUpiUrl) {
+                    try {
+                        testQr = await QRCode.toDataURL(testUpiUrl, {
+                            errorCorrectionLevel: 'M',
+                            type: 'image/png',
+                            margin: 2,
+                            width: 260
+                        });
+                    } catch (qrErr) {}
+                }
+
+                return res.status(200).json({
+                    status: true,
+                    owner: {
+                        ...owner,
+                        upi_id: owner.upi_id || ''
+                    },
+                    test_qr: testQr,
+                    test_upi_url: testUpiUrl
+                });
+
+            } catch (err) {
+                return fx.sendResponse(res, { status: false, message: err.message, statusCode: 500 });
+            }
+        });
+
+        return router;
+    }
+
+    // 9. Save Owner Settings (UPI ID, name)
+    save_owner_settings() {
+        const router = express.Router();
+
+        router.post('/', async (req, res) => {
+            try {
+                const token = getAuthHeader(req);
+                const user = decodeToken(token);
+
+                if (!user) {
+                    return fx.sendResponse(res, { status: false, message: 'Unauthorized', statusCode: 401 });
+                }
+
+                const { upi_id, name } = req.body;
+
+                const updateData = {};
+                if (upi_id !== undefined) updateData.upi_id = upi_id.trim();
+                if (name !== undefined && name.trim()) updateData.name = name.trim();
+
+                const result = await db.update('pg_owners', updateData, { id: user.id });
+
+                if (!result.status) {
+                    return fx.sendResponse(res, { status: false, message: result.err?.message || 'Failed to update settings' });
+                }
+
+                return res.status(200).json({
+                    status: true,
+                    message: 'UPI & Owner settings saved successfully!',
+                    owner: result.data?.[0]
                 });
 
             } catch (err) {

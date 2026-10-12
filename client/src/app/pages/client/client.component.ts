@@ -196,18 +196,28 @@ export class ClientComponent implements OnInit {
     }
   }
 
-  deleteClient(clinetId:string){
-    this.api.postApi('delete' , {action:'pg_owner' , id:clinetId}).subscribe(
-      (res:any)=>{
-        if(res.status){
-          this.GF.showToast('Client deleted successfully' , 'success')
+  async deleteClient(clinetId: string) {
+    const confirmed = await this.GF.confirm({
+      title: 'Delete Client',
+      message: 'Are you sure you want to delete this PG owner client? All their properties, rooms, and tenants will be affected.',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (!confirmed) return;
+
+    this.api.postApi('delete', { action: 'pg_owner', id: clinetId }).subscribe(
+      (res: any) => {
+        if (res.status) {
+          this.GF.showToast('Client deleted successfully', 'success')
           this.getTable()
-        }else{
-          this.GF.showToast(res.message , 'danger')
+        } else {
+          this.GF.showToast(res.message, 'danger')
         }
       },
-      (err:any)=>{
-        this.GF.showToast(err.error.message , 'danger')
+      (err: any) => {
+        this.GF.showToast(err.error?.message || 'Failed to delete client', 'danger')
       }
     )
   }

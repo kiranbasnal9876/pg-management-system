@@ -44,6 +44,95 @@ export class GlobalService {
     }, 3500);
   }
 
+  // Modern Customizable Confirmation Popup Dialog (Replaces native browser alert/confirm)
+  confirm(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    type?: 'danger' | 'warning' | 'info' | 'success';
+  }): Promise<boolean> {
+    return new Promise((resolve) => {
+      const title = options.title || 'Are you sure?';
+      const message = options.message;
+      const confirmText = options.confirmText || 'Confirm';
+      const cancelText = options.cancelText || 'Cancel';
+      const type = options.type || 'danger';
+
+      const iconHtml: Record<string, string> = {
+        danger: '<i class="bi bi-trash3-fill"></i>',
+        warning: '<i class="bi bi-exclamation-triangle-fill"></i>',
+        info: '<i class="bi bi-info-circle-fill"></i>',
+        success: '<i class="bi bi-check-circle-fill"></i>'
+      };
+
+      const btnClass: Record<string, string> = {
+        danger: 'app-popup-btn-danger',
+        warning: 'app-popup-btn-warning',
+        info: 'app-popup-btn-info',
+        success: 'app-popup-btn-success'
+      };
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'app-custom-popup-backdrop';
+
+      backdrop.innerHTML = `
+        <div class="app-custom-popup-card type-${type}">
+          <button type="button" class="app-custom-popup-close-btn" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+          </button>
+          <div class="app-custom-popup-icon-badge type-${type}">
+            ${iconHtml[type] || iconHtml['danger']}
+          </div>
+          <h4 class="app-custom-popup-title">${title}</h4>
+          <p class="app-custom-popup-message">${message}</p>
+          <div class="app-custom-popup-actions">
+            <button type="button" class="app-custom-popup-btn-cancel">
+              ${cancelText}
+            </button>
+            <button type="button" class="app-custom-popup-btn-confirm ${btnClass[type] || 'app-popup-btn-danger'}">
+              ${confirmText}
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(backdrop);
+
+      const card = backdrop.querySelector('.app-custom-popup-card') as HTMLElement;
+      const cancelBtn = backdrop.querySelector('.app-custom-popup-btn-cancel') as HTMLButtonElement;
+      const confirmBtn = backdrop.querySelector('.app-custom-popup-btn-confirm') as HTMLButtonElement;
+      const closeBtn = backdrop.querySelector('.app-custom-popup-close-btn') as HTMLButtonElement;
+
+      let isClosed = false;
+      const close = (result: boolean) => {
+        if (isClosed) return;
+        isClosed = true;
+        window.removeEventListener('keydown', onKeyDown);
+        backdrop.classList.add('popup-closing');
+        if (card) card.classList.add('popup-closing');
+        setTimeout(() => {
+          backdrop.remove();
+          resolve(result);
+        }, 180);
+      };
+
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') close(false);
+      };
+
+      window.addEventListener('keydown', onKeyDown);
+      cancelBtn?.addEventListener('click', () => close(false));
+      closeBtn?.addEventListener('click', () => close(false));
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) close(false);
+      });
+      confirmBtn?.addEventListener('click', () => close(true));
+
+      setTimeout(() => confirmBtn?.focus(), 50);
+    });
+  }
+
   // Centralized Logout Action
   logout() {
     localStorage.removeItem('token');

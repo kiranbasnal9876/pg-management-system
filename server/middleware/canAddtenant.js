@@ -5,17 +5,19 @@ export async function tenantAdd(req, res, next) {
     try {
         const { room_id, pg_id } = req.body;
 
-        const checkRoomForthatProperty = await db.select('rooms',{id:room_id , property_id:pg_id})
-
-        if(checkRoomForthatProperty.data.length == 0 || checkRoomForthatProperty.data == null){
-            fx.sendResponse(res, {status:false , message:"This room is not present in this pg"})
-            return
+        if (!room_id || !pg_id) {
+            return fx.sendResponse(res, { status: false, message: "Property and Room are required" });
         }
 
+        const checkRoomForthatProperty = await db.select('rooms', { id: room_id, property_id: pg_id });
 
-        const pgResult = await db.getSingleRow('pg_properties',{id:pg_id});
+        if (!checkRoomForthatProperty.status || !checkRoomForthatProperty.data || checkRoomForthatProperty.data.length === 0) {
+            return fx.sendResponse(res, { status: false, message: "This room is not present in this PG" });
+        }
 
-        if (pgResult.data.status != 1) {
+        const pgResult = await db.getSingleRow('pg_properties', { id: pg_id });
+
+        if (!pgResult.status || !pgResult.data || pgResult.data.status != 1) {
             return fx.sendResponse(res, {
                 status: false,
                 message: "PG status is inactive or not found"
@@ -23,29 +25,45 @@ export async function tenantAdd(req, res, next) {
         }
 
         // Fetch room type
-        const roomRows = await db.getSingleRow('rooms',{id:room_id})
-        // Count current active tenants in the room
+        const roomRows = await db.getSingleRow('rooms', { id: room_id });
+        if (!roomRows.status || !roomRows.data) {
+            return fx.sendResponse(res, {
+                status: false,
+                message: "Room not found"
+            });
+        }
+
+        // Count current active tenants in the room using proper PostgreSQL parameter
         const tenantCountRows = await db.query(
-            `SELECT COUNT(id) AS count FROM tenants WHERE room_id = ${room_id} AND status = 1`,
+            `SELECT COUNT(id) AS count FROM tenants WHERE room_id = $1 AND status = 1`,
             [room_id]
         );
 
+        if (!tenantCountRows.status) {
+            console.error("tenantCountRows query error:", tenantCountRows.err);
+            return fx.sendResponse(res, {
+                status: false,
+                message: "Failed to verify room occupancy"
+            });
+        }
 
-        const roomCapacity = parseInt(roomRows.data.type);
-        const tenantCount = parseInt( tenantCountRows.data[0].count);
+        const roomCapacity = parseInt(roomRows.data.type) || 1;
+        const tenantCount = parseInt(tenantCountRows.data?.[0]?.count || 0);
+
         if (tenantCount < roomCapacity) {
             return next(); // Allow tenant addition
         } else {
             return fx.sendResponse(res, {
                 status: false,
-                message: "This room is full, you can't add a tenant in this room"
+                message: "This room is full, you cannot add another tenant to this room"
             });
         }
 
     } catch (error) {
+        console.error("tenantAdd error:", error);
         return fx.sendResponse(res, {
             status: false,
-            message: "Server error while checking room availability"
+            message: "Server error while checking room availability: " + (error.message || error)
         });
     }
 }

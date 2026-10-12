@@ -23,16 +23,16 @@ class Rooms {
         const router = express.Router()
         router.post('/', async (req, res) => {
             try {
-                const { pg_id } = req.body;
+                const { pg_id, current_room_id } = req.body;
 
                 if(!pg_id){
                     return fx.sendResponse(res, {status:false , message:"Property name is required"})
                 }
 
-                room_db.get_rooms(pg_id, res);
+                room_db.get_rooms(pg_id, current_room_id, res);
 
-            } catch (ere) {
-                return fx.sendResponse(res, {status:false , message:err.messahe})
+            } catch (err) {
+                return fx.sendResponse(res, {status:false , message: err.message})
             }
         })
         return router

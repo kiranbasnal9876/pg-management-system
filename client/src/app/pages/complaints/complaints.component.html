@@ -133,6 +133,17 @@
                         <td class="text-muted fw-semibold">{{ (page - 1) * limit + i + 1 }}</td>
                         <td>
                             <div class="fw-semibold text-heading">{{items.description}}</div>
+                            @if(items.tenant_name){
+                                <div class="fs-11 text-muted d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                    <span><i class="bi bi-person me-1"></i>{{items.tenant_name}}</span>
+                                    @if(items.room_number){
+                                        <span><i class="bi bi-door-open me-1"></i>Room {{items.room_number}}</span>
+                                    }
+                                    @if(items.pg_name){
+                                        <span><i class="bi bi-building me-1"></i>{{items.pg_name}}</span>
+                                    }
+                                </div>
+                            }
                         </td>
                         <td>
                             @if(items.profile_photo || items.image){
@@ -161,7 +172,7 @@
                                 <button data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn-action-icon primary" (click)="EDIT(items.id)" title="Edit Complaint">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <button class="btn-action-icon danger" title="Delete Complaint">
+                                <button class="btn-action-icon danger" (click)="deleteComplaint(items.id)" title="Delete Complaint">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>

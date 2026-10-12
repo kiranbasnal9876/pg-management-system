@@ -28,9 +28,14 @@ export const update_pg_owner_validation =  [
 ];
 
 export const delete_validation = [
-    body("id").notEmpty().withMessage('Id is required to delete').isNumeric().withMessage('Invalid id'),
-    body("action").notEmpty().withMessage('Action is required')
-]
+    body("action").notEmpty().withMessage('Action is required'),
+    body().custom((value, { req }) => {
+        if (!req.body.id && (!Array.isArray(req.body.ids) || req.body.ids.length === 0)) {
+            throw new Error('Id or ids array is required to delete');
+        }
+        return true;
+    })
+];
 
 export const get_list_validation = [
     body("id").notEmpty().withMessage('Id is required for edit').isNumeric().withMessage('Invalid id'),
@@ -134,39 +139,33 @@ export const add_tenant_validation = [
 export const update_tenant = [
     body('pg_id').notEmpty().withMessage('Pg name is required'),
     body('room_id').notEmpty().withMessage('Room number is required'),
-    body('id').notEmpty().withMessage('Tenant id is required '),
-    body('name').notEmpty().withMessage('Tenant name is required').matches(/^[A-Za-z ]+$/).withMessage('Tenant name only includes characters').isLength({ min: 3, max: 30 }).withMessage('Tenant name must be between 3 and 40 characters long'),
+    body('id').notEmpty().withMessage('Tenant id is required'),
+    body('name').notEmpty().withMessage('Tenant name is required').matches(/^[A-Za-z ]+$/).withMessage('Tenant name only includes characters').isLength({ min: 3, max: 30 }).withMessage('Tenant name must be between 3 and 30 characters long'),
     body('phone').notEmpty().withMessage('Phone number is required').matches(/^[0-9]{10}$/).withMessage('Phone must be 10 digits only'),
     body('email').notEmpty().withMessage('Email is required').isEmail().withMessage('Email is invalid'),
-    body('aadhar').notEmpty().withMessage('Aadhar is required').matches(/^data:(.+);base64,(.+)$/).withMessage('Please send a valid format of aadhar card (base64)'),
-    body('pan').notEmpty().withMessage('Pan is required').matches(/^data:(.+);base64,(.+)$/).withMessage('Please send a valid format of pan card (base64)'),
+    body('aadhar').optional({ checkFalsy: true }),
+    body('pan').optional({ checkFalsy: true }),
+    body('profile_photo').optional({ checkFalsy: true }),
     body('parent_contact').notEmpty().withMessage('Parent number is required').matches(/^[0-9]{10}$/).withMessage('Parent number must be 10 digits only'),
     body('emergency_contact').notEmpty().withMessage('Emergency number is required').matches(/^[0-9]{10}$/).withMessage('Emergency number must be 10 digits only'),
-    body("password").isStrongPassword().withMessage('Password must be 8-15 chars with A-Z, a-z, 0-9 & special char'),
-    body('check_in_date').notEmpty().withMessage('Check in date is required').isDate({
-        format: 'YYYY-MM-DD',
-        delimiters: ['-'],
-        strictMode: true,
-      }).withMessage('Check in date Is invalid'),
-    body('profile_photo').notEmpty().withMessage('Profile photo is required').matches(/^data:(.+);base64,(.+)$/).withMessage('Profile photo format is invalid'),
+    body("password").optional({ checkFalsy: true }).isStrongPassword().withMessage('Password must be 8-15 chars with A-Z, a-z, 0-9 & special char'),
+    body('check_in_date').notEmpty().withMessage('Check in date is required'),
     body('rent_status').notEmpty().withMessage('Rent status is required').matches(/^(paid|pending)$/).withMessage('Rent status is invalid'),
     body('gender').notEmpty().withMessage('Gender is required').matches(/^(male|female|other)$/).withMessage('Gender is invalid'),
-    body('dob').notEmpty().withMessage('DOB is required').isDate({
-        format: 'YYYY-MM-DD',
-        delimiters: ['-'],
-        strictMode: true,
-      }).withMessage('DOB is in invalid format'),
-    body('occupation').notEmpty().withMessage('Occupation is required').isLength({min:2 , max:50}).withMessage('Occupation must be min 2 and 50 characters long'),
-    body('address').notEmpty().withMessage('Address is required').isLength({max:100}).withMessage("Address max length is 100 only"),
+    body('dob').notEmpty().withMessage('DOB is required'),
+    body('occupation').notEmpty().withMessage('Occupation is required').isLength({ min: 2, max: 70 }).withMessage('Occupation must be min 2 and 70 characters long'),
+    body('address').notEmpty().withMessage('Address is required').isLength({ max: 100 }).withMessage("Address max length is 100 only"),
     body("state").notEmpty().withMessage('State is required').matches(/^[0-9]+$/).withMessage('Invalid state'),
-    body("district").notEmpty().withMessage('District is required').matches(/^[0-9]+$/).withMessage('Invalid distrcit'),
+    body("district").notEmpty().withMessage('District is required').matches(/^[0-9]+$/).withMessage('Invalid district'),
+    body("status").notEmpty().withMessage('Status is required').matches(/^(0|1)$/).withMessage('Status is invalid'),
+    body("pincode").optional({ checkFalsy: true }).isPostalCode('IN').withMessage('Pincode is invalid')
 ]
 
 
 export const add_complaint_validation =[
     body("description").notEmpty().withMessage("Description is required").isLength({min:3}).withMessage('Minimum 3 characters must be required').isLength({max:300}).withMessage('Maximum 300 characters is allowed'),
     body('image').optional({checkFalsy:true}),
-    body('category').notEmpty().withMessage('Complaint category is required').matches(/^(Food|Water|Wi-Fi|Electricity|Other')$/).withMessage("Invalid Category"),
+    body('category').notEmpty().withMessage('Complaint category is required').matches(/^(Food|Water|Wi-Fi|Electricity|Other)$/).withMessage("Invalid Category"),
     body('status').optional({checkFalsy:true}).matches(/^(pending|in-progress|resolved)$/).withMessage("Invalid status")
 ]
 
@@ -174,6 +173,6 @@ export const update_complaint_validation =[
     body('id').notEmpty().withMessage("Id is required"),
     body("description").notEmpty().withMessage("Description is required").isLength({min:3}).withMessage('Minimum 3 characters must be required').isLength({max:300}).withMessage('Maximum 300 characters is allowed'),
     body('image').optional({checkFalsy:true}),
-    body('category').notEmpty().withMessage('Complaint category is required').matches(/^(Food|Water|Wi-Fi|Electricity|Other')$/).withMessage("Invalid Category"),
+    body('category').notEmpty().withMessage('Complaint category is required').matches(/^(Food|Water|Wi-Fi|Electricity|Other)$/).withMessage("Invalid Category"),
     body('status').optional({checkFalsy:true}).matches(/^(pending|in-progress|resolved)$/).withMessage("Invalid status")
 ]

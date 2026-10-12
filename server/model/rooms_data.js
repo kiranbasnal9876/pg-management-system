@@ -8,70 +8,65 @@ class Rooms_db {
         const result = await db.insert('rooms', data)
 
         if (result.status) {
-            fx.sendResponse(res, { message: "Room added successfully" })
+            fx.sendResponse(res, { status: true, message: "Room added successfully" });
         } else {
-            if (result.err.errno == 1452) {
-                fx.sendResponse(res, { status: false, message: "Property don't exists" })
-            }
-            else if (result.err.errno == 1062) {
-                fx.sendResponse(res, { status: false, message: "Room number already exists , Same property doesn't have same room number" })
-            }
-            else {
-                fx.sendResponse(res, { status: false, message: result.err.sqlMessage })
+            if (result.err?.code === '23503' || result.err?.errno == 1452) {
+                fx.sendResponse(res, { status: false, message: "Property does not exist" });
+            } else if (result.err?.code === '23505' || result.err?.errno == 1062) {
+                fx.sendResponse(res, { status: false, message: "Room number already exists for this property" });
+            } else {
+                fx.sendResponse(res, { status: false, message: result.err?.message || result.err?.sqlMessage || "Failed to add room" });
             }
         }
-
-
     }
 
 
     async updated_room_data(data, id, res) {
-
-        const result = await db.update('rooms', data, { id: id })
+        const result = await db.update('rooms', data, { id: id });
 
         if (result.status) {
-
-            if (result.data.affectedRows == 1) {
-                fx.sendResponse(res, { message: "Room updated successfully" })
+            if (result.rowCount >= 1 || (result.data && result.data.length >= 1)) {
+                fx.sendResponse(res, { status: true, message: "Room updated successfully" });
             } else {
-                fx.sendResponse(res, { message: "Room not found", status: false })
+                fx.sendResponse(res, { status: false, message: "Room not found" });
             }
-
         } else {
-
-            if (result.err.errno == 1452) {
-                fx.sendResponse(res, { status: false, message: "Property does not exist" })
-            } else if (result.err.errno == 1062) {
-                fx.sendResponse(res, { status: false, message: "Room number already exists for this property" })
+            if (result.err?.code === '23503' || result.err?.errno == 1452) {
+                fx.sendResponse(res, { status: false, message: "Property does not exist" });
+            } else if (result.err?.code === '23505' || result.err?.errno == 1062) {
+                fx.sendResponse(res, { status: false, message: "Room number already exists for this property" });
+            } else {
+                fx.sendResponse(res, { status: false, message: result.err?.message || result.err?.sqlMessage || "Failed to update room" });
             }
-            fx.sendResponse(res, { status: false, message: result.err.sqlMessage })
-
         }
-
     }
 
-    async get_rooms(pg_id, res) {
-        // return res.send(pg_id)
+    async get_rooms(pg_id, current_room_id, res) {
         try {
 
             const pgResult = await db.getSingleRow('pg_properties', { id: pg_id });
-            if (pgResult.data.length == 0 || pgResult.data == null || pgResult.data.status != 1) {
-                fx.sendResponse(res, {
+            if (!pgResult.data || pgResult.data.status != 1) {
+                return fx.sendResponse(res, {
                     status: false,
                     message: "PG status is inactive or not found"
                 });
             }
             // Get all rooms for a given property_id that are active (status = 1)
-            const allRooms = await db.query(`SELECT id , room_number , type FROM rooms WHERE property_id = ${pg_id} AND status = 1`);
+            const allRooms = await db.query(`SELECT id, room_number, type FROM rooms WHERE property_id = ${pg_id} AND status = 1`);
 
             const availableRooms = [];
 
-            for (const room of allRooms.data) {
+            for (const room of (allRooms.data || [])) {
+                if (current_room_id && room.id == current_room_id) {
+                    availableRooms.push(room);
+                    continue;
+                }
+
                 const tenantCountRows = await db.query(
                     `SELECT COUNT(id) AS count FROM tenants WHERE room_id = ${room.id} AND status = 1`
                 );
-                const roomCapacity = parseInt(room.type); // Assuming `type` represents capacity
-                const tenantCount = parseInt(tenantCountRows.data[0].count);
+                const roomCapacity = parseInt(room.type) || 1;
+                const tenantCount = parseInt(tenantCountRows.data?.[0]?.count || 0);
 
                 if (tenantCount < roomCapacity) {
                     availableRooms.push(room);
@@ -80,11 +75,9 @@ class Rooms_db {
 
             return res.send(availableRooms);
 
-
         } catch (err) {
-            fx.sendResponse(res, { status: false, message: err.message })
+            return fx.sendResponse(res, { status: false, message: err.message });
         }
-
 
     }
 

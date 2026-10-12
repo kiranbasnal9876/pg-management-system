@@ -61,13 +61,18 @@ class DB {
   // INSERT
   // =========================
   async insert(table, data) {
-    const columns = Object.keys(data);
+    const cleanData = { ...data };
+    if (cleanData.id === null || cleanData.id === undefined || cleanData.id === '' || cleanData.id === 0) {
+      delete cleanData.id;
+    }
+
+    const columns = Object.keys(cleanData);
 
     const placeholders = columns
       .map((_, index) => `$${index + 1}`)
       .join(', ');
 
-    const values = Object.values(data);
+    const values = Object.values(cleanData);
 
     const sql = `
       INSERT INTO ${table}
