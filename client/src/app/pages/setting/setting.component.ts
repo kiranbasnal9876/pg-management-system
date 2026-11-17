@@ -24,6 +24,8 @@ export class SettingComponent implements OnInit {
 
   razorpayKeyId: string = 'rzp_test_1DP5mmOlF5G5ag';
   razorpayKeySecret: string = 's2xL7UeE8xW61nN1O4f5E3V8';
+  userRole: 'super_admin' | 'owner' | 'tenant' = 'owner';
+  currentUser: any = null;
 
   constructor(
     private api: ApiService,
@@ -31,7 +33,11 @@ export class SettingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadSettings();
+    this.userRole = this.GF.getUserRole() || 'owner';
+    this.currentUser = this.GF.getUser();
+    if (this.userRole === 'owner') {
+      this.loadSettings();
+    }
   }
 
   loadSettings(): void {

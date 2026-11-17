@@ -86,12 +86,22 @@
       <div class="col-12 col-md-8 col-lg-6 col-xl-5">
         <div class="login-glass-card p-4 p-sm-5 rounded-4 shadow-lg position-relative">
 
-          <!-- Role Toggle Tabs -->
+          <!-- Role Toggle Tabs (Super Admin / PG Owner / Tenant) -->
           <div class="role-switch-container p-1 rounded-pill mb-4 d-flex">
-            <a routerLink="/log-in" class="role-tab active flex-fill text-center py-2 rounded-pill text-decoration-none fw-semibold fs-12">
+            <button type="button" 
+                    class="role-tab flex-fill text-center py-2 rounded-pill border-0 text-decoration-none fw-semibold fs-11 transition-all"
+                    [ngClass]="selectedRole === 'super_admin' ? 'active text-danger' : 'text-muted bg-transparent'"
+                    (click)="setRole('super_admin')">
+              <i class="bi bi-shield-lock-fill me-1"></i> Super Admin
+            </button>
+            <button type="button" 
+                    class="role-tab flex-fill text-center py-2 rounded-pill border-0 text-decoration-none fw-semibold fs-11 transition-all"
+                    [ngClass]="selectedRole === 'owner' ? 'active text-primary' : 'text-muted bg-transparent'"
+                    (click)="setRole('owner')">
               <i class="bi bi-building me-1"></i> PG Owner
-            </a>
-            <a routerLink="/tenant-log-in" class="role-tab flex-fill text-center py-2 rounded-pill text-decoration-none text-muted fw-semibold fs-12">
+            </button>
+            <a routerLink="/tenant-log-in" 
+               class="role-tab flex-fill text-center py-2 rounded-pill text-decoration-none text-muted fw-semibold fs-11 transition-all">
               <i class="bi bi-person me-1"></i> Tenant
             </a>
           </div>
@@ -99,15 +109,30 @@
           <!-- Form Header -->
           <div class="mb-4">
             <div class="d-flex align-items-center justify-content-between mb-1">
-              <h3 class="fw-bold text-heading mb-0 fs-20">PG Owner Sign In</h3>
-              <button type="button" class="btn btn-sm btn-demo-pill d-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fs-11"
-                      (click)="quickFillDemo()"
-                      title="Auto-fill demo owner credentials">
-                <i class="bi bi-lightning-charge-fill text-warning"></i>
-                <span>Demo Fill</span>
-              </button>
+              <h3 class="fw-bold text-heading mb-0 fs-18">
+                {{ selectedRole === 'super_admin' ? 'Super Admin Portal' : 'PG Owner Sign In' }}
+              </h3>
+              @if (selectedRole === 'super_admin') {
+                <button type="button" class="btn btn-sm btn-demo-pill d-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fs-11"
+                        (click)="quickFillSuperAdminDemo()"
+                        title="Auto-fill demo Super Admin credentials">
+                  <i class="bi bi-shield-fill-check text-danger"></i>
+                  <span>Demo Admin</span>
+                </button>
+              } @else {
+                <button type="button" class="btn btn-sm btn-demo-pill d-flex align-items-center gap-1 rounded-pill px-2.5 py-1 fs-11"
+                        (click)="quickFillDemo()"
+                        title="Auto-fill demo owner credentials">
+                  <i class="bi bi-lightning-charge-fill text-warning"></i>
+                  <span>Demo Owner</span>
+                </button>
+              }
             </div>
-            <p class="fs-12 text-muted mb-0">Enter your credentials to access your properties & rent stats.</p>
+            <p class="fs-12 text-muted mb-0">
+              {{ selectedRole === 'super_admin' 
+                  ? 'Access master administration for client accounts and pricing plans.' 
+                  : 'Enter your credentials to access properties, rooms, and rent statistics.' }}
+            </p>
           </div>
 
           <!-- Form -->

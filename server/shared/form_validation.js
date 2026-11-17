@@ -11,7 +11,8 @@ export const add_pg_owner_validation =  [
     body("district").notEmpty().withMessage('District is required').matches(/^[0-9]{1,4}$/).withMessage('Invalid district'),
     body("pincode").notEmpty().withMessage('Pincode is required').isPostalCode('IN').withMessage('Pincode is invalid'),
     body("status").notEmpty().withMessage('Status is required').matches(/^(0|1)$/).withMessage("Status is invalid"),
-    body("profile").notEmpty().withMessage('Profile is required')
+    body("profile").notEmpty().withMessage('Profile is required'),
+    body("plan_id").optional()
 ];
 
 export const update_pg_owner_validation =  [
@@ -24,7 +25,8 @@ export const update_pg_owner_validation =  [
     body("district").notEmpty().withMessage('District is required').matches(/^[0-9]{1,4}$/).withMessage('Invalid district'),
     body("pincode").notEmpty().withMessage('Pincode is required').isPostalCode('IN').withMessage('Pincode is invalid'),
     body("id").notEmpty().withMessage('id is required'),
-    body("status").notEmpty().withMessage('Status is required').matches(/^(0|1)$/).withMessage("Status is invalid")
+    body("status").notEmpty().withMessage('Status is required').matches(/^(0|1)$/).withMessage("Status is invalid"),
+    body("plan_id").optional()
 ];
 
 export const delete_validation = [

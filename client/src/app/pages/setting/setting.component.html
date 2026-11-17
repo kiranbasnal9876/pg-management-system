@@ -4,14 +4,115 @@
     <div class="app-page-header">
         <div class="app-page-title-group">
             <h2 class="app-page-title">
-                <i class="bi bi-gear-fill"></i>
-                System Settings
+                <i class="bi bi-gear-fill" [ngClass]="userRole === 'super_admin' ? 'text-danger' : 'text-primary'"></i>
+                {{ userRole === 'super_admin' ? 'Master System Settings' : 'Settings & Configurations' }}
             </h2>
-            <p class="app-page-subtitle">Configure PG Owner UPI QR scanners, payment credentials, and app preferences</p>
+            <p class="app-page-subtitle">
+                {{ userRole === 'super_admin' 
+                    ? 'Platform-wide configuration, subscription pricing rules, and super administrator profile.' 
+                    : 'Configure PG Owner UPI QR scanners, payment credentials, and app preferences' }}
+            </p>
         </div>
     </div>
 
-    <!-- Settings Card -->
+    <!-- ============================================== -->
+    <!-- SUPER ADMIN SETTINGS PANEL                    -->
+    <!-- ============================================== -->
+    @if (userRole === 'super_admin') {
+        <div class="row g-4">
+            <!-- Super Admin Profile Card -->
+            <div class="col-lg-6">
+                <div class="app-table-card p-4 rounded-4 shadow-sm h-100">
+                    <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                        <div class="p-3 rounded-circle bg-danger-subtle text-danger fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <div>
+                            <span class="badge bg-danger text-white rounded-pill px-2.5 py-0.5 fs-10 text-uppercase fw-bold letter-spacing-1">Super Administrator</span>
+                            <h4 class="fs-16 fw-bold text-heading mb-0 mt-1">{{ currentUser?.name || 'Super Administrator' }}</h4>
+                            <span class="fs-12 text-muted">{{ currentUser?.email || 'superadmin@gmail.com' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+                        <div class="p-3 rounded-3 bg-body-tertiary">
+                            <span class="fs-11 fw-semibold text-muted text-uppercase letter-spacing-1 d-block mb-1">Platform Role</span>
+                            <div class="fs-13 fw-bold text-heading">Full Root & Multi-Tenant Access</div>
+                            <span class="fs-11 text-muted">You have authority to issue client panels, modify plans, and supervise system data.</span>
+                        </div>
+
+                        <div class="p-3 rounded-3 bg-body-tertiary">
+                            <span class="fs-11 fw-semibold text-muted text-uppercase letter-spacing-1 d-block mb-1">Quick Management Actions</span>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <a routerLink="/plans" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                    <i class="bi bi-box-seam-fill"></i>
+                                    <span>Manage Plans</span>
+                                </a>
+                                <a routerLink="/client-master" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span>Client Master (PG Owners)</span>
+                                </a>
+                                <a routerLink="/dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                    <i class="bi bi-speedometer2"></i>
+                                    <span>SaaS Dashboard</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform System Status Card -->
+            <div class="col-lg-6">
+                <div class="app-table-card p-4 rounded-4 shadow-sm h-100">
+                    <h5 class="fs-14 fw-bold text-heading mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-hdd-stack-fill text-success"></i>
+                        System & Infrastructure Health
+                    </h5>
+
+                    <ul class="list-unstyled p-0 m-0 d-flex flex-column gap-3">
+                        <li class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-body-tertiary">
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="bi bi-database-fill-check fs-5 text-success"></i>
+                                <div>
+                                    <strong class="fs-12 d-block text-heading">PostgreSQL Database</strong>
+                                    <span class="fs-10 text-muted">Connected &bull; Port 5432 &bull; Pool Active</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fs-10">Healthy</span>
+                        </li>
+
+                        <li class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-body-tertiary">
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="bi bi-cpu-fill fs-5 text-primary"></i>
+                                <div>
+                                    <strong class="fs-12 d-block text-heading">Node.js Express Backend</strong>
+                                    <span class="fs-10 text-muted">Listening on port 5005 &bull; CORS Enabled</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fs-10">Active</span>
+                        </li>
+
+                        <li class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-body-tertiary">
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="bi bi-shield-check fs-5 text-info"></i>
+                                <div>
+                                    <strong class="fs-12 d-block text-heading">Multi-Tenant Isolation</strong>
+                                    <span class="fs-10 text-muted">PG Owners and Tenants strictly scoped per owner_id</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-info-subtle text-info rounded-pill px-2.5 py-1 fs-10">Enforced</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ============================================== -->
+    <!-- PG OWNER SETTINGS PANEL                        -->
+    <!-- ============================================== -->
+    @if (userRole === 'owner') {
     <div class="app-table-card p-4">
         <!-- Navigation Tabs -->
         <ul class="nav nav-pills mb-4 gap-2" id="pills-tab" role="tablist">
@@ -169,5 +270,6 @@
 
         </div>
     </div>
+    }
 
 </div>

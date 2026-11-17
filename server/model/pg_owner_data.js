@@ -43,7 +43,7 @@ class Pg_owner_db {
 
         const whereClause = db.getWhere(whereObj)
 
-        const sql = `SELECT * FROM pg_owners ${whereClause} ORDER BY status = 0,  ${sort_by} ${order} LIMIT ${limit} OFFSET ${offset}`;
+        const sql = `SELECT *, (SELECT plan_name FROM plan WHERE id = pg_owners.plan_id) AS plan_name FROM pg_owners ${whereClause} ORDER BY status = 0, ${sort_by} ${order} LIMIT ${limit} OFFSET ${offset}`;
         const countSql = `SELECT COUNT(*) as total FROM pg_owners ${whereClause}`;
 
         const [clients, countResult] = await Promise.all([

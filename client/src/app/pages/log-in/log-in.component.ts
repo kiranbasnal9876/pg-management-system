@@ -20,6 +20,7 @@ export class LogInComponent implements OnInit {
   showPassword: boolean = false;
   loading: boolean = false;
   currentTheme: Theme = 'dark';
+  selectedRole: 'super_admin' | 'owner' = 'owner';
 
   constructor(
     private api: ApiService,
@@ -37,6 +38,11 @@ export class LogInComponent implements OnInit {
     this.themeService.theme$.subscribe(t => this.currentTheme = t);
   }
 
+  setRole(role: 'super_admin' | 'owner'): void {
+    this.selectedRole = role;
+    this.loginForm.reset();
+  }
+
   toggleTheme(): void {
     const next = this.currentTheme === 'dark' ? 'light' : 'dark';
     this.themeService.setTheme(next);
@@ -46,7 +52,18 @@ export class LogInComponent implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
+  quickFillSuperAdminDemo(): void {
+    this.selectedRole = 'super_admin';
+    this.loginForm.patchValue({
+      email: 'superadmin@gmail.com',
+      password: 'Admin@123'
+    });
+    this.loginForm.markAllAsTouched();
+    this.GF.showToast('Super Admin demo credentials filled!', 'info');
+  }
+
   quickFillDemo(): void {
+    this.selectedRole = 'owner';
     this.loginForm.patchValue({
       email: 'dimpalbasnal0@gmail.com',
       password: 'Owner@123'
@@ -59,12 +76,14 @@ export class LogInComponent implements OnInit {
     this.loginForm.markAllAsTouched();
     if (this.loginForm.valid) {
       this.loading = true;
-      this.api.postApi('pg-owner-login', this.loginForm.value).subscribe({
+      const endpoint = this.selectedRole === 'super_admin' ? 'super-admin-login' : 'pg-owner-login';
+      this.api.postApi(endpoint, this.loginForm.value).subscribe({
         next: (res: any) => {
           this.loading = false;
           if (res.status) {
             localStorage.setItem('token', res.token);
-            localStorage.setItem('user_role', 'owner');
+            const userRole = res.role || this.selectedRole;
+            localStorage.setItem('user_role', userRole);
             if (res.user) {
               localStorage.setItem('user_data', JSON.stringify(res.user));
             }

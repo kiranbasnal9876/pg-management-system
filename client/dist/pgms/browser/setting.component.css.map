@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/setting/setting.component.css"],
+  "sourcesContent": [".max-width-700 {\n    max-width: 650px;\n}\n\n.nav-pills .nav-link {\n    border-radius: var(--radius-sm);\n    color: var(--text-muted-color);\n    background-color: var(--card-bg-subtle);\n    border: 1px solid var(--border-color);\n    transition: all 0.2s ease;\n}\n\n.nav-pills .nav-link:hover {\n    color: var(--primary-color);\n    border-color: var(--primary-color);\n}\n\n.nav-pills .nav-link.active {\n    background-color: var(--primary-color);\n    border-color: var(--primary-color);\n    color: #ffffff;\n    box-shadow: var(--shadow-sm);\n}\n"],
+  "mappings": ";AAAA,CAAC;AACG,aAAW;AACf;AAEA,CAAC,UAAU,CAAC;AACR,iBAAe,IAAI;AACnB,SAAO,IAAI;AACX,oBAAkB,IAAI;AACtB,UAAQ,IAAI,MAAM,IAAI;AACtB,cAAY,IAAI,KAAK;AACzB;AAEA,CARC,UAQU,CARC,QAQQ;AAChB,SAAO,IAAI;AACX,gBAAc,IAAI;AACtB;AAEA,CAbC,UAaU,CAbC,QAaQ,CAAC;AACjB,oBAAkB,IAAI;AACtB,gBAAc,IAAI;AAClB,SAAO;AACP,cAAY,IAAI;AACpB;",
+  "names": []
+}

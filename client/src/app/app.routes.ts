@@ -3,6 +3,7 @@ import { LogInComponent } from './pages/log-in/log-in.component';
 import { TenantLogInComponent } from './pages/tenant-log-in/tenant-log-in.component';
 import { dashboardAuthGuard } from './guards/dashboard-auth.guard';
 import { logInAuthGuard } from './guards/log-in-auth.guard';
+import { superAdminGuard, ownerGuard, tenantGuard } from './guards/role.guard';
 
 export const routes: Routes = [
     {
@@ -34,26 +35,37 @@ export const routes: Routes = [
             {
                 path: 'pay-rent',
                 title: 'Pay Rent',
+                canActivate: [tenantGuard],
                 loadComponent: () => import('./pages/pay-rent/pay-rent.component').then(m => m.PayRentComponent)
             },
             {
                 path: 'client-master',
                 title: 'Client Master',
+                canActivate: [superAdminGuard],
                 loadComponent: () => import('./pages/client/client.component').then(m => m.ClientComponent)
+            },
+            {
+                path: 'plans',
+                title: 'Subscription Plans',
+                canActivate: [superAdminGuard],
+                loadComponent: () => import('./pages/plans/plans.component').then(m => m.PlansComponent)
             },
             {
                 path: 'property-master',
                 title: 'Property Master',
+                canActivate: [ownerGuard],
                 loadComponent: () => import('./pages/property/property.component').then(m => m.PropertyComponent)
             },
             {
                 path: 'rooms',
                 title: 'Rooms',
+                canActivate: [ownerGuard],
                 loadComponent: () => import('./pages/rooms/rooms.component').then(m => m.RoomsComponent)
             },
             {
                 path: 'tenant',
                 title: 'Tenant Directory',
+                canActivate: [ownerGuard],
                 loadComponent: () => import('./pages/tenant/tenant.component').then(m => m.TenantComponent)
             },
             {

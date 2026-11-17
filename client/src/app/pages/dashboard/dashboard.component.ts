@@ -33,8 +33,12 @@ export type ChartOptions = {
 })
 export class DashboardComponent implements OnInit {
 
-  userRole: 'tenant' | 'owner' = 'owner';
+  userRole: 'super_admin' | 'owner' | 'tenant' = 'owner';
   currentUser: any = null;
+
+  // Super Admin SaaS metrics
+  superAdminStats: any = null;
+  loadingSuperAdminStats: boolean = false;
 
   // Owner dashboard metrics
   property_id: number[] = [];
@@ -90,12 +94,30 @@ export class DashboardComponent implements OnInit {
     this.currentUser = this.GF.getUser();
     this.userRole = this.GF.getUserRole() || 'owner';
 
-    if (this.userRole === 'tenant') {
+    if (this.userRole === 'super_admin') {
+      this.loadSuperAdminDashboard();
+    } else if (this.userRole === 'tenant') {
       this.loadTenantDashboard();
     } else {
       this.getProperty();
       this.loadOwnerRentSummary();
     }
+  }
+
+  // --- SUPER ADMIN DASHBOARD METHODS ---
+  loadSuperAdminDashboard(): void {
+    this.loadingSuperAdminStats = true;
+    this.api.postApi('super-admin-stats', {}).subscribe({
+      next: (res: any) => {
+        this.loadingSuperAdminStats = false;
+        if (res.status) {
+          this.superAdminStats = res.stats;
+        }
+      },
+      error: () => {
+        this.loadingSuperAdminStats = false;
+      }
+    });
   }
 
   // --- TENANT DASHBOARD METHODS ---

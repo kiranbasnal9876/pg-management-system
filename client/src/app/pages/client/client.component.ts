@@ -40,6 +40,7 @@ export class ClientComponent implements OnInit {
   district_data:  district[] |any
   editMode: boolean = false
   editClientId: string = ''
+  plansList: any[] = []
   @ViewChild('modelClose') modelClose!: ElementRef;
 
   constructor(private api: ApiService, public GF: GlobalService) { }
@@ -47,6 +48,18 @@ export class ClientComponent implements OnInit {
   ngOnInit(): void {
     this.getTable()
     this.getState()
+    this.getPlans()
+  }
+
+  getPlans(): void {
+    this.api.postApi('plan-list', {}).subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.plansList = res.data || [];
+        }
+      },
+      error: () => {}
+    });
   }
 
   filterForm = new FormGroup({
@@ -72,6 +85,7 @@ export class ClientComponent implements OnInit {
     address: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required,Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$'), Validators.minLength(8), Validators.maxLength(15)]),
     pincode: new FormControl('' , [Validators.required , Validators.minLength(6) , Validators.maxLength(6)]),
+    plan_id: new FormControl(1),
     id: new FormControl('')
   })
 

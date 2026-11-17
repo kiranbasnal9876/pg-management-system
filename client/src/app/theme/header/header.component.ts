@@ -19,7 +19,7 @@ export class HeaderComponent implements OnInit {
   currentTheme: Theme = 'system';
   sidebarVisible: boolean = true;
   currentUser: any = null;
-  userRole: 'tenant' | 'owner' = 'owner';
+  userRole: 'super_admin' | 'owner' | 'tenant' = 'owner';
 
   @Output() sidebarToggle = new EventEmitter<boolean>();
 

@@ -162,18 +162,26 @@ export class GlobalService {
     return null;
   }
 
-  // Get current user role ('tenant' | 'owner')
-  getUserRole(): 'tenant' | 'owner' | null {
+  // Get current user role ('super_admin' | 'owner' | 'tenant')
+  getUserRole(): 'super_admin' | 'owner' | 'tenant' | null {
     const storedRole = localStorage.getItem('user_role');
-    if (storedRole === 'tenant' || storedRole === 'owner') return storedRole;
+    if (storedRole === 'super_admin' || storedRole === 'owner' || storedRole === 'tenant') {
+      return storedRole;
+    }
 
     const user = this.getUser();
     if (user) {
-      if (user.role) return user.role;
+      if (user.role === 'super_admin' || user.role === 'owner' || user.role === 'tenant') {
+        return user.role;
+      }
       if (user.room_id !== undefined || user.pg_id !== undefined) return 'tenant';
       return 'owner';
     }
     return null;
+  }
+
+  isSuperAdmin(): boolean {
+    return this.getUserRole() === 'super_admin';
   }
 
   isTenant(): boolean {

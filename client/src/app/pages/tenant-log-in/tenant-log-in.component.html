@@ -86,12 +86,15 @@
       <div class="col-12 col-md-8 col-lg-6 col-xl-5">
         <div class="login-glass-card p-4 p-sm-5 rounded-4 shadow-lg position-relative">
 
-          <!-- Role Toggle Tabs -->
+          <!-- Role Toggle Tabs (Super Admin / PG Owner / Tenant) -->
           <div class="role-switch-container p-1 rounded-pill mb-4 d-flex">
-            <a routerLink="/log-in" class="role-tab flex-fill text-center py-2 rounded-pill text-decoration-none text-muted fw-semibold fs-12">
+            <a routerLink="/log-in" class="role-tab flex-fill text-center py-2 rounded-pill text-decoration-none text-muted fw-semibold fs-11">
+              <i class="bi bi-shield-lock me-1"></i> Super Admin
+            </a>
+            <a routerLink="/log-in" class="role-tab flex-fill text-center py-2 rounded-pill text-decoration-none text-muted fw-semibold fs-11">
               <i class="bi bi-building me-1"></i> PG Owner
             </a>
-            <a routerLink="/tenant-log-in" class="role-tab active flex-fill text-center py-2 rounded-pill text-decoration-none fw-semibold fs-12">
+            <a routerLink="/tenant-log-in" class="role-tab active flex-fill text-center py-2 rounded-pill text-decoration-none fw-semibold fs-11 text-success">
               <i class="bi bi-person me-1"></i> Tenant
             </a>
           </div>
