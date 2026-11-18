@@ -17,44 +17,41 @@ class Pg_owner {
 
             try {
                 const { email, password } = req.body;
-                console.log(email,password)
-                pg_owner_db.pg_owner_login(email)
-                    .then(async (response) => {
-                        if (response.data == null) {
-                            fx.sendResponse(res, { status: false, message: 'Email is incorrect' })
-                        } else {
+                const response = await pg_owner_db.pg_owner_login(email);
 
-                            if (response.data.status == 0) {
-                                fx.sendResponse(res, { status: false, message: "Your account is inactive" })
-                            }
-                            const match = await bcrypt.compare(password, response.data.password);
+                if (!response || !response.status || response.data == null) {
+                    return fx.sendResponse(res, { status: false, message: 'Email is incorrect' });
+                }
 
-                            if (!match) {
-                                fx.sendResponse(res, { status: false, message: 'Incorrect password' })
-                            } else {
-                                const ownerUser = { ...response.data, role: 'owner' };
-                                delete ownerUser.password;
-                                fx.sendResponse(res, { 
-                                    message: 'Login successfully', 
-                                    token: encodeToken(ownerUser),
-                                    role: 'owner',
-                                    user: ownerUser
-                                })
-                            }
+                if (response.data.status == 0) {
+                    return fx.sendResponse(res, { status: false, message: "Your account is inactive" });
+                }
 
-                        }
+                let match = false;
+                if (response.data.password && response.data.password.startsWith('$2b$')) {
+                    match = await bcrypt.compare(password, response.data.password);
+                } else {
+                    match = (password === response.data.password);
+                }
 
-                    })
-                    .catch(err => {
-                        fx.sendResponse(res, { status: false, message: err.message, statusCode: 400 })
-                    })
+                if (!match) {
+                    return fx.sendResponse(res, { status: false, message: 'Incorrect password' });
+                }
 
+                const ownerUser = { ...response.data, role: 'owner' };
+                delete ownerUser.password;
+                return fx.sendResponse(res, { 
+                    message: 'Login successfully', 
+                    token: encodeToken(ownerUser),
+                    role: 'owner',
+                    user: ownerUser
+                });
 
             } catch (err) {
-                fx.sendResponse(res, { status: false, message: err.message, statusCode: 400 })
+                return fx.sendResponse(res, { status: false, message: err.message || 'Login failed', statusCode: 400 });
             }
 
-        })
+        });
 
         return router;
 
@@ -73,10 +70,10 @@ class Pg_owner {
 
                 pg_owner_db.add_pg_owner(req.body, res);
             } catch (err) {
-                fx.sendResponse(res, { status: false, message: err, statusCode: 400 });
+                return fx.sendResponse(res, { status: false, message: err.message || 'Failed to add owner', statusCode: 400 });
             }
 
-        })
+        });
 
         return router;
 
@@ -107,13 +104,12 @@ class Pg_owner {
                 pg_owner_db.update_pg_owner(req.body, pg_owner_id, res);
 
             } catch (err) {
-                fx.sendResponse(res, { status: false, message: err, statusCode: 400 });
+                return fx.sendResponse(res, { status: false, message: err.message || 'Failed to update owner', statusCode: 400 });
             }
 
-        })
+        });
 
         return router;
-
 
     }
 

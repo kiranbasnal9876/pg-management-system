@@ -41,12 +41,12 @@ router.post('/', delete_validation, form_error_message, async (req, res) => {
 
     if (result.status) {
         if (result.rowCount >= 1 || (result.data && result.data.length >= 1)) {
-            fx.sendResponse(res, { status: true, message: 'Record deleted successfully' });
+            return fx.sendResponse(res, { status: true, message: 'Record deleted successfully' });
         } else {
-            fx.sendResponse(res, { status: false, message: 'Record not found' });
+            return fx.sendResponse(res, { status: false, message: 'Record not found' });
         }
     } else {
-        fx.sendResponse(res, { status: false, message: result.err?.message || 'Failed to delete record' });
+        return fx.sendResponse(res, { status: false, message: result.err?.message || 'Failed to delete record' });
     }
 });
 

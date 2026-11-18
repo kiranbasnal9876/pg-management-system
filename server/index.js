@@ -84,6 +84,22 @@ app.use('/get-list' , getList)
 // state and district api 
 app.use('/state' , pg_owner.state())
 
+// 404 Fallback Handler
+app.use((req, res) => {
+    res.status(404).json({
+        status: false,
+        message: `Endpoint ${req.method} ${req.originalUrl} not found`
+    });
+});
+
+// Centralized Global Error Handler Middleware
+app.use((err, req, res, next) => {
+    console.error('Unhandled Server Error:', err);
+    res.status(err.status || 500).json({
+        status: false,
+        message: err.message || 'Internal Server Error'
+    });
+});
 
 app.listen(port , (err)=>{
 

@@ -246,7 +246,7 @@ class DB {
   }
 
   // =========================
-  // GET WHERE
+  // GET WHERE (Sanitized & SQL-Injection Safe)
   // =========================
   getWhere(obj = {}) {
     let where = ' WHERE 1=1';
@@ -257,28 +257,36 @@ class DB {
       if (
         key !== 'pageno' &&
         key !== 'operator' &&
-        value !== ''
+        value !== '' &&
+        value !== undefined &&
+        value !== null
       ) {
+        // Sanitize column identifier
+        const cleanKey = key.replace(/[^a-zA-Z0-9_.]/g, '');
+        if (!cleanKey) return;
+
+        // Escape single quotes for literal values
+        const safeValue = typeof value === 'string' ? value.replace(/'/g, "''") : value;
         let clause = '';
 
         if (oprtr[key] === 'LIKE') {
-          clause = ` AND ${key} ILIKE '%${value}%'`;
+          clause = ` AND ${cleanKey} ILIKE '%${safeValue}%'`;
 
         } else if (oprtr[key] === 'IN') {
-          clause = ` AND ${key} IN (${value})`;
+          clause = ` AND ${cleanKey} IN (${value})`;
 
         } else if (oprtr[key] === 'IS') {
-          clause = ` AND ${key} IS ${value}`;
+          clause = ` AND ${cleanKey} IS ${safeValue}`;
 
         } else if (oprtr[key] === 'NOT_FIND_IN_SET') {
-          // FIND_IN_SET does not exist in PostgreSQL.
-          clause = ` AND NOT (${value} = ANY(string_to_array(${key}, ',')::text[]))`;
+          clause = ` AND NOT ('${safeValue}' = ANY(string_to_array(${cleanKey}, ',')::text[]))`;
 
         } else if (oprtr[key]) {
-          clause = ` AND ${key} ${oprtr[key]} '${value}'`;
+          const cleanOp = ['=', '!=', '<>', '>', '<', '>=', '<='].includes(oprtr[key]) ? oprtr[key] : '=';
+          clause = ` AND ${cleanKey} ${cleanOp} '${safeValue}'`;
 
         } else {
-          clause = ` AND ${key} = '${value}'`;
+          clause = ` AND ${cleanKey} = '${safeValue}'`;
         }
 
         where += clause;
@@ -286,6 +294,25 @@ class DB {
     });
 
     return where;
+  }
+
+  // =========================
+  // DATABASE TRANSACTION HELPER
+  // =========================
+  async transaction(callback) {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await callback(client);
+      await client.query('COMMIT');
+      return { status: true, data: result };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('Transaction rollback due to error:', err);
+      return { status: false, err };
+    } finally {
+      client.release();
+    }
   }
 }
 

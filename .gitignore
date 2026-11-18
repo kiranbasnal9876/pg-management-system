@@ -2,6 +2,7 @@
 
 # Compiled output
 /dist
+client/dist
 /tmp
 /out-tsc
 /bazel-out
@@ -31,6 +32,7 @@ yarn-error.log
 
 # Miscellaneous
 /.angular/cache
+client/.angular
 .sass-cache/
 /connect.lock
 /coverage

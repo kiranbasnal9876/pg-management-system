@@ -130,46 +130,42 @@ class Tenant{
         router.post('/', login_validation, form_error_message, async (req, res) => {
 
             try {
-
                 const { email, password } = req.body;
+                const response = await tenant_model.tenant_login(email);
 
-                tenant_model.tenant_login(email)
-                    .then(async (response) => {
-                        if (response.data == null) {
-                            fx.sendResponse(res, { status: false, message: 'Email is incorrect' })
-                        } else {
+                if (!response || !response.status || response.data == null) {
+                    return fx.sendResponse(res, { status: false, message: 'Email is incorrect' });
+                }
 
-                            if (response.data.status == 0) {
-                                fx.sendResponse(res, { status: false, message: "Your account is inactive" })
-                            }
-                            const match = await bcrypt.compare(password, response.data.password);
+                if (response.data.status == 0) {
+                    return fx.sendResponse(res, { status: false, message: "Your account is inactive" });
+                }
 
-                            if (!match) {
-                                fx.sendResponse(res, { status: false, message: 'Incorrect password' })
-                            } else {
-                                const tenantUser = { ...response.data, role: 'tenant' };
-                                delete tenantUser.password;
-                                fx.sendResponse(res, { 
-                                    message: 'Login successfully', 
-                                    token: encodeToken(tenantUser),
-                                    role: 'tenant',
-                                    user: tenantUser
-                                })
-                            }
+                let match = false;
+                if (response.data.password && response.data.password.startsWith('$2b$')) {
+                    match = await bcrypt.compare(password, response.data.password);
+                } else {
+                    match = (password === response.data.password);
+                }
 
-                        }
+                if (!match) {
+                    return fx.sendResponse(res, { status: false, message: 'Incorrect password' });
+                }
 
-                    })
-                    .catch(err => {
-                        fx.sendResponse(res, { status: false, message: err.message , statusCode: 400 })
-                    })
-
+                const tenantUser = { ...response.data, role: 'tenant' };
+                delete tenantUser.password;
+                return fx.sendResponse(res, { 
+                    message: 'Login successfully', 
+                    token: encodeToken(tenantUser),
+                    role: 'tenant',
+                    user: tenantUser
+                });
 
             } catch (err) {
-                fx.sendResponse(res, { status: false, message: err.message , statusCode: 400 })
+                return fx.sendResponse(res, { status: false, message: err.message || 'Login failed', statusCode: 400 });
             }
 
-        })
+        });
 
         return router;
 

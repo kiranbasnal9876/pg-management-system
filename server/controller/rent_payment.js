@@ -164,29 +164,36 @@ class RentPayment {
                 const paymentAmount = Number(amount || tenant.monthly_rent || 8000);
                 const paymentTxnId = razorpay_payment_id || `pay_${Date.now()}`;
 
-                // Insert into rent_transactions
-                const insertTxn = await db.query(
-                    `INSERT INTO rent_transactions 
-                     (tenant_id, pg_id, room_id, amount, payment_method, transaction_id, razorpay_order_id, razorpay_payment_id, razorpay_signature, status, payment_date)
-                     VALUES ($1, $2, $3, $4, 'Razorpay', $5, $6, $7, $8, 'Success', CURRENT_TIMESTAMP)
-                     RETURNING *`,
-                    [
-                        tenant.id,
-                        tenant.pg_id,
-                        tenant.room_id,
-                        paymentAmount,
-                        paymentTxnId,
-                        razorpay_order_id || 'demo_order',
-                        paymentTxnId,
-                        razorpay_signature || 'demo_signature'
-                    ]
-                );
+                // Atomic database transaction for payment recording and rent status update
+                const txnResult = await db.transaction(async (client) => {
+                    const insertRes = await client.query(
+                        `INSERT INTO rent_transactions 
+                         (tenant_id, pg_id, room_id, amount, payment_method, transaction_id, razorpay_order_id, razorpay_payment_id, razorpay_signature, status, payment_date)
+                         VALUES ($1, $2, $3, $4, 'Razorpay', $5, $6, $7, $8, 'Success', CURRENT_TIMESTAMP)
+                         RETURNING *`,
+                        [
+                            tenant.id,
+                            tenant.pg_id,
+                            tenant.room_id,
+                            paymentAmount,
+                            paymentTxnId,
+                            razorpay_order_id || 'demo_order',
+                            paymentTxnId,
+                            razorpay_signature || 'demo_signature'
+                        ]
+                    );
 
-                // Update tenant rent_status to 'paid'
-                await db.query(
-                    `UPDATE tenants SET rent_status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
-                    [tenant.id]
-                );
+                    await client.query(
+                        `UPDATE tenants SET rent_status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                        [tenant.id]
+                    );
+
+                    return insertRes.rows[0];
+                });
+
+                if (!txnResult.status) {
+                    return fx.sendResponse(res, { status: false, message: 'Failed to record payment in database', statusCode: 500 });
+                }
 
                 // Build WhatsApp Receipt Message for convenience
                 const receiptMessage = encodeURIComponent(
@@ -207,7 +214,7 @@ class RentPayment {
                 return res.status(200).json({
                     status: true,
                     message: 'Payment verified and rent marked as PAID successfully!',
-                    transaction: insertTxn.data?.[0],
+                    transaction: txnResult.data,
                     whatsapp_receipt_url: whatsappUrl,
                     receipt_text: decodeURIComponent(receiptMessage)
                 });
@@ -593,20 +600,27 @@ class RentPayment {
                 const paymentAmount = Number(amount || tenant.monthly_rent || 8000);
                 const utr = String(transaction_id).trim();
 
-                // Insert into rent_transactions
-                const insertTxn = await db.query(
-                    `INSERT INTO rent_transactions 
-                     (tenant_id, pg_id, room_id, amount, payment_method, transaction_id, status, payment_date)
-                     VALUES ($1, $2, $3, $4, 'UPI', $5, 'Success', CURRENT_TIMESTAMP)
-                     RETURNING *`,
-                    [tenant.id, tenant.pg_id, tenant.room_id, paymentAmount, utr]
-                );
+                // Atomic database transaction for UPI payment recording and rent status update
+                const txnResult = await db.transaction(async (client) => {
+                    const insertRes = await client.query(
+                        `INSERT INTO rent_transactions 
+                         (tenant_id, pg_id, room_id, amount, payment_method, transaction_id, status, payment_date)
+                         VALUES ($1, $2, $3, $4, 'UPI', $5, 'Success', CURRENT_TIMESTAMP)
+                         RETURNING *`,
+                        [tenant.id, tenant.pg_id, tenant.room_id, paymentAmount, utr]
+                    );
 
-                // Update tenant rent_status to 'paid'
-                await db.query(
-                    `UPDATE tenants SET rent_status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
-                    [tenant.id]
-                );
+                    await client.query(
+                        `UPDATE tenants SET rent_status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+                        [tenant.id]
+                    );
+
+                    return insertRes.rows[0];
+                });
+
+                if (!txnResult.status) {
+                    return fx.sendResponse(res, { status: false, message: 'Failed to record UPI payment transaction', statusCode: 500 });
+                }
 
                 const receiptMessage = encodeURIComponent(
                     `*🏠 PG Rent Payment Confirmed (UPI)*\n\n` +
@@ -627,7 +641,7 @@ class RentPayment {
                 return res.status(200).json({
                     status: true,
                     message: 'UPI payment recorded successfully! Rent marked as PAID.',
-                    transaction: insertTxn.data?.[0],
+                    transaction: txnResult.data,
                     whatsapp_receipt_url: whatsappUrl
                 });
 

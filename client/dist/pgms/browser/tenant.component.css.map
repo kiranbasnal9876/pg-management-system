@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/pages/tenant/tenant.component.css"],
-  "sourcesContent": ["/* Print rules for tenant QR sticker / door card */\n@media print {\n    body * {\n        visibility: hidden !important;\n    }\n    #printableTenantQrCard,\n    #printableTenantQrCard * {\n        visibility: visible !important;\n    }\n    #printableTenantQrCard {\n        position: fixed !important;\n        left: 50% !important;\n        top: 15% !important;\n        transform: translate(-50%, -15%) !important;\n        width: 360px !important;\n        border: 2px solid #0f172a !important;\n        box-shadow: none !important;\n        background: #ffffff !important;\n        padding: 24px !important;\n        margin: 0 auto !important;\n        border-radius: 16px !important;\n    }\n}\n\n.tenant-qr-card {\n    transition: all 0.2s ease;\n}\n\n.rent-amount-pill {\n    min-width: 180px;\n}\n\n.qr-image-wrapper {\n    display: inline-block;\n    transition: transform 0.2s ease;\n}\n\n.qr-image-wrapper:hover {\n    transform: scale(1.02);\n}\n"],
-  "mappings": ";AACA,OAAO;AACH,OAAK;AACD,gBAAY;AAChB;AACA,GAAC;AAAA,EACD,CADC,sBACsB;AACnB,gBAAY;AAChB;AACA,GAJC;AAKG,cAAU;AACV,UAAM;AACN,SAAK;AACL,eAAW,UAAU,IAAI,EAAE;AAC3B,WAAO;AACP,YAAQ,IAAI,MAAM;AAClB,gBAAY;AACZ,gBAAY;AACZ,aAAS;AACT,YAAQ,EAAE;AACV,mBAAe;AACnB;AACJ;AAEA,CAAC;AACG,cAAY,IAAI,KAAK;AACzB;AAEA,CAAC;AACG,aAAW;AACf;AAEA,CAAC;AACG,WAAS;AACT,cAAY,UAAU,KAAK;AAC/B;AAEA,CALC,gBAKgB;AACb,aAAW,MAAM;AACrB;",
-  "names": []
-}
