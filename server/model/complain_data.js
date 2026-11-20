@@ -1,5 +1,7 @@
 import db from '../services/db.conn.js';
 import fx from '../shared/fx.js';
+import redis from '../services/redis.service.js';
+
 
 class Complaint_db {
 
@@ -8,6 +10,7 @@ class Complaint_db {
             const result = await db.insert('complaints', data);
 
             if (result.status) {
+                await redis.delByPattern('cache:owner:dashboard:*');
                 fx.sendResponse(res, { message: "Complaint added successfully" });
             } else {
                 fx.sendResponse(res, { status: false, message: result.err?.message || result.err?.sqlMessage || 'Failed to add complaint' });
@@ -94,6 +97,7 @@ class Complaint_db {
             const result = await db.update('complaints', data, { id: id });
 
             if (result.status) {
+                await redis.delByPattern('cache:owner:dashboard:*');
                 fx.sendResponse(res, { message: 'Complaint updated successfully' });
             } else {
                 fx.sendResponse(res, { status: false, message: result.err?.message || result.err?.sqlMessage || 'Failed to update complaint' });

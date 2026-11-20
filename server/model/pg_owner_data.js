@@ -1,39 +1,70 @@
 import db from '../services/db.conn.js';
-import fx from '../shared/fx.js'
+import fx from '../shared/fx.js';
+import redis from '../services/redis.service.js';
 
 
 class Pg_owner_db {
 
     async add_pg_owner(data, res) {
+        try {
+            const result = await db.insert('pg_owners', data);
 
-        const result = await db.insert('pg_owners', data);
+            console.log(result);
 
-        if (result.status) {
-            fx.sendResponse(res, { message: 'Pg owner added successfully' })
-        } else {
-            fx.sendResponse(res, { status: false, message: result.err.sqlMessage })
+            if (result.status) {
+                return fx.sendResponse(res, { status: true, message: 'Pg owner added successfully', data: result.data?.[0] });
+            } else {
+                let message = 'Failed to add PG owner';
+                if (result.err?.code === '23505') {
+                    if (result.err?.constraint === 'pg_owners_email_unique' || result.err?.detail?.includes('email')) {
+                        message = 'Email already exists. Please use a different email.';
+                    } else if (result.err?.constraint === 'pg_owners_phone_unique' || result.err?.detail?.includes('phone')) {
+                        message = 'Phone number already exists. Please use a different phone number.';
+                    } else {
+                        message = result.err?.detail || 'A client with these details already exists.';
+                    }
+                } else if (result.err?.code === '23503') {
+                    message = 'Selected plan does not exist.';
+                } else {
+                    message = result.err?.detail || result.err?.message || 'Error creating client';
+                }
+                return fx.sendResponse(res, { status: false, message, statusCode: 400 });
+            }
+        } catch (err) {
+            return fx.sendResponse(res, { status: false, message: err.message || 'Error creating client', statusCode: 500 });
         }
-
     }
 
     async update_pg_owner(data, id, res) {
+        try {
+            const result = await db.update('pg_owners', data, { id: id });
 
-        const result = await db.update('pg_owners', data, { id: id });
-
-        if (result.status) {
-            fx.sendResponse(res, { message: 'Pg owner updated successfully' })
-        } else {
-            fx.sendResponse(res, { status: false, message: result.err.sqlMessage })
+            if (result.status) {
+                return fx.sendResponse(res, { status: true, message: 'Pg owner updated successfully' });
+            } else {
+                let message = 'Failed to update PG owner';
+                if (result.err?.code === '23505') {
+                    if (result.err?.constraint === 'pg_owners_email_unique' || result.err?.detail?.includes('email')) {
+                        message = 'Email already exists. Please use a different email.';
+                    } else if (result.err?.constraint === 'pg_owners_phone_unique' || result.err?.detail?.includes('phone')) {
+                        message = 'Phone number already exists. Please use a different phone number.';
+                    } else {
+                        message = result.err?.detail || 'A client with these details already exists.';
+                    }
+                } else {
+                    message = result.err?.detail || result.err?.message || 'Error updating client';
+                }
+                return fx.sendResponse(res, { status: false, message, statusCode: 400 });
+            }
+        } catch (err) {
+            return fx.sendResponse(res, { status: false, message: err.message || 'Error updating client', statusCode: 500 });
         }
-
     }
 
 
     async pg_owner_login(email) {
 
         const result = await db.getSingleRow('pg_owners', { email: email });
-
-        console.log(result,'sd')
 
         return result;
 
@@ -51,7 +82,7 @@ class Pg_owner_db {
             db.querySingle(countSql)
 
         ]).catch(err => {
-            fx.sendResponse(res, { status: true, statusCode: 400, message: err.err.sqlMessage })
+            return fx.sendResponse(res, { status: false, statusCode: 400, message: err?.message || 'Failed to fetch clients' });
         });
 
         // res.send(clients)
@@ -76,9 +107,9 @@ class Pg_owner_db {
         const result = await db.query('Select * from district_master')
 
         if (result.status) {
-            fx.sendResponse(res, { message: 'State data get successfully', data: result.data })
+            return fx.sendResponse(res, { message: 'State data get successfully', data: result.data })
         } else {
-            fx.sendResponse(res, { status: false, message: result.err.sqlMessage })
+            return fx.sendResponse(res, { status: false, message: result.err?.message || 'Failed to fetch state data' })
         }
 
     }
@@ -119,9 +150,21 @@ class Pg_owner_db {
                 });
             }
 
-            const idList = cleanIds.join(',');
+            const sortedIds = [...cleanIds].sort((a, b) => a - b);
+            const idList = sortedIds.join(',');
+            const cacheKey = `cache:owner:dashboard:${idList}`;
 
-            // Queries with PostgreSQL compatibility
+            // 1. Try to read from Redis cache
+            const cachedDashboard = await redis.get(cacheKey);
+            if (cachedDashboard) {
+                return res.json({
+                    status: true,
+                    from_cache: true,
+                    ...cachedDashboard
+                });
+            }
+
+            // 2. Cache Miss: Run PostgreSQL aggregate queries
             const sql1 = `SELECT COUNT(id) AS total_tenant FROM tenants WHERE pg_id IN (${idList}) AND status = 1`;
             const sql2 = `SELECT COUNT(id) AS total_complaints FROM complaints WHERE pg_id IN (${idList})`;
             const sql3 = `SELECT COUNT(id) AS total_pending_rent, COALESCE(SUM(monthly_rent), 0) AS pending_amount FROM tenants WHERE pg_id IN (${idList}) AND rent_status = 'pending' AND status = 1`;
@@ -152,8 +195,7 @@ class Pg_owner_db {
                 db.query(sql8),
             ]);
 
-            return res.json({
-                status: true,
+            const dashboardPayload = {
                 total_tenant: Number(totalTenantRes?.data?.[0]?.total_tenant || 0),
                 total_complaints: Number(totalComplaintsRes?.data?.[0]?.total_complaints || 0),
                 total_pending_rent: Number(pendingRentRes?.data?.[0]?.total_pending_rent || 0),
@@ -164,6 +206,15 @@ class Pg_owner_db {
                 total_rooms: Number(totalRooms?.data?.[0]?.total_rooms || 0),
                 total_rooms_available: Number(totalRoomsAvailable?.data?.[0]?.total_rooms_available || 0),
                 room_pi_data: roomPiData?.data || []
+            };
+
+            // 3. Store in Redis with 5 minutes (300 seconds) TTL
+            await redis.set(cacheKey, dashboardPayload, 300);
+
+            return res.json({
+                status: true,
+                from_cache: false,
+                ...dashboardPayload
             });
 
         } catch (error) {

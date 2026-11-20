@@ -35,6 +35,10 @@ app.use('/plan-table', admin.plan_table())
 app.use('/add-plan', admin.add_plan())
 app.use('/update-plan', admin.update_plan())
 app.use('/delete-plan', admin.delete_plan())
+app.use('/get-admin-profile', admin.get_admin_profile())
+app.use('/update-admin-profile', admin.update_admin_profile())
+app.use('/change-admin-password', admin.change_admin_password())
+app.use('/system-health', admin.system_health())
 
 // Rent, Razorpay & Dynamic UPI QR Payment APIs
 app.use('/create-razorpay-order', rent_payment.create_order())

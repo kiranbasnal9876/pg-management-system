@@ -20,90 +20,253 @@
     <!-- ============================================== -->
     @if (userRole === 'super_admin') {
         <div class="row g-4">
-            <!-- Super Admin Profile Card -->
-            <div class="col-lg-6">
-                <div class="app-table-card p-4 rounded-4 shadow-sm h-100">
-                    <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
-                        <div class="p-3 rounded-circle bg-danger-subtle text-danger fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                            <i class="bi bi-shield-lock-fill"></i>
-                        </div>
-                        <div>
-                            <span class="badge bg-danger text-white rounded-pill px-2.5 py-0.5 fs-10 text-uppercase fw-bold letter-spacing-1">Super Administrator</span>
-                            <h4 class="fs-16 fw-bold text-heading mb-0 mt-1">{{ currentUser?.name || 'Super Administrator' }}</h4>
-                            <span class="fs-12 text-muted">{{ currentUser?.email || 'superadmin@gmail.com' }}</span>
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-column gap-3">
-                        <div class="p-3 rounded-3 bg-body-tertiary">
-                            <span class="fs-11 fw-semibold text-muted text-uppercase letter-spacing-1 d-block mb-1">Platform Role</span>
-                            <div class="fs-13 fw-bold text-heading">Full Root & Multi-Tenant Access</div>
-                            <span class="fs-11 text-muted">You have authority to issue client panels, modify plans, and supervise system data.</span>
-                        </div>
-
-                        <div class="p-3 rounded-3 bg-body-tertiary">
-                            <span class="fs-11 fw-semibold text-muted text-uppercase letter-spacing-1 d-block mb-1">Quick Management Actions</span>
-                            <div class="d-flex flex-wrap gap-2 mt-2">
-                                <a routerLink="/plans" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fs-11 fw-semibold d-flex align-items-center gap-1.5">
-                                    <i class="bi bi-box-seam-fill"></i>
-                                    <span>Manage Plans</span>
-                                </a>
-                                <a routerLink="/client-master" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fs-11 fw-semibold d-flex align-items-center gap-1.5">
-                                    <i class="bi bi-people-fill"></i>
-                                    <span>Client Master (PG Owners)</span>
-                                </a>
-                                <a routerLink="/dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fs-11 fw-semibold d-flex align-items-center gap-1.5">
-                                    <i class="bi bi-speedometer2"></i>
-                                    <span>SaaS Dashboard</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Platform System Status Card -->
-            <div class="col-lg-6">
-                <div class="app-table-card p-4 rounded-4 shadow-sm h-100">
-                    <h5 class="fs-14 fw-bold text-heading mb-3 d-flex align-items-center gap-2">
-                        <i class="bi bi-hdd-stack-fill text-success"></i>
-                        System & Infrastructure Health
-                    </h5>
-
-                    <ul class="list-unstyled p-0 m-0 d-flex flex-column gap-3">
-                        <li class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-body-tertiary">
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="bi bi-database-fill-check fs-5 text-success"></i>
-                                <div>
-                                    <strong class="fs-12 d-block text-heading">PostgreSQL Database</strong>
-                                    <span class="fs-10 text-muted">Connected &bull; Port 5432 &bull; Pool Active</span>
-                                </div>
-                            </div>
-                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fs-10">Healthy</span>
+            <!-- Navigation Cards Column -->
+            <div class="col-12">
+                <div class="app-table-card p-4 rounded-4 shadow-sm">
+                    <!-- Tabs for Super Admin -->
+                    <ul class="nav nav-pills gap-2 mb-4" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link px-3 py-2 fs-12 fw-semibold d-flex align-items-center gap-2" 
+                                    [class.active]="adminTab === 'profile'" 
+                                    (click)="adminTab = 'profile'">
+                                <i class="bi bi-person-circle"></i>
+                                <span>Administrator Profile</span>
+                            </button>
                         </li>
-
-                        <li class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-body-tertiary">
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="bi bi-cpu-fill fs-5 text-primary"></i>
-                                <div>
-                                    <strong class="fs-12 d-block text-heading">Node.js Express Backend</strong>
-                                    <span class="fs-10 text-muted">Listening on port 5005 &bull; CORS Enabled</span>
-                                </div>
-                            </div>
-                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fs-10">Active</span>
+                        <li class="nav-item">
+                            <button class="nav-link px-3 py-2 fs-12 fw-semibold d-flex align-items-center gap-2" 
+                                    [class.active]="adminTab === 'password'" 
+                                    (click)="adminTab = 'password'">
+                                <i class="bi bi-shield-lock-fill"></i>
+                                <span>Change Password</span>
+                            </button>
                         </li>
-
-                        <li class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-body-tertiary">
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="bi bi-shield-check fs-5 text-info"></i>
-                                <div>
-                                    <strong class="fs-12 d-block text-heading">Multi-Tenant Isolation</strong>
-                                    <span class="fs-10 text-muted">PG Owners and Tenants strictly scoped per owner_id</span>
-                                </div>
-                            </div>
-                            <span class="badge bg-info-subtle text-info rounded-pill px-2.5 py-1 fs-10">Enforced</span>
+                        <li class="nav-item">
+                            <button class="nav-link px-3 py-2 fs-12 fw-semibold d-flex align-items-center gap-2" 
+                                    [class.active]="adminTab === 'health'" 
+                                    (click)="adminTab = 'health'; loadSystemHealth()">
+                                <i class="bi bi-hdd-network-fill"></i>
+                                <span>System Health & Diagnostics</span>
+                            </button>
                         </li>
                     </ul>
+
+                    <!-- TAB 1: Profile Tab -->
+                    @if (adminTab === 'profile') {
+                        <div class="row g-4 max-width-700">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-danger-subtle text-danger mb-2">
+                                    <i class="bi bi-shield-lock-fill fs-2"></i>
+                                    <div>
+                                        <h5 class="fs-14 fw-bold mb-0 text-heading">Super Administrator Credentials</h5>
+                                        <span class="fs-11 text-muted">Update your administrative name, contact email, and telephone number.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label for="adminNameInput" class="form-label fs-12 fw-semibold text-heading">Administrator Name <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                    <input id="adminNameInput" type="text" class="form-control" [(ngModel)]="adminName" placeholder="e.g. Super Administrator">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="adminEmailInput" class="form-label fs-12 fw-semibold text-heading">Admin Email Address <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                                    <input id="adminEmailInput" type="email" class="form-control" [(ngModel)]="adminEmail" placeholder="e.g. superadmin@gmail.com">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="adminPhoneInput" class="form-label fs-12 fw-semibold text-heading">Phone Number</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                                    <input id="adminPhoneInput" type="text" class="form-control" [(ngModel)]="adminPhone" placeholder="e.g. 9876543210" maxlength="10">
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <button class="btn btn-primary d-flex align-items-center gap-2" (click)="updateAdminProfile()" [disabled]="savingAdminProfile">
+                                    @if (savingAdminProfile) {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                        <span>Saving Profile...</span>
+                                    } @else {
+                                        <i class="bi bi-check2-circle"></i>
+                                        <span>Save Profile Changes</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- TAB 2: Change Password Tab -->
+                    @if (adminTab === 'password') {
+                        <div class="row g-3 max-width-700">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-body-tertiary mb-2">
+                                    <i class="bi bi-key-fill fs-3 text-primary"></i>
+                                    <div>
+                                        <h5 class="fs-13 fw-bold mb-0 text-heading">Update Root Password</h5>
+                                        <span class="fs-11 text-muted">Passwords are hashed using salted Bcrypt (10 rounds) in the database.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="currentPassInput" class="form-label fs-12 fw-semibold text-heading">Current Password <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                    <input id="currentPassInput" type="password" class="form-control" [(ngModel)]="currentPassword" placeholder="Enter your current password">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="newPassInput" class="form-label fs-12 fw-semibold text-heading">New Password <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                                    <input id="newPassInput" type="password" class="form-control" [(ngModel)]="newPassword" placeholder="Min. 6 characters">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="confirmPassInput" class="form-label fs-12 fw-semibold text-heading">Confirm New Password <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                    <input id="confirmPassInput" type="password" class="form-control" [(ngModel)]="confirmPassword" placeholder="Re-enter new password">
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <button class="btn btn-danger d-flex align-items-center gap-2" (click)="changeAdminPassword()" [disabled]="changingPassword">
+                                    @if (changingPassword) {
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                        <span>Updating Password...</span>
+                                    } @else {
+                                        <i class="bi bi-shield-lock-fill"></i>
+                                        <span>Update Password</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- TAB 3: System Health Diagnostics -->
+                    @if (adminTab === 'health') {
+                        <div class="row g-4">
+                            <div class="col-12 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="fs-14 fw-bold text-heading mb-0">Live Platform Diagnostics</h5>
+                                    <span class="fs-11 text-muted">Real-time status of PostgreSQL, Node.js process, and system capacity.</span>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fs-11 d-flex align-items-center gap-1.5" (click)="loadSystemHealth()">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    <span>Refresh Status</span>
+                                </button>
+                            </div>
+
+                            @if (loadingHealth) {
+                                <div class="col-12 text-center py-4">
+                                    <span class="spinner-border text-primary"></span>
+                                    <span class="fs-12 text-muted d-block mt-2">Checking system health...</span>
+                                </div>
+                            } @else if (systemHealth) {
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="p-3 rounded-3 bg-body-tertiary border h-100">
+                                        <span class="fs-10 fw-bold text-uppercase text-muted letter-spacing-1 d-block mb-1">Database Size</span>
+                                        <div class="fs-18 fw-bold text-primary">{{ systemHealth.database_size }}</div>
+                                        <span class="fs-10 text-muted">{{ systemHealth.database_name }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="p-3 rounded-3 bg-body-tertiary border h-100">
+                                        <span class="fs-10 fw-bold text-uppercase text-muted letter-spacing-1 d-block mb-1">PG Clients (Owners)</span>
+                                        <div class="fs-18 fw-bold text-heading">{{ systemHealth.total_clients }}</div>
+                                        <span class="fs-10 text-success">Active Subscriptions</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="p-3 rounded-3 bg-body-tertiary border h-100">
+                                        <span class="fs-10 fw-bold text-uppercase text-muted letter-spacing-1 d-block mb-1">Total Properties</span>
+                                        <div class="fs-18 fw-bold text-heading">{{ systemHealth.total_properties }}</div>
+                                        <span class="fs-10 text-muted">{{ systemHealth.total_rooms }} Rooms registered</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="p-3 rounded-3 bg-body-tertiary border h-100">
+                                        <span class="fs-10 fw-bold text-uppercase text-muted letter-spacing-1 d-block mb-1">Total Tenants</span>
+                                        <div class="fs-18 fw-bold text-heading">{{ systemHealth.total_tenants }}</div>
+                                        <span class="fs-10 text-muted">{{ systemHealth.total_complaints }} Complaints logged</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded-3 bg-body-tertiary border d-flex align-items-center justify-content-between h-100">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="bi bi-hdd-network-fill text-success fs-3"></i>
+                                            <div>
+                                                <strong class="fs-12 d-block text-heading">PostgreSQL & Express Server</strong>
+                                                <span class="fs-10 text-muted">{{ systemHealth.database_version }} &bull; Node {{ systemHealth.node_version }}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fs-11">
+                                                Uptime: {{ systemHealth.server_uptime_seconds }}s
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded-3 bg-body-tertiary border d-flex align-items-center justify-content-between h-100">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="bi bi-lightning-charge-fill fs-3"
+                                               [class.text-danger]="systemHealth.redis_status === 'Online'"
+                                               [class.text-secondary]="systemHealth.redis_status !== 'Online'"></i>
+                                            <div>
+                                                <strong class="fs-12 d-block text-heading">Redis In-Memory Cache</strong>
+                                                <span class="fs-10 text-muted">RAM Usage: {{ systemHealth.redis_memory || 'N/A' }} &bull; Port 6379</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="badge rounded-pill px-2.5 py-1 fs-11"
+                                                  [class.bg-success-subtle]="systemHealth.redis_status === 'Online'"
+                                                  [class.text-success]="systemHealth.redis_status === 'Online'"
+                                                  [class.bg-secondary-subtle]="systemHealth.redis_status !== 'Online'"
+                                                  [class.text-secondary]="systemHealth.redis_status !== 'Online'">
+                                                {{ systemHealth.redis_status || 'Offline' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- Working Quick Management Actions Hub -->
+                    <div class="border-top pt-3 mt-4">
+                        <span class="fs-11 fw-semibold text-muted text-uppercase letter-spacing-1 d-block mb-2">Quick Platform Navigation Hub</span>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a routerLink="/plans" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                <i class="bi bi-box-seam-fill"></i>
+                                <span>Subscription Plans</span>
+                            </a>
+                            <a routerLink="/client-master" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                <i class="bi bi-people-fill"></i>
+                                <span>Client Master (PG Owners)</span>
+                            </a>
+                            <a routerLink="/dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                <i class="bi bi-speedometer2"></i>
+                                <span>SaaS Metrics Dashboard</span>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -270,6 +433,76 @@
 
         </div>
     </div>
+    }
+
+    <!-- ============================================== -->
+    <!-- TENANT RESIDENT SETTINGS / PROFILE             -->
+    <!-- ============================================== -->
+    @if (userRole === 'tenant') {
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="app-table-card p-4 rounded-4 shadow-sm h-100">
+                    <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                        <div class="p-3 rounded-circle bg-primary-subtle text-primary fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary text-white rounded-pill px-2.5 py-0.5 fs-10 text-uppercase fw-bold letter-spacing-1">Resident Profile</span>
+                            <h4 class="fs-16 fw-bold text-heading mb-0 mt-1">{{ tenantData?.name || currentUser?.name || 'Resident' }}</h4>
+                            <span class="fs-12 text-muted">{{ tenantData?.email || currentUser?.email || 'N/A' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+                        <div class="p-3 rounded-3 bg-body-tertiary">
+                            <span class="fs-11 fw-semibold text-muted text-uppercase letter-spacing-1 d-block mb-1">Stay Details</span>
+                            <div class="fs-13 fw-bold text-heading">{{ tenantData?.pg_name || 'PG Residency' }} &bull; Room {{ tenantData?.room_number || '-' }}</div>
+                            <span class="fs-11 text-muted">Monthly Rent: ₹{{ (tenantData?.monthly_rent || 8000) | number }} &bull; Status: </span>
+                            <span class="badge rounded-pill px-2 py-0.5 fs-10" [ngClass]="tenantData?.rent_status === 'paid' ? 'bg-success text-white' : 'bg-danger text-white'">
+                                {{ (tenantData?.rent_status || 'pending') | uppercase }}
+                            </span>
+                        </div>
+
+                        <div class="p-3 rounded-3 bg-body-tertiary">
+                            <span class="fs-11 fw-semibold text-muted text-uppercase letter-spacing-1 d-block mb-2">Quick Resident Actions</span>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a routerLink="/pay-rent" class="btn btn-sm btn-primary rounded-pill px-3 py-1.5 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                    <i class="bi bi-credit-card-2-front-fill"></i>
+                                    <span>Pay Rent Online</span>
+                                </a>
+                                <a routerLink="/complaints" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                    <i class="bi bi-exclamation-octagon-fill"></i>
+                                    <span>My Complaints</span>
+                                </a>
+                                <a routerLink="/dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fs-11 fw-semibold d-flex align-items-center gap-1.5">
+                                    <i class="bi bi-speedometer2"></i>
+                                    <span>Resident Dashboard</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="app-table-card p-4 rounded-4 shadow-sm h-100">
+                    <h5 class="fs-14 fw-bold text-heading mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle-fill text-primary"></i>
+                        Property & Landlord Information
+                    </h5>
+                    <div class="p-3 rounded-3 bg-body-tertiary mb-3">
+                        <span class="fs-10 text-muted fw-bold text-uppercase d-block mb-1">PG Name</span>
+                        <div class="fs-13 fw-bold text-heading">{{ tenantData?.pg_name || 'PG Residency' }}</div>
+                        <span class="fs-11 text-muted d-block mt-1">{{ tenantData?.pg_location || 'Contact owner for location details' }}</span>
+                    </div>
+                    <div class="p-3 rounded-3 bg-body-tertiary">
+                        <span class="fs-10 text-muted fw-bold text-uppercase d-block mb-1">Landlord Contact</span>
+                        <div class="fs-13 fw-bold text-heading">{{ tenantData?.owner_name || 'PG Owner' }}</div>
+                        <span class="fs-11 text-primary d-block mt-1">{{ tenantData?.owner_phone || 'N/A' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 
 </div>

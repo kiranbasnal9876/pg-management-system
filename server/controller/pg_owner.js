@@ -68,13 +68,15 @@ class Pg_owner {
 
                 req.body.password = await bcrypt.hash(password, 10);
 
-                pg_owner_db.add_pg_owner(req.body, res);
+                await pg_owner_db.add_pg_owner(req.body, res);
+
             } catch (err) {
                 return fx.sendResponse(res, { status: false, message: err.message || 'Failed to add owner', statusCode: 400 });
             }
 
         });
 
+        
         return router;
 
     }
@@ -101,7 +103,7 @@ class Pg_owner {
                 const pg_owner_id = id;
                 delete req.body['id'];
 
-                pg_owner_db.update_pg_owner(req.body, pg_owner_id, res);
+                await pg_owner_db.update_pg_owner(req.body, pg_owner_id, res);
 
             } catch (err) {
                 return fx.sendResponse(res, { status: false, message: err.message || 'Failed to update owner', statusCode: 400 });

@@ -1,6 +1,8 @@
 import db from '../services/db.conn.js';
 import fx from '../shared/fx.js';
 import bcrypt from 'bcrypt';
+import redis from '../services/redis.service.js';
+
 
 
 class Tenant_model {
@@ -31,6 +33,7 @@ class Tenant_model {
             const result = await db.insert('tenants', data);
 
             if (result.status) {
+                await redis.delByPattern('cache:owner:dashboard:*');
                 fx.sendResponse(res, { status: true, message: "Tenant added successfully", data: result.data?.[0] });
             } else {
                 if (result.err?.code === '23503') {
@@ -83,6 +86,7 @@ class Tenant_model {
             const result = await db.update('tenants', data, { id: id });
 
             if (result.status) {
+                await redis.delByPattern('cache:owner:dashboard:*');
                 fx.sendResponse(res, { status: true, message: "Tenant updated successfully" });
             } else {
                 if (result.err && (result.err.code === '23505' || result.err.errno == 1062)) {

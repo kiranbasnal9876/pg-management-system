@@ -97,7 +97,7 @@ class Rooms_db {
             db.querySingle(countSql)
 
         ]).catch(err => {
-            fx.sendResponse(res, { status: true, statusCode: 400, message: err.err.sqlMessage })
+            return fx.sendResponse(res, { status: false, statusCode: 400, message: err?.message || 'Failed to fetch rooms' });
         });
 
         // console.log(clients)

@@ -5,6 +5,8 @@ import QRCode from 'qrcode';
 import db from '../services/db.conn.js';
 import fx from '../shared/fx.js';
 import { getAuthHeader, decodeToken } from '../auth/jwtTokenAuth.js';
+import redis from '../services/redis.service.js';
+
 
 class RentPayment {
 
@@ -210,6 +212,9 @@ class RentPayment {
                 );
 
                 const whatsappUrl = `https://wa.me/${tenant.phone ? (tenant.phone.startsWith('91') ? tenant.phone : '91' + tenant.phone) : ''}?text=${receiptMessage}`;
+
+                // Invalidate owner dashboard Redis cache
+                await redis.delByPattern('cache:owner:dashboard:*');
 
                 return res.status(200).json({
                     status: true,
@@ -454,6 +459,9 @@ class RentPayment {
                     );
                 }
 
+                // Invalidate owner dashboard Redis cache
+                await redis.delByPattern('cache:owner:dashboard:*');
+
                 return fx.sendResponse(res, {
                     status: true,
                     message: `Rent status updated to ${rent_status.toUpperCase()} successfully!`
@@ -637,6 +645,9 @@ class RentPayment {
 
                 const cleanPhone = tenant.phone ? (tenant.phone.startsWith('91') ? tenant.phone : '91' + tenant.phone.replace(/[^0-9]/g, '')) : '';
                 const whatsappUrl = cleanPhone ? `https://wa.me/${cleanPhone}?text=${receiptMessage}` : null;
+
+                // Invalidate owner dashboard Redis cache
+                await redis.delByPattern('cache:owner:dashboard:*');
 
                 return res.status(200).json({
                     status: true,

@@ -161,15 +161,15 @@ export class ClientComponent implements OnInit {
       this.api.postApi('add-pg-owner' , formData).subscribe(
         (res:any)=>{
           if(res.status){
-            this.GF.showToast(res.message , 'success')
+            this.GF.showToast(res.message || 'Client added successfully' , 'success')
             this.closeClientForm()
             this.getTable()
           }else{
-            this.GF.showToast(res.message , 'danger')
+            this.GF.showToast(res.message || 'Failed to add client' , 'danger')
           }
         },
         (err:any)=>{
-          this.GF.showToast(err.error.message , 'danger')
+          this.GF.showToast(err.error?.message || err.message || 'Error occurred while saving client' , 'danger')
         }
       )
     }
@@ -286,14 +286,14 @@ export class ClientComponent implements OnInit {
       this.api.postApi('update-pg-owner' , formData ).subscribe(
         (res:any)=>{
           if(res.status){
-            this.GF.showToast(res.message , 'success')
+            this.GF.showToast(res.message || 'Client updated successfully' , 'success')
             this.closeClientForm()
           }else{
-            this.GF.showToast(res.message , 'danger')
+            this.GF.showToast(res.message || 'Failed to update client' , 'danger')
           }
         },
         (err:any)=>{
-          this.GF.showToast(err.error.message , 'danger')
+          this.GF.showToast(err.error?.message || err.message || 'Error occurred while updating client' , 'danger')
         }
       )
     }
