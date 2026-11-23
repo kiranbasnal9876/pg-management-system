@@ -437,10 +437,14 @@ class RentPayment {
                 const tenant = tenantQuery.data[0];
                 const paymentAmount = Number(amount || tenant.monthly_rent || 8000);
 
-                await db.query(
+                const updateRes = await db.query(
                     `UPDATE tenants SET rent_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
                     [rent_status, tenant_id]
                 );
+
+                if (!updateRes.status) {
+                    return fx.sendResponse(res, { status: false, message: updateRes.err?.message || 'Failed to update tenant rent status' });
+                }
 
                 // If marked as paid, log transaction
                 if (rent_status === 'paid') {

@@ -85,17 +85,17 @@
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Tenant Name</label>
-                <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="Search name">
+                <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" (input)="GF.enforceMaxLength($event, 30)" placeholder="Search name">
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Email Address</label>
-                <input type="text" class="form-control form-control-sm" formControlName="email" placeholder="Search email">
+                <input type="text" class="form-control form-control-sm" formControlName="email" maxlength="50" (input)="GF.enforceMaxLength($event, 50)" placeholder="Search email">
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Address</label>
-                <input type="text" class="form-control form-control-sm" formControlName="address" placeholder="Search address">
+                <input type="text" class="form-control form-control-sm" formControlName="address" maxlength="100" (input)="GF.enforceMaxLength($event, 100)" placeholder="Search address">
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
@@ -105,22 +105,22 @@
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Room Number</label>
-                <input type="text" class="form-control form-control-sm" formControlName="room_number" placeholder="e.g. 101">
+                <input type="text" class="form-control form-control-sm" formControlName="room_number" maxlength="10" (input)="GF.enforceMaxLength($event, 10)" placeholder="e.g. 101">
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Occupation</label>
-                <input type="text" class="form-control form-control-sm" formControlName="occupation" placeholder="Search occupation">
+                <input type="text" class="form-control form-control-sm" formControlName="occupation" maxlength="70" (input)="GF.enforceMaxLength($event, 70)" placeholder="Search occupation">
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Emergency Contact</label>
-                <input type="text" class="form-control form-control-sm" formControlName="emergency_contact" placeholder="Search contact">
+                <input type="text" class="form-control form-control-sm" formControlName="emergency_contact" maxlength="10" (keypress)="GF.numberOnly($event)" (input)="GF.enforceMaxLength($event, 10)" placeholder="Search contact">
             </div>
 
             <div class="col-xl-2 col-md-3 col-sm-6">
                 <label class="form-label">Parent Contact</label>
-                <input type="text" class="form-control form-control-sm" formControlName="parent_contact" placeholder="Search contact">
+                <input type="text" class="form-control form-control-sm" formControlName="parent_contact" maxlength="10" (keypress)="GF.numberOnly($event)" (input)="GF.enforceMaxLength($event, 10)" placeholder="Search contact">
             </div>
 
             <div class="col-12 d-flex justify-content-end gap-2 mt-2">
@@ -220,7 +220,11 @@
                         </td>
                         <td>
                             <div class="fw-bold fs-12 text-heading">₹{{ items.monthly_rent ? (+items.monthly_rent).toLocaleString('en-IN') : '8,000' }}</div>
-                            <span class="badge" [ngClass]="items.rent_status === 'paid' ? 'bg-success' : 'bg-danger'">
+                            <span class="badge cursor-pointer user-select-none d-inline-flex align-items-center gap-1" 
+                                  [ngClass]="items.rent_status === 'paid' ? 'bg-success' : 'bg-danger'"
+                                  (click)="toggleRentStatus(items)"
+                                  title="Click to toggle Paid / Pending">
+                                <i [class]="items.rent_status === 'paid' ? 'bi bi-check-circle-fill' : 'bi bi-clock-fill'"></i>
                                 {{ items.rent_status === 'paid' ? 'Paid' : 'Pending' }}
                             </span>
                         </td>
@@ -386,6 +390,15 @@
                                     <option value="pending">Pending</option>
                                 </select>
                                 <app-form-validation-message [formGroup]="dataForm" controlName="rent_status" fieldName="Rent status"></app-form-validation-message>
+                            </div>
+
+                            <div class="col-xl-3 col-md-4 col-sm-6">
+                                <label class="form-label">Monthly Rent (₹) <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" formControlName="monthly_rent" min="0" maxlength="7" (input)="GF.enforceMaxLength($event, 7)" placeholder="e.g. 8000">
+                                </div>
+                                <app-form-validation-message [formGroup]="dataForm" controlName="monthly_rent" fieldName="Monthly rent"></app-form-validation-message>
                             </div>
 
                             <div class="col-xl-3 col-md-4 col-sm-6">

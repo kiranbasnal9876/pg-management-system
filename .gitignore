@@ -43,3 +43,16 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+.~lock.*
+*.docx#
+
+# Environment Variables
+.env
+*.env
+server/.env
+!server/.env.example
+
+# Uploaded Files
+server/uploads/*
+!server/uploads/.gitkeep
+

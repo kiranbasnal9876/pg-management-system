@@ -124,6 +124,7 @@ export const add_tenant_validation = [
       }).withMessage('Check in date Is invalid'),
     // body('profile_photo').notEmpty().withMessage('Profile photo is required').matches(/^data:(.+);base64,(.+)$/).withMessage('Profile photo format is invalid'),
     body('rent_status').notEmpty().withMessage('Rent status is required').matches(/^(paid|pending)$/).withMessage('Rent status is invalid'),
+    body('monthly_rent').optional().isNumeric().withMessage('Monthly rent must be a valid number'),
     body('gender').notEmpty().withMessage('Gender is required').matches(/^(male|female|other)$/).withMessage('Gender is invalid'),
     body('dob').notEmpty().withMessage('DOB is required').isDate({
         format: 'YYYY-MM-DD',
@@ -153,6 +154,7 @@ export const update_tenant = [
     body("password").optional({ checkFalsy: true }).isStrongPassword().withMessage('Password must be 8-15 chars with A-Z, a-z, 0-9 & special char'),
     body('check_in_date').notEmpty().withMessage('Check in date is required'),
     body('rent_status').notEmpty().withMessage('Rent status is required').matches(/^(paid|pending)$/).withMessage('Rent status is invalid'),
+    body('monthly_rent').optional().isNumeric().withMessage('Monthly rent must be a valid number'),
     body('gender').notEmpty().withMessage('Gender is required').matches(/^(male|female|other)$/).withMessage('Gender is invalid'),
     body('dob').notEmpty().withMessage('DOB is required'),
     body('occupation').notEmpty().withMessage('Occupation is required').isLength({ min: 2, max: 70 }).withMessage('Occupation must be min 2 and 70 characters long'),

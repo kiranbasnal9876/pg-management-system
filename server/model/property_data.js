@@ -1,4 +1,5 @@
 import db from '../services/db.conn.js';
+import redis from '../services/redis.service.js';
 import fx from '../shared/fx.js';
 
 class Propert_db {
@@ -8,6 +9,7 @@ class Propert_db {
             const result = await db.insert('pg_properties', data);
 
             if (result.status) {
+                await redis.delByPattern('cache:owner:dashboard:*');
                 return fx.sendResponse(res, { status: true, message: "Property added successfully" });
             } else {
                 let message = result.err?.detail || result.err?.message || "Failed to add property";
@@ -28,6 +30,7 @@ class Propert_db {
             const result = await db.update('pg_properties', data, { id: id });
 
             if (result.status) {
+                await redis.delByPattern('cache:owner:dashboard:*');
                 return fx.sendResponse(res, { status: true, message: "Property updated successfully" });
             } else {
                 let message = result.err?.detail || result.err?.message || "Failed to update property";

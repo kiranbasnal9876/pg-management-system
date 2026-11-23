@@ -39,7 +39,7 @@
                 <label class="form-label">Client Name</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="Search by name">
+                    <input type="text" class="form-control form-control-sm" formControlName="name" maxlength="30" (input)="GF.enforceMaxLength($event, 30)" placeholder="Search by name">
                 </div>
             </div>
 
@@ -47,7 +47,7 @@
                 <label class="form-label">Email Address</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                    <input type="text" class="form-control form-control-sm" formControlName="email" placeholder="Search by email">
+                    <input type="text" class="form-control form-control-sm" formControlName="email" maxlength="50" (input)="GF.enforceMaxLength($event, 50)" placeholder="Search by email">
                 </div>
             </div>
 

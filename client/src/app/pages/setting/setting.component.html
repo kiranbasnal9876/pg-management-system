@@ -68,7 +68,7 @@
                                 <label for="adminNameInput" class="form-label fs-12 fw-semibold text-heading">Administrator Name <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                                    <input id="adminNameInput" type="text" class="form-control" [(ngModel)]="adminName" placeholder="e.g. Super Administrator">
+                                    <input id="adminNameInput" type="text" class="form-control" [(ngModel)]="adminName" maxlength="40" (input)="GF.enforceMaxLength($event, 40)" placeholder="e.g. Super Administrator">
                                 </div>
                             </div>
 
@@ -76,7 +76,7 @@
                                 <label for="adminEmailInput" class="form-label fs-12 fw-semibold text-heading">Admin Email Address <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-                                    <input id="adminEmailInput" type="email" class="form-control" [(ngModel)]="adminEmail" placeholder="e.g. superadmin@gmail.com">
+                                    <input id="adminEmailInput" type="email" class="form-control" [(ngModel)]="adminEmail" maxlength="50" (input)="GF.enforceMaxLength($event, 50)" placeholder="e.g. superadmin@gmail.com">
                                 </div>
                             </div>
 
@@ -84,7 +84,7 @@
                                 <label for="adminPhoneInput" class="form-label fs-12 fw-semibold text-heading">Phone Number</label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
-                                    <input id="adminPhoneInput" type="text" class="form-control" [(ngModel)]="adminPhone" placeholder="e.g. 9876543210" maxlength="10">
+                                    <input id="adminPhoneInput" type="text" class="form-control" [(ngModel)]="adminPhone" placeholder="e.g. 9876543210" maxlength="10" (input)="GF.enforceMaxLength($event, 10)">
                                 </div>
                             </div>
 
@@ -119,7 +119,7 @@
                                 <label for="currentPassInput" class="form-label fs-12 fw-semibold text-heading">Current Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                    <input id="currentPassInput" type="password" class="form-control" [(ngModel)]="currentPassword" placeholder="Enter your current password">
+                                    <input id="currentPassInput" type="password" class="form-control" [(ngModel)]="currentPassword" maxlength="30" (input)="GF.enforceMaxLength($event, 30)" placeholder="Enter your current password">
                                 </div>
                             </div>
 
@@ -127,7 +127,7 @@
                                 <label for="newPassInput" class="form-label fs-12 fw-semibold text-heading">New Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                                    <input id="newPassInput" type="password" class="form-control" [(ngModel)]="newPassword" placeholder="Min. 6 characters">
+                                    <input id="newPassInput" type="password" class="form-control" [(ngModel)]="newPassword" maxlength="30" (input)="GF.enforceMaxLength($event, 30)" placeholder="Min. 6 characters">
                                 </div>
                             </div>
 
@@ -135,7 +135,7 @@
                                 <label for="confirmPassInput" class="form-label fs-12 fw-semibold text-heading">Confirm New Password <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                                    <input id="confirmPassInput" type="password" class="form-control" [(ngModel)]="confirmPassword" placeholder="Re-enter new password">
+                                    <input id="confirmPassInput" type="password" class="form-control" [(ngModel)]="confirmPassword" maxlength="30" (input)="GF.enforceMaxLength($event, 30)" placeholder="Re-enter new password">
                                 </div>
                             </div>
 
@@ -325,6 +325,8 @@
                                     <span class="input-group-text"><i class="bi bi-phone-vibrate"></i></span>
                                     <input id="upiIdInput" type="text" class="form-control" 
                                            [(ngModel)]="upiId"
+                                           maxlength="50"
+                                           (input)="GF.enforceMaxLength($event, 50)"
                                            placeholder="e.g. 7682376782@upi or yourname@oksbi">
                                 </div>
                                 <span class="fs-10 text-muted mt-1 d-block">Supported formats: yourphone&#64;upi, name&#64;oksbi, name&#64;icici, name&#64;paytm</span>
@@ -338,6 +340,8 @@
                                     <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
                                     <input id="ownerNameInput" type="text" class="form-control" 
                                            [(ngModel)]="ownerName"
+                                           maxlength="50"
+                                           (input)="GF.enforceMaxLength($event, 50)"
                                            placeholder="e.g. Royal PG Residency">
                                 </div>
                                 <span class="fs-10 text-muted mt-1 d-block">This name will appear on the tenant's Google Pay / PhonePe screen when scanning.</span>
@@ -394,7 +398,7 @@
                         <label for="razorpayKeyId" class="form-label fs-12 fw-semibold">Razorpay Key ID</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                            <input id="razorpayKeyId" type="text" class="form-control" [(ngModel)]="razorpayKeyId" placeholder="rzp_live_xxxxxxxx">
+                            <input id="razorpayKeyId" type="text" class="form-control" [(ngModel)]="razorpayKeyId" maxlength="50" (input)="GF.enforceMaxLength($event, 50)" placeholder="rzp_live_xxxxxxxx">
                         </div>
                     </div>
 
@@ -402,7 +406,7 @@
                         <label for="razorpaySecretId" class="form-label fs-12 fw-semibold">Razorpay Key Secret</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="bi bi-shield-lock-fill"></i></span>
-                            <input id="razorpaySecretId" type="password" class="form-control" [(ngModel)]="razorpayKeySecret" placeholder="••••••••••••••••">
+                            <input id="razorpaySecretId" type="password" class="form-control" [(ngModel)]="razorpayKeySecret" maxlength="50" (input)="GF.enforceMaxLength($event, 50)" placeholder="••••••••••••••••">
                         </div>
                     </div>
 

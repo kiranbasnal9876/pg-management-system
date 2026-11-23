@@ -123,6 +123,7 @@ export class TenantComponent {
     occupation: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(70)]),
     check_in_date: new FormControl('', [Validators.required]),
     rent_status: new FormControl('', [Validators.required, Validators.pattern(/^(pending|paid)$/)]),
+    monthly_rent: new FormControl(8000, [Validators.required, Validators.min(0)]),
     address: new FormControl('', [Validators.required, Validators.maxLength(100)]),
     state: new FormControl('', [Validators.required]),
     district: new FormControl('', [Validators.required]),
@@ -528,7 +529,8 @@ export class TenantComponent {
 
     this.dataForm.patchValue({
       status: 1 as any,
-      rent_status: 'pending'
+      rent_status: 'pending',
+      monthly_rent: 8000 as any
     });
 
     const passwordControl = this.dataForm.get('password');
@@ -652,9 +654,16 @@ export class TenantComponent {
     this.GF.openWhatsApp(tenant.phone, message);
   }
 
-  markRentPaid(tenant: any): void {
+  async markRentPaid(tenant: any) {
     const name = tenant.tenant_name || tenant.name || 'Tenant';
-    if (!confirm(`Confirm mark rent as PAID for ${name}?`)) return;
+    const confirmed = await this.GF.confirm({
+      title: 'Confirm Rent Payment',
+      message: `Confirm mark monthly rent as PAID for ${name}? A payment record will be logged automatically.`,
+      confirmText: 'Mark as Paid',
+      cancelText: 'Cancel',
+      type: 'success'
+    });
+    if (!confirmed) return;
 
     this.api.postApi('toggle-rent-status', {
       tenant_id: tenant.id,
@@ -668,6 +677,42 @@ export class TenantComponent {
           tenant.rent_status = 'paid';
           if (this.selectedQrTenant) this.selectedQrTenant.rent_status = 'paid';
           if (this.qrData?.tenant) this.qrData.tenant.rent_status = 'paid';
+          this.getTable();
+        } else {
+          this.GF.showToast(res.message || 'Failed to update rent status', 'danger');
+        }
+      },
+      error: (err: any) => {
+        this.GF.showToast(err.error?.message || 'Error updating rent status', 'danger');
+      }
+    });
+  }
+
+  async toggleRentStatus(tenant: any) {
+    const nextStatus = tenant.rent_status === 'paid' ? 'pending' : 'paid';
+    const name = tenant.name || tenant.tenant_name || 'Tenant';
+    const confirmed = await this.GF.confirm({
+      title: nextStatus === 'paid' ? 'Mark Rent as Paid' : 'Revert Rent to Pending',
+      message: nextStatus === 'paid'
+        ? `Are you sure you want to mark rent as PAID for ${name}? A payment transaction will be recorded automatically.`
+        : `Are you sure you want to revert rent to PENDING for ${name}?`,
+      confirmText: nextStatus === 'paid' ? 'Yes, Mark Paid' : 'Yes, Mark Pending',
+      cancelText: 'Cancel',
+      type: nextStatus === 'paid' ? 'success' : 'warning'
+    });
+
+    if (!confirmed) return;
+
+    this.api.postApi('toggle-rent-status', {
+      tenant_id: tenant.id,
+      rent_status: nextStatus,
+      payment_method: 'Cash',
+      amount: tenant.monthly_rent || 8000
+    }).subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.GF.showToast(`Rent status updated to ${nextStatus.toUpperCase()}!`, 'success');
+          tenant.rent_status = nextStatus;
           this.getTable();
         } else {
           this.GF.showToast(res.message || 'Failed to update rent status', 'danger');

@@ -25,6 +25,7 @@ class Tenant_model {
             if (data.status !== undefined && data.status !== '') data.status = parseInt(data.status);
             if (data.room_id !== undefined && data.room_id !== '') data.room_id = parseInt(data.room_id);
             if (data.pg_id !== undefined && data.pg_id !== '') data.pg_id = parseInt(data.pg_id);
+            if (data.monthly_rent !== undefined && data.monthly_rent !== '') data.monthly_rent = parseFloat(data.monthly_rent);
 
             if (data.password && data.password.trim() !== '') {
                 data.password = await bcrypt.hash(data.password, 10);
@@ -66,6 +67,7 @@ class Tenant_model {
             if (data.status !== undefined && data.status !== '') data.status = parseInt(data.status);
             if (data.room_id !== undefined && data.room_id !== '') data.room_id = parseInt(data.room_id);
             if (data.pg_id !== undefined && data.pg_id !== '') data.pg_id = parseInt(data.pg_id);
+            if (data.monthly_rent !== undefined && data.monthly_rent !== '') data.monthly_rent = parseFloat(data.monthly_rent);
 
             if (data.password && data.password.trim() !== '') {
                 data.password = await bcrypt.hash(data.password, 10);

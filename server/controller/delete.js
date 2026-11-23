@@ -1,4 +1,5 @@
 import db from "../services/db.conn.js";
+import redis from "../services/redis.service.js";
 import express from 'express';
 import { delete_validation } from '../shared/form_validation.js'
 import form_error_message from '../shared/form_error_message.js'
@@ -31,6 +32,9 @@ router.post('/', delete_validation, form_error_message, async (req, res) => {
         const result = await db.query(`DELETE FROM ${table_name} WHERE id IN (${placeholders}) RETURNING *`, ids);
 
         if (result.status) {
+            if (['tenants', 'rooms', 'pg_properties', 'complaints'].includes(table_name)) {
+                await redis.delByPattern('cache:owner:dashboard:*');
+            }
             return fx.sendResponse(res, { status: true, message: `${result.rowCount || result.data?.length || 0} records deleted successfully` });
         } else {
             return fx.sendResponse(res, { status: false, message: result.err?.message || 'Failed to delete records' });
@@ -41,6 +45,9 @@ router.post('/', delete_validation, form_error_message, async (req, res) => {
 
     if (result.status) {
         if (result.rowCount >= 1 || (result.data && result.data.length >= 1)) {
+            if (['tenants', 'rooms', 'pg_properties', 'complaints'].includes(table_name)) {
+                await redis.delByPattern('cache:owner:dashboard:*');
+            }
             return fx.sendResponse(res, { status: true, message: 'Record deleted successfully' });
         } else {
             return fx.sendResponse(res, { status: false, message: 'Record not found' });

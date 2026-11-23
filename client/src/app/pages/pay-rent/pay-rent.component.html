@@ -139,7 +139,7 @@
                             Paid via QR? Enter 12-digit UPI UTR / Ref ID:
                           </label>
                           <div class="input-group input-group-sm">
-                            <input type="text" class="form-control" placeholder="e.g. 429182390123" [(ngModel)]="utrNumber">
+                            <input type="text" class="form-control" maxlength="22" (input)="GF.enforceMaxLength($event, 22)" placeholder="e.g. 429182390123" [(ngModel)]="utrNumber">
                             <button class="btn btn-success fw-semibold" (click)="submitUtrPayment()" [disabled]="submittingUtr || !utrNumber">
                               @if (submittingUtr) {
                                 <span class="spinner-border spinner-border-sm"></span>

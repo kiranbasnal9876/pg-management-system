@@ -147,6 +147,7 @@
                        type="email" 
                        class="form-control border-0 bg-transparent p-0 fs-13 text-heading" 
                        formControlName="email" 
+                       maxlength="50"
                        placeholder="owner@example.com"
                        autocomplete="email">
               </div>
@@ -169,6 +170,7 @@
                        [type]="showPassword ? 'text' : 'password'" 
                        class="form-control border-0 bg-transparent p-0 fs-13 text-heading" 
                        formControlName="password" 
+                       maxlength="30"
                        placeholder="Enter password"
                        autocomplete="current-password">
                 <button type="button" class="btn btn-sm text-muted p-0 ms-2" (click)="togglePasswordVisibility()" tabindex="-1">

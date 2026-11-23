@@ -81,6 +81,7 @@ CREATE TABLE public.complaints (
     image character varying(100),
     status character varying(20) DEFAULT 'pending'::character varying,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone
 );
 
@@ -165,6 +166,7 @@ CREATE TABLE public.pg_properties (
     total_rooms integer,
     status integer DEFAULT 1,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone,
     created_by integer,
     updated_by integer
@@ -210,6 +212,7 @@ CREATE TABLE public.plan (
     features text DEFAULT ''::text,
     status integer DEFAULT 1,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -293,6 +296,7 @@ CREATE TABLE public.rooms (
     type integer DEFAULT 1,
     status integer DEFAULT 1,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone,
     created_by integer,
     updated_by integer
@@ -335,6 +339,7 @@ CREATE TABLE public.super_admin (
     phone character varying(20),
     role character varying(50) DEFAULT 'super_admin'::character varying,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -387,6 +392,7 @@ CREATE TABLE public.tenants (
     rent_status character varying(20) DEFAULT 'pending'::character varying,
     monthly_rent numeric(10,2) DEFAULT 8000.00,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     gender character varying(20),
     occupation character varying(100),
     dob date,
@@ -795,6 +801,20 @@ ALTER TABLE ONLY public.tenants
 ALTER TABLE ONLY public.tenants
     ADD CONSTRAINT tenants_room_id_fkey FOREIGN KEY (room_id) REFERENCES public.rooms(id) ON DELETE SET NULL;
 
+
+--
+-- Performance Indexes for Foreign Keys and Query Optimization
+--
+
+CREATE INDEX IF NOT EXISTS idx_pg_properties_owner_id ON public.pg_properties(owner_id);
+CREATE INDEX IF NOT EXISTS idx_rooms_property_id ON public.rooms(property_id);
+CREATE INDEX IF NOT EXISTS idx_tenants_owner_id ON public.tenants(owner_id);
+CREATE INDEX IF NOT EXISTS idx_tenants_pg_id ON public.tenants(pg_id);
+CREATE INDEX IF NOT EXISTS idx_tenants_room_id ON public.tenants(room_id);
+CREATE INDEX IF NOT EXISTS idx_complaints_tenant_id ON public.complaints(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_complaints_pg_id ON public.complaints(pg_id);
+CREATE INDEX IF NOT EXISTS idx_rent_transactions_tenant_id ON public.rent_transactions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_rent_transactions_status ON public.rent_transactions(status);
 
 --
 -- PostgreSQL database dump complete

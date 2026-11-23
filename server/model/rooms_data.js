@@ -1,4 +1,5 @@
 import db from '../services/db.conn.js';
+import redis from '../services/redis.service.js';
 import fx from '../shared/fx.js';
 
 class Rooms_db {
@@ -8,6 +9,7 @@ class Rooms_db {
         const result = await db.insert('rooms', data)
 
         if (result.status) {
+            await redis.delByPattern('cache:owner:dashboard:*');
             fx.sendResponse(res, { status: true, message: "Room added successfully" });
         } else {
             if (result.err?.code === '23503' || result.err?.errno == 1452) {
@@ -26,6 +28,7 @@ class Rooms_db {
 
         if (result.status) {
             if (result.rowCount >= 1 || (result.data && result.data.length >= 1)) {
+                await redis.delByPattern('cache:owner:dashboard:*');
                 fx.sendResponse(res, { status: true, message: "Room updated successfully" });
             } else {
                 fx.sendResponse(res, { status: false, message: "Room not found" });
